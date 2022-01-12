@@ -5,24 +5,26 @@ GLMesh::GLMesh(ShaderProgram& shader) :
 	m_TM(1.0f)
 {}
 
-void GLMesh::createPlane(int size) {
+void GLMesh::createPlane(int size, glm::vec3 color) {
 	std::vector<std::vector<glm::vec3>> vertices;
 
-	for (int i = 0; i < size; i++) {
+	int index = 0;
+	for (int i = -size/2; i < size - (size/2); i++) {
 		vertices.push_back(std::vector<glm::vec3>());
-		for (int j = 0; j < size; j++) {
-			vertices[i].push_back(glm::vec3(i, 0.0f, -j));
+		for (int j = -size/2; j < size - (size/2); j++) {
+			vertices[index].push_back(glm::vec3(i, 0.0f, -j));
 		}
+		index++;
 	}
 
 	this->m_process.gpuGeom.bind();
 	this->m_process.cpuGeom.verts = generateQuads(vertices);
-	this->m_process.cpuGeom.cols.resize(this->m_process.cpuGeom.verts.size(), glm::vec3(0.0f));
+	this->m_process.cpuGeom.cols.resize(this->m_process.cpuGeom.verts.size(), color);
 	this->m_process.gpuGeom.setVerts(this->m_process.cpuGeom.verts);
 	this->m_process.gpuGeom.setCols(this->m_process.cpuGeom.cols);
 }
 
-void GLMesh::createCube(float scale) {
+void GLMesh::createCube(float scale, glm::vec3 color) {
 	std::vector<glm::vec3> vertices, back_face, bottom_face, top_face, left_face, right_face;
 	
 	// front face
@@ -69,13 +71,13 @@ void GLMesh::createCube(float scale) {
 
 	this->m_process.gpuGeom.bind();
 	this->m_process.cpuGeom.verts = vertices;
-	this->m_process.cpuGeom.cols.resize(this->m_process.cpuGeom.verts.size(), glm::vec3(0.0f, 0.5f, 0.0f));
+	this->m_process.cpuGeom.cols.resize(this->m_process.cpuGeom.verts.size(), color);
 	this->m_process.gpuGeom.setVerts(this->m_process.cpuGeom.verts);
 	this->m_process.gpuGeom.setCols(this->m_process.cpuGeom.cols);
 
 }
 
-void GLMesh::createSphere(float radius, int numSectors) {
+void GLMesh::createSphere(float radius, int numSectors, glm::vec3 color) {
 	std::vector<std::vector<glm::vec3>> vertices, normals;
 	std::vector<std::vector<glm::vec2>> textures;
 
@@ -118,7 +120,7 @@ void GLMesh::createSphere(float radius, int numSectors) {
 	}
 	this->m_process.gpuGeom.bind();
 	this->m_process.cpuGeom.verts = generateQuads(vertices);
-	this->m_process.cpuGeom.cols.resize(this->m_process.cpuGeom.verts.size(), glm::vec3(0.0f));
+	this->m_process.cpuGeom.cols.resize(this->m_process.cpuGeom.verts.size(), color);
 	this->m_process.gpuGeom.setVerts(this->m_process.cpuGeom.verts);
 	this->m_process.gpuGeom.setCols(this->m_process.cpuGeom.cols);
 }

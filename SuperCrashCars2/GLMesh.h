@@ -16,9 +16,9 @@ public:
 	GLMesh(ShaderProgram& shader);
 	~GLMesh();
 
-	void createPlane(int size);
-	void createCube(float scale);
-	void createSphere(float radius, int numSectors);
+	void createPlane(int size, glm::vec3 color);
+	void createCube(float scale, glm::vec3 color);
+	void createSphere(float radius, int numSectors, glm::vec3 color);
 
 	void render(glm::mat4& TM);
 	void render();

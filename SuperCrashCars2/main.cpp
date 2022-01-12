@@ -16,13 +16,15 @@
 #include "InputManager.h"
 #include "Camera.h"
 #include "GLMesh.h"
-#include "Physics.h"
 
-int main() {
+#include "Vehicle.h"
+#include "PhysicsRenderer.h"
+
+int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
 	glfwInit();
-
+	
 	Window window(Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, "Super Crash Cars 2");
 	GLDebug::enable();
 
@@ -31,22 +33,24 @@ int main() {
 
 	ShaderProgram shader("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 
-	Camera camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(3.0f, 3.0f, 3.0f));
+	Camera camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
 
-	Physics physics;
-	physx::PxRigidDynamic* player = physics.createDynamic(physx::PxTransform(physx::PxVec3(5.0f, 10.0f, -5.0f)), physx::PxBoxGeometry(0.5f, 0.5f, 0.5f), physx::PxVec3(0.0f, 0.0f, 0.0f));
-	physx::PxRigidDynamic* enemy = physics.createDynamic(physx::PxTransform(physx::PxVec3(5.0f, 10.0f, -10.0f)), physx::PxBoxGeometry(0.5f, 0.5f, 0.5f), physx::PxVec3(0.0f, 0.0f, 0.0f));
+	initPhysics();
+	physx::PxVehicleDrive4W* vehicle = instantiateVehicle();
+	PhysicsRenderer physicsRenderer;
+	float throttle = 1.0f;
 
-	GLMesh plane(shader), cube(shader);
-	plane.createPlane(100);
-	cube.createCube(0.5f);
+	GLMesh plane(shader), sphere(shader);
+	plane.createPlane(100, glm::vec3(0.0f));
+	sphere.createSphere(0.5f, 10, glm::vec3(0.0f, 1.0f, 0.0f));
 
 	while (!window.shouldClose()) {
 
+		stepPhysics(1.0f / 100.0f);
+		releaseAllControls();
+
 		glfwPollEvents();
-
-		physics.simulate();
-
+		
 		if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_REPEAT))
 			camera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
 		else if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE)) 
@@ -57,11 +61,12 @@ int main() {
 		if (inputManager->onKeyAction(GLFW_KEY_S, GLFW_PRESS)) camera.handleTranslation(GLFW_KEY_S);
 		if (inputManager->onKeyAction(GLFW_KEY_D, GLFW_PRESS)) camera.handleTranslation(GLFW_KEY_D);
 
-		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player->addForce(physx::PxVec3(0.0f, 0.0f, -10.0f) * 0.7f);
-		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player->addForce(physx::PxVec3(0.0f, 0.0f, 10.0f) * 0.7f);
-		if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player->addForce(physx::PxVec3(-10.0f, 0.0f, 0.0f) * 0.7f);
-		if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player->addForce(physx::PxVec3(10.0f, 0.0f, 0.0f) * 0.7f);
-		if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) player->addForce(physx::PxVec3(0.0f, 20.0f, 0.0f) * 1.0f);
+		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) accelerate(throttle);
+		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) brake(throttle);
+		if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) turnLeft(throttle * 0.5f);
+		if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) turnRight(throttle * 0.5f);
+		if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) handbrake(1.0f);
+
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -71,18 +76,18 @@ int main() {
 		shader.use();
 
 		camera.render();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		plane.render();
 
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-		physics.addObject(*player, cube);
-		physics.addObject(*enemy, cube);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		physicsRenderer.renderActor(*vehicle->getRigidDynamicActor(), sphere);
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
 
 	}
 
+	cleanupPhysics();
 	glfwTerminate();
 	return 0;
 }

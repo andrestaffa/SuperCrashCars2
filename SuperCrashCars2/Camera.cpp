@@ -6,7 +6,7 @@ Camera::Camera(ShaderProgram& shader, int screenWidth, int screenHeight, glm::ve
 	m_fov(60.0f),
 	m_yaw(-90.0f),
 	m_pitch(0.0f),
-	m_cameraTranslateSens(0.05f),
+	m_cameraTranslateSens(0.15f),
 	m_cameraRotationSens(40.0f),
 	m_firstMouse(false),
 	m_lastX(0.0f),
