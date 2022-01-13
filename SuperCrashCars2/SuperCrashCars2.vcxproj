@@ -146,10 +146,10 @@
     <ClCompile Include="GLMesh.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PhysicsRenderer.cpp" />
+    <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
-    <ClCompile Include="SnippetVehicle4W.cpp" />
+    <ClCompile Include="PVehicle.cpp" />
     <ClCompile Include="SnippetVehicle4WCreate.cpp" />
     <ClCompile Include="SnippetVehicleCreate.cpp" />
     <ClCompile Include="SnippetVehicleFilterShader.cpp" />
@@ -168,7 +168,8 @@
     <ClInclude Include="GLMesh.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Log.h" />
-    <ClInclude Include="PhysicsRenderer.h" />
+    <ClInclude Include="PhysicsManager.h" />
+    <ClInclude Include="PVehicle.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="SnippetVehicleConcurrency.h" />
@@ -179,7 +180,6 @@
     <ClInclude Include="SnippetVehicleWheelQueryResult.h" />
     <ClInclude Include="Texture.h" />
     <ClInclude Include="Utils.h" />
-    <ClInclude Include="Vehicle.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />

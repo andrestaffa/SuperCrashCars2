@@ -17,55 +17,54 @@
 #include "Camera.h"
 #include "GLMesh.h"
 
-#include "Vehicle.h"
-#include "PhysicsRenderer.h"
+#include "PhysicsManager.h"
+#include "PVehicle.h"
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
+	// OpenGL
 	glfwInit();
-	
 	Window window(Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, "Super Crash Cars 2");
 	GLDebug::enable();
-
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
-
 	ShaderProgram shader("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
+	Camera editorCamera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
 
-	Camera camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
-
-	initPhysics();
-	physx::PxVehicleDrive4W* vehicle = instantiateVehicle();
-	PhysicsRenderer physicsRenderer;
-	float throttle = 1.0f;
-
-	GLMesh plane(shader), sphere(shader);
+	GLMesh plane(shader, GL_FILL), tires(shader), body(shader);
 	plane.createPlane(100, glm::vec3(0.0f));
-	sphere.createSphere(0.5f, 10, glm::vec3(0.0f, 1.0f, 0.0f));
+	tires.createSphere(0.5f, 10, glm::vec3(0.0f, 1.0f, 0.0f));
+	body.createCube(0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
+	body.scale(glm::vec3(2.0f, 2.0f, 3.0f));
+
+	// Physx
+	float throttle = 1.0f;
+	PhysicsManager pm(1.0/100.0f);
+	PVehicle player(pm);
 
 	while (!window.shouldClose()) {
-
-		stepPhysics(1.0f / 100.0f);
-		releaseAllControls();
+;
+		pm.simulate();
+		player.stepPhysics();
 
 		glfwPollEvents();
 		
 		if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_REPEAT))
-			camera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
+			editorCamera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
 		else if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE)) 
-			camera.resetLastPos();
+			editorCamera.resetLastPos();
 	
-		if (inputManager->onKeyAction(GLFW_KEY_W, GLFW_PRESS)) camera.handleTranslation(GLFW_KEY_W);
-		if (inputManager->onKeyAction(GLFW_KEY_A, GLFW_PRESS)) camera.handleTranslation(GLFW_KEY_A);
-		if (inputManager->onKeyAction(GLFW_KEY_S, GLFW_PRESS)) camera.handleTranslation(GLFW_KEY_S);
-		if (inputManager->onKeyAction(GLFW_KEY_D, GLFW_PRESS)) camera.handleTranslation(GLFW_KEY_D);
+		if (inputManager->onKeyAction(GLFW_KEY_W, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_W);
+		if (inputManager->onKeyAction(GLFW_KEY_A, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_A);
+		if (inputManager->onKeyAction(GLFW_KEY_S, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_S);
+		if (inputManager->onKeyAction(GLFW_KEY_D, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_D);
 
-		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) accelerate(throttle);
-		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) brake(throttle);
-		if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) turnLeft(throttle * 0.5f);
-		if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) turnRight(throttle * 0.5f);
-		if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) handbrake(1.0f);
+		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(throttle);
+		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.brake(throttle);
+		if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(throttle * 0.5f);
+		if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(throttle * 0.5f);
+		if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) player.handbrake(1.0f);
 
 
 		glEnable(GL_LINE_SMOOTH);
@@ -74,20 +73,19 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		shader.use();
+		editorCamera.render();
 
-		camera.render();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		plane.render();
-
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		physicsRenderer.renderActor(*vehicle->getRigidDynamicActor(), sphere);
+		player.render(tires, body);
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
 
 	}
 
-	cleanupPhysics();
+	player.cleanupVehicle();
+	pm.cleanupPhysics();
+
 	glfwTerminate();
 	return 0;
 }
