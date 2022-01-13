@@ -39,7 +39,7 @@ INSTRUCTIONS:
 				
 		
 	STEP 4: Run this command
-		- vcpkg integrate install
+		- .\vcpkg integrate install
 		
 	
 Done :)
