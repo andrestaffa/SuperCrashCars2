@@ -139,27 +139,47 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="GLDebug.cpp" />
     <ClCompile Include="GLHandles.cpp" />
+    <ClCompile Include="GLMesh.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
+    <ClCompile Include="PVehicle.cpp" />
+    <ClCompile Include="SnippetVehicle4WCreate.cpp" />
+    <ClCompile Include="SnippetVehicleCreate.cpp" />
+    <ClCompile Include="SnippetVehicleFilterShader.cpp" />
+    <ClCompile Include="SnippetVehicleSceneQuery.cpp" />
+    <ClCompile Include="SnippetVehicleTireFriction.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="VertexArray.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GLDebug.h" />
     <ClInclude Include="GLHandles.h" />
+    <ClInclude Include="GLMesh.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="PhysicsManager.h" />
+    <ClInclude Include="PVehicle.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
+    <ClInclude Include="SnippetVehicleConcurrency.h" />
+    <ClInclude Include="SnippetVehicleCreate.h" />
+    <ClInclude Include="SnippetVehicleFilterShader.h" />
+    <ClInclude Include="SnippetVehicleSceneQuery.h" />
+    <ClInclude Include="SnippetVehicleTireFriction.h" />
+    <ClInclude Include="SnippetVehicleWheelQueryResult.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />

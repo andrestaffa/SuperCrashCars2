@@ -13,6 +13,18 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{efad9a74-412c-47a4-b714-f043bd6d92e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{c3cd489a-5171-4db2-b4cf-871a48e6cd30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics\thirdparty">
+      <UniqueIdentifier>{5832e201-ea89-4aa6-8326-4dca3c2dbabc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Physics\thirdparty">
+      <UniqueIdentifier>{8243ad82-eda6-46fc-bcd9-67ff31400117}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -48,6 +60,33 @@
     <ClCompile Include="Geometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLMesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PVehicle.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleTireFriction.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicle4WCreate.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleCreate.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleFilterShader.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleSceneQuery.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -82,6 +121,39 @@
     </ClInclude>
     <ClInclude Include="Geometry.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLMesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PVehicle.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleConcurrency.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleCreate.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleFilterShader.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleSceneQuery.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleTireFriction.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleWheelQueryResult.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
