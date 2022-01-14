@@ -10,7 +10,7 @@ INSTRUCTIONS:
 	STEP 3: Install all necessary libraries 
 
 		GLEW:
-			- .\vcpkg.exe install glew:x64-window
+			- .\vcpkg.exe install glew:x64-windows
 				- glew 2.2.0
 		
 		GLFW3:
@@ -39,7 +39,7 @@ INSTRUCTIONS:
 				
 		
 	STEP 4: Run this command
-		- vcpkg integrate install
+		- .\vcpkg integrate install
 		
 	
 Done :)
