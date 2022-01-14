@@ -26,11 +26,13 @@ public:
 	void brake(float throttle);
 	void turnLeft(float throttle);
 	void turnRight(float throttle);
-	void handbrake(float throttle);
+	void handbrake();
 	
 	PxRigidDynamic* getRigidDynamic();
 
 	void render(GLMesh& tires, GLMesh& body);
+
+	void removePhysics();
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -41,6 +43,7 @@ private:
 	bool gIsVehicleInAir = true;
 
 	PhysicsManager& m_pm;
+	bool m_isFalling = false;
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,

@@ -117,7 +117,7 @@ void PVehicle::turnRight(float throttle) {
 	gVehicleInputData.setAnalogSteer(-throttle);
 }
 
-void PVehicle::handbrake(float throttle) {
+void PVehicle::handbrake() {
 	gVehicleInputData.setAnalogHandbrake(1.0f);
 }
 
@@ -159,6 +159,17 @@ void PVehicle::render(GLMesh& tires, GLMesh& body) {
 		else body.render(TM);
 
 	}
+}
+
+void PVehicle::removePhysics() {	
+	/*PxRigidActor* actor = this->gVehicle4W->getRigidDynamicActor();
+	actor->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);*/
+	if (!this->m_isFalling) {
+		PxVec3 pos = this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().p;
+		this->gVehicle4W->getRigidDynamicActor()->setGlobalPose(PxTransform(pos + PxVec3(0.0f, -1.5f, 0.0f), this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().q));
+		this->m_isFalling = true;
+	}
+
 }
 
 PVehicle::~PVehicle() {}

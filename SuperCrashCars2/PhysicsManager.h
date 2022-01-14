@@ -32,7 +32,14 @@ public:
 	void simulate();
 	void cleanupPhysics();
 
-	PxRigidDynamic* instantiateDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity = PxVec3(10));
+	PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts);
+	
+	PxRigidStatic* createStatic(const PxTransform& t, const PxGeometry& geometry);
+	PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry);
 
 	void renderActor(PxRigidActor& actor, GLMesh& mesh);
+
+private:
+	void setSimFilterData(PxRigidActor* actor, PxFilterData& filterData);
+
 };

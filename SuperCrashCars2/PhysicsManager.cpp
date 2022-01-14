@@ -60,16 +60,54 @@ void PhysicsManager::cleanupPhysics() {
 	PX_RELEASE(gFoundation);
 }
 
-PxRigidDynamic* PhysicsManager::instantiateDynamic(const PxTransform& t, const PxGeometry& geometry, const PxVec3& velocity) {
+void PhysicsManager::setSimFilterData(PxRigidActor* actor, PxFilterData& filterData) {
+	const int MAX_NUM_ACTOR_SHAPES = 128;
+	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
+	const PxU32 nbShapes = actor->getNbShapes();
+	PX_ASSERT(nbShapes <= MAX_NUM_ACTOR_SHAPES);
+	actor->getShapes(shapes, nbShapes);
+	for (PxU32 i = 0; i < nbShapes; i++) shapes[i]->setSimulationFilterData(filterData);
+}
+
+PxConvexMesh* PhysicsManager::createConvexMesh(const PxVec3* verts, const PxU32 numVerts) {
+
+	PxConvexMeshDesc convexDesc;
+	convexDesc.points.count = numVerts;
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = verts;
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+	PxConvexMesh* convexMesh = NULL;
+	PxDefaultMemoryOutputStream buf;
+	if (gCooking->cookConvexMesh(convexDesc, buf)) {
+		PxDefaultMemoryInputData id(buf.getData(), buf.getSize());
+		convexMesh = gPhysics->createConvexMesh(id);
+	}
+
+	return convexMesh;
+}
+
+PxRigidStatic* PhysicsManager::createStatic(const PxTransform& t, const PxGeometry& geometry) {
+	PxRigidStatic* staticActor = PxCreateStatic(*gPhysics, t, geometry, *gMaterial);
+
+	PxFilterData obstacleSimFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	this->setSimFilterData(staticActor, obstacleSimFilterData);
+
+	gScene->addActor(*staticActor);
+	return staticActor;
+}
+
+PxRigidDynamic* PhysicsManager::createDynamic(const PxTransform& t, const PxGeometry& geometry) {
 
 	PxRigidDynamic* dynamic = PxCreateDynamic(*gPhysics, t, geometry, *gMaterial, 10.0f);
 
+	PxFilterData obstacleSimFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+	this->setSimFilterData(dynamic, obstacleSimFilterData);
+
 	dynamic->setMass(1.0f);
 	dynamic->setAngularDamping(10.0f);
-	dynamic->setLinearVelocity(velocity);
 
 	gScene->addActor(*dynamic);
-
 	return dynamic;
 }
 
