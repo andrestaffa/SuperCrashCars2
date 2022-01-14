@@ -11,12 +11,6 @@ PVehicle::PVehicle(PhysicsManager& pm, PxTransform transfrom) : m_pm(pm) {
 	gFrictionPairs = createFrictionPairs(pm.gMaterial);
 
 	VehicleDesc vehicleDesc = initVehicleDesc();
-	
-	//Set up RWD limited-slip differential
-	PxVehicleDriveSimData4W driveSimData;
-	PxVehicleDifferential4WData diff;
-	diff.mType = PxVehicleDifferential4WData::eDIFF_TYPE_LS_REARWD;
-	driveSimData.setDiffData(diff);
 
 	gVehicle4W = createVehicle4W(vehicleDesc, pm.gPhysics, pm.gCooking);
 
