@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	ShaderProgram shader("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 	Camera editorCamera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
 
-	//GLMesh plane(shader, GL_FILL), tires(shader), body(shader), obstacleMesh(shader, GL_LINES);
+	GLMesh plane(shader, GL_FILL), tires(shader), body(shader), obstacleMesh(shader, GL_LINES);
 	plane.createPlane(100, glm::vec3(0.0f));
 	tires.createSphere(0.5f, 10, glm::vec3(0.0f, 1.0f, 0.0f));
 	body.createCube(0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
