@@ -11,6 +11,7 @@ PVehicle::PVehicle(PhysicsManager& pm, PxTransform transfrom) : m_pm(pm) {
 	gFrictionPairs = createFrictionPairs(pm.gMaterial);
 
 	VehicleDesc vehicleDesc = initVehicleDesc();
+
 	gVehicle4W = createVehicle4W(vehicleDesc, pm.gPhysics, pm.gCooking);
 
 	PxTransform startTransform(PxVec3(0 + transfrom.p.x, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f) + transfrom.p.y, 0 + transfrom.p.z), transfrom.q);
@@ -20,7 +21,7 @@ PVehicle::PVehicle(PhysicsManager& pm, PxTransform transfrom) : m_pm(pm) {
 	//Set the vehicle to rest in first gear.
 	//Set the vehicle to use auto-gears.
 	gVehicle4W->setToRestState();
-	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
+	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
 	gVehicle4W->mDriveDynData.setUseAutoGears(true);
 	brake(1.0f);
 }
