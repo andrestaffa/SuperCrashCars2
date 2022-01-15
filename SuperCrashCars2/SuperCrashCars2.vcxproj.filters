@@ -87,6 +87,12 @@
     <ClCompile Include="SnippetVehicleSceneQuery.cpp">
       <Filter>Source Files\Physics\thirdparty</Filter>
     </ClCompile>
+    <ClCompile Include="PDynamic.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PStatic.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -154,6 +160,12 @@
     </ClInclude>
     <ClInclude Include="SnippetVehicleWheelQueryResult.h">
       <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="PDynamic.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PStatic.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 
 using namespace physx;
 
-PVehicle::PVehicle(PhysicsManager& pm, PxTransform transfrom) : m_pm(pm) {
+PVehicle::PVehicle(PhysicsManager& pm, const PxVec3& position, const PxQuat& quat) : m_pm(pm) {
 	//Create the batched scene queries for the suspension raycasts.
 	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pm.gAllocator);
 	gBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *gVehicleSceneQueryData, pm.gScene);
@@ -14,7 +14,7 @@ PVehicle::PVehicle(PhysicsManager& pm, PxTransform transfrom) : m_pm(pm) {
 
 	gVehicle4W = createVehicle4W(vehicleDesc, pm.gPhysics, pm.gCooking);
 
-	PxTransform startTransform(PxVec3(0 + transfrom.p.x, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f) + transfrom.p.y, 0 + transfrom.p.z), transfrom.q);
+	PxTransform startTransform(PxVec3(0 + position.x, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f) + position.y, 0 + position.z), quat);
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	pm.gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
@@ -66,7 +66,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	return vehicleDesc;
 }
 
-void PVehicle::stepPhysics() {
+void PVehicle::update() {
 	PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, this->m_pm.timestep, gIsVehicleInAir, *gVehicle4W);
 
 	//Raycasts.
@@ -87,7 +87,7 @@ void PVehicle::stepPhysics() {
 	this->releaseAllControls();
 }
 
-void PVehicle::cleanupVehicle() {
+void PVehicle::free() {
 	PX_RELEASE(gBatchQuery);
 	gVehicleSceneQueryData->free(this->m_pm.gAllocator);
 	PX_RELEASE(gFrictionPairs);
@@ -97,17 +97,21 @@ void PVehicle::cleanupVehicle() {
 }
 
 void PVehicle::accelerate(float throttle) {
+	this->m_isReversing = false;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
 
 void PVehicle::reverse(float throttle) {
+	this->m_isReversing = true;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
 
 void PVehicle::brake(float throttle) {
-	gVehicleInputData.setAnalogBrake(throttle);
+	PxVec3 velocity = this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity();
+	if (velocity.magnitude() <= 0.05f || this->m_isReversing) reverse(throttle);
+	else gVehicleInputData.setAnalogBrake(throttle);
 }
 
 void PVehicle::turnLeft(float throttle) {
@@ -127,6 +131,14 @@ void PVehicle::releaseAllControls() {
 	gVehicleInputData.setAnalogSteer(0.0f);
 	gVehicleInputData.setAnalogBrake(0.0f);
 	gVehicleInputData.setAnalogHandbrake(0.0f);
+}
+
+const PxTransform& PVehicle::getTransform() {
+	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose();
+}
+
+const PxVec3& PVehicle::getPosition() {
+	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().p;
 }
 
 PxRigidDynamic* PVehicle::getRigidDynamic() {
@@ -156,8 +168,15 @@ void PVehicle::render(GLMesh& tires, GLMesh& body) {
 		// 3 -> back-left tire
 		// 4 -> body
 
-		if (i < 4) tires.render(TM);
-		else body.render(TM);
+		if (i < 4) {
+			tires.render(TM);
+		} else {
+			PxTransform rotTransform = PxShapeExt::getGlobalPose(*shapes[i], *rigidActor);
+			float bodyAngle = PxPi - rotTransform.q.getAngle();
+			glm::vec3 front = glm::vec3(sin(bodyAngle), 0.0f, -cos(bodyAngle));
+			front = glm::normalize(front);
+			body.render(TM);
+		}
 
 	}
 }

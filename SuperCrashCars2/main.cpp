@@ -17,19 +17,15 @@
 #include "Camera.h"
 #include "GLMesh.h"
 
-#include "PhysicsManager.h"
 #include "PVehicle.h"
+#include "PDynamic.h"
+#include "PStatic.h"
 
 /* TODO:
-		- Create PActor class which all classes with the prefix "P" will inherit from.
-		- Improve PVehicle class (ex. getTransform(), getPosition(), etc...).
-		- Create PDyanmic, PStatic classes.
 		- Implement player camera.
 		- Start implementation of Open Asset Import Library.
 		- Turn off collision when off plane. (gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pm.gAllocator))
 */
-
-//test of git
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
@@ -40,27 +36,32 @@ int main(int argc, char** argv) {
 	GLDebug::enable();
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
-	ShaderProgram shader("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
-	Camera editorCamera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
+	ShaderProgram shader = ShaderProgram("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 
-	GLMesh plane(shader, GL_FILL), tires(shader), body(shader), obstacleMesh(shader, GL_FILL);
+	Camera editorCamera = Camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
+
+	GLMesh plane(shader, GL_FILL), tires(shader), body(shader), obstacleMesh(shader), ball(shader);
 	plane.createPlane(100, glm::vec3(0.0f));
 	tires.createSphere(0.5f, 10, glm::vec3(0.0f, 1.0f, 0.0f));
 	body.createCube(0.5f, glm::vec3(0.0f, 1.0f, 0.0f));
 	body.scale(glm::vec3(2.0f, 2.0f, 3.0f));
 	obstacleMesh.createCube(1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
+	ball.createSphere(1.0f, 10, glm::vec3(1.0f, 0.0f, 0.0f));
 
 	// Physx
 	float throttle = 1.0f;
-	PhysicsManager pm(1.0/60.0f);
-	PVehicle player(pm);
+	PhysicsManager pm = PhysicsManager(1.0/60.0f);
+	PVehicle player = PVehicle(pm, PxVec3(0.0f, 0.0f, 0.0f));
+	PDyanmic obstacle_d = PDyanmic(pm, PxSphereGeometry(1), PxVec3(-20.0f, 20.0f, -10.0f));
+	PStatic obstacle_s = PStatic(pm, PxBoxGeometry(1.0f, 1.0f, 1.0f), PxVec3(-20.0f, 0.0f, -20.0f));
 
-	PxRigidDynamic* obstacle = pm.createDynamic(PxTransform(player.getRigidDynamic()->getGlobalPose().p + PxVec3(0.0f, 10.0f, -20.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))), PxBoxGeometry(1.0f, 1.0f, 1.0f));
-	
+	Camera playerCamera = Camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(player.getPosition().x, player.getPosition().y + 5.0f, player.getPosition().z + 10.0));
+	playerCamera.setPitch(-30.0f);
+
 	while (!window.shouldClose()) {
-;
+
 		pm.simulate();
-		player.stepPhysics();
+		player.update();
 
 		glfwPollEvents();
 		
@@ -80,8 +81,8 @@ int main(int argc, char** argv) {
 		if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(throttle * 0.5f);
 		if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) player.handbrake();
 
-		PxVec3 playerPos = player.getRigidDynamic()->getGlobalPose().p;
-		if (abs(playerPos.z) >= 51.0f || abs(playerPos.x) >= 51.0) player.removePhysics();
+
+		if (abs(player.getPosition().z) >= 51.0f || abs(player.getPosition().x) >= 51.0) player.removePhysics();
 
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -89,20 +90,27 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		shader.use();
-		editorCamera.render();
 
+		// OpenGL
+		//editorCamera.render();
+		playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 15.0f, player.getPosition().z + 20.0f));
+		playerCamera.render();
 		plane.render();
-		player.render(tires, body);
 
-		pm.renderActor(*obstacle, obstacleMesh);
+		// Physx
+		player.render(tires, body);
+		obstacle_d.render(ball);
+		obstacle_s.render(obstacleMesh);
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
 
 	}
 
-	player.cleanupVehicle();
-	pm.cleanupPhysics();
+	player.free();
+	obstacle_d.free();
+	obstacle_s.free();
+	pm.free();
 
 	glfwTerminate();
 	return 0;
