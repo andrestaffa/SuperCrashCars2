@@ -6,7 +6,6 @@
 #include "Log.h"
 #include "ShaderProgram.h"
 #include "Shader.h"
-#include "Texture.h"
 #include "Window.h"
 
 #include "glm/glm.hpp"
@@ -21,11 +20,7 @@
 #include "PDynamic.h"
 #include "PStatic.h"
 
-/* TODO:
-		- Implement player camera.
-		- Start implementation of Open Asset Import Library.
-		- Turn off collision when off plane. (gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pm.gAllocator))
-*/
+#include "Model.h"
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
@@ -34,9 +29,9 @@ int main(int argc, char** argv) {
 	glfwInit();
 	Window window(Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, "Super Crash Cars 2");
 	GLDebug::enable();
+	ShaderProgram shader = ShaderProgram("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
-	ShaderProgram shader = ShaderProgram("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 
 	Camera editorCamera = Camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
 
@@ -58,12 +53,17 @@ int main(int argc, char** argv) {
 	Camera playerCamera = Camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT, glm::vec3(player.getPosition().x, player.getPosition().y + 5.0f, player.getPosition().z + 10.0));
 	playerCamera.setPitch(-30.0f);
 
+	// Assimp
+	Model backpack = Model(shader, "obj_files/backpack/backpack.obj");
+	backpack.setPosition(glm::vec3(0.0f, 0.0f, -20.0f));
+
 	while (!window.shouldClose()) {
 
 		pm.simulate();
 		player.update();
 
 		glfwPollEvents();
+		shader.use();
 		
 		if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_REPEAT))
 			editorCamera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
@@ -84,23 +84,24 @@ int main(int argc, char** argv) {
 
 		if (abs(player.getPosition().z) >= 51.0f || abs(player.getPosition().x) >= 51.0) player.removePhysics();
 
+		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LINE_SMOOTH);
-		glEnable(GL_FRAMEBUFFER_SRGB);
 		glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
-		shader.use();
-
 		// OpenGL
 		//editorCamera.render();
 		playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 15.0f, player.getPosition().z + 20.0f));
 		playerCamera.render();
-		plane.render();
+		//plane.render();
 
 		// Physx
 		player.render(tires, body);
 		obstacle_d.render(ball);
 		obstacle_s.render(obstacleMesh);
+
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+		backpack.draw();
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();

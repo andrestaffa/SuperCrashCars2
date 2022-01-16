@@ -146,6 +146,8 @@
     <ClCompile Include="GLMesh.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="PDynamic.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PStatic.cpp" />
@@ -170,6 +172,8 @@
     <ClInclude Include="GLMesh.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="PDynamic.h" />
     <ClInclude Include="PhysicsManager.h" />
     <ClInclude Include="PStatic.h" />
