@@ -122,6 +122,10 @@ void PVehicle::handbrake() {
 	gVehicleInputData.setAnalogHandbrake(1.0f);
 }
 
+void PVehicle::jump(PxVec3 impulse) {
+	// 
+}
+
 void PVehicle::releaseAllControls() {
 	gVehicleInputData.setAnalogAccel(0.0f);
 	gVehicleInputData.setAnalogSteer(0.0f);

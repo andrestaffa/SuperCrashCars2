@@ -27,6 +27,7 @@ public:
 	void turnLeft(float throttle);
 	void turnRight(float throttle);
 	void handbrake();
+	void jump(PxVec3 impulse);
 	
 	PxRigidDynamic* getRigidDynamic();
 
