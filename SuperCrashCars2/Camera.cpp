@@ -29,6 +29,8 @@ void Camera::handleTranslation(int key) {
 	if (key == GLFW_KEY_A) this->m_position -= glm::normalize(glm::cross(this->m_front, this->m_up)) * this->m_cameraTranslateSens;
 	if (key == GLFW_KEY_S) this->m_position -= this->m_cameraTranslateSens * this->m_front;
 	if (key == GLFW_KEY_D) this->m_position += glm::normalize(glm::cross(this->m_front, this->m_up)) * this->m_cameraTranslateSens;
+	if (key == GLFW_KEY_LEFT_SHIFT) this->m_position += this->m_cameraTranslateSens * this->m_up;
+	if (key == GLFW_KEY_LEFT_CONTROL) this->m_position -= this->m_cameraTranslateSens * this->m_up;
 }
 
 void Camera::handleRotation(float xpos, float ypos) {

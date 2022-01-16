@@ -26,6 +26,7 @@ public:
 	void turnLeft(float throttle);
 	void turnRight(float throttle);
 	void handbrake();
+	void jump(PxVec3 impulse);
 	
 	const PxTransform& getTransform();
 	const PxVec3& getPosition();
