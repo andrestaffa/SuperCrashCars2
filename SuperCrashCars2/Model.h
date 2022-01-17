@@ -23,6 +23,11 @@ public:
 	void draw(glm::mat4& TM);
 	void draw();
 
+	// static methods
+
+	static std::pair<Model, Model> createJeepModel(ShaderProgram& shader);
+	static Model createGroundModel(ShaderProgram& shader);
+
 private:
 	ShaderProgram& m_shader;
 

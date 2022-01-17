@@ -38,7 +38,7 @@ int main(int argc, char** argv) {
 
 	GLMesh obstacleMesh(shader, GL_FILL), ball(shader, GL_FILL);
 	obstacleMesh.createCube(1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-	ball.createSphere(1.0f, 10, glm::vec3(1.0f, 0.0f, 0.0f));
+	ball.createSphere(1.0f, 25, glm::vec3(1.0f, 0.0f, 0.0f));
 
 	// Physx
 	float throttle = 1.0f;
@@ -50,29 +50,9 @@ int main(int argc, char** argv) {
 	Camera playerCamera = Camera(shader, Utils::shared().SCREEN_WIDTH, Utils::shared().SCREEN_HEIGHT);
 	playerCamera.setPitch(-30.0f);
 
-	// Assimp
-	Model wheel = Model(shader, "models/wheel/wheel.obj");
-	wheel.rotate(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	wheel.scale(glm::vec3(0.2f, 0.2f, 0.2f));
-
-	Model chassis = Model(shader, "models/audi/body.obj");
-	chassis.translate(glm::vec3(-0.25f, -2.0f, 0.125f));
-	chassis.scale(glm::vec3(1.5f, 1.5f, 1.2f));
-
-	Model ground = Model(shader, "models/ground/ground.obj");
-	ground.translate(glm::vec3(0.0f, -1.2f, 0.0f));
-	ground.scale(glm::vec3(2.0f, 1.0f, 2.0f));
-
-	/*Model ground = Model(shader, "models/ground2/ground_010.obj");
-	ground.rotate(glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	ground.rotate(glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-	ground.translate(glm::vec3(0.0f, -41.35f, 0.0f));
-	ground.scale(glm::vec3(4.0f, 1.0f, 4.0f));*/
-
-	/*Model ground = Model(shader, "models/ground3/ground.obj");
-	ground.translate(glm::vec3(0.0f, -1.2f, 0.0f));
-	ground.scale(glm::vec3(10.0f, 1.0f, 10.0f));*/
-
+	std::pair<Model, Model> carModel = Model::createJeepModel(shader);
+	Model ground = Model::createGroundModel(shader);
+	
 	// Jump Cooldown and Timer
 	bool cameraToggle = false;
 	std::chrono::steady_clock::time_point currentTime = std::chrono::steady_clock::now();
@@ -130,12 +110,12 @@ int main(int argc, char** argv) {
 		if (cameraToggle) 
 			editorCamera.render();
 		else {
-			playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 10.0f, player.getPosition().z + 20.0f));
+			playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 6.0f, player.getPosition().z + 12.0f));
 			playerCamera.render();
 		}
 
 		ground.draw();
-		player.render(&wheel, &chassis);
+		player.render(&carModel.first, &carModel.second);
 		obstacle_d.render(ball);
 		obstacle_s.render(obstacleMesh);
 

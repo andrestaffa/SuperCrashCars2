@@ -237,3 +237,24 @@ unsigned int Model::TextureFromFile(const char* path, const std::string& directo
 
 	return textureID;
 }
+
+// Static Methods
+
+std::pair<Model, Model> Model::createJeepModel(ShaderProgram& shader) {
+	Model wheel = Model(shader, "models/wheel/wheel.obj");
+	wheel.scale(glm::vec3(0.5f, 0.5f, 0.5f));
+
+	Model chassis = Model(shader, "models/jeep/jeep.obj");
+	chassis.translate(glm::vec3(-0.0f, -2.0f, 0.0f));
+	chassis.scale(glm::vec3(1.5f, 1.5f, 1.2f));
+
+	return std::make_pair(wheel, chassis);
+}
+
+Model Model::createGroundModel(ShaderProgram& shader) {
+	Model ground = Model(shader, "models/ground/ground.obj");
+	ground.translate(glm::vec3(0.0f, -1.2f, 0.0f));
+	ground.scale(glm::vec3(2.0f, 1.0f, 2.0f));
+	return ground;
+}
+
