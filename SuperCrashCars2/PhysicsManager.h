@@ -2,7 +2,7 @@
 
 #include <PxPhysicsAPI.h>
 #include <vector>
-#include "GLMesh.h"
+#include "Model.h"
 
 #include "SnippetVehicleFilterShader.h"
 #include "SnippetVehicleCreate.h"
@@ -30,16 +30,8 @@ public:
 	const PxF32 timestep;
 
 	void simulate();
-	void cleanupPhysics();
+	void free();
 
 	PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts);
-	
-	PxRigidStatic* createStatic(const PxTransform& t, const PxGeometry& geometry);
-	PxRigidDynamic* createDynamic(const PxTransform& t, const PxGeometry& geometry);
-
-	void renderActor(PxRigidActor& actor, GLMesh& mesh);
-
-private:
-	void setSimFilterData(PxRigidActor* actor, PxFilterData& filterData);
 
 };

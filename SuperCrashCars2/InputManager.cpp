@@ -68,6 +68,7 @@ void InputManager::setBinds() {
 				{GLFW_KEY_D, false},
 				{GLFW_KEY_Q, false},
 				{GLFW_KEY_E, false},
+				{GLFW_KEY_C, false},
 				{GLFW_KEY_SPACE, false},
 				{GLFW_KEY_UP, false},
 				{GLFW_KEY_DOWN, false},
