@@ -11,7 +11,7 @@
 class Model {
 
 public:
-	Model(ShaderProgram& shader, const char* path, bool gamma = false);
+	Model(ShaderProgram& shader, const char* path, bool flipTexture = false, int renderMode = GL_FILL, bool usesColor = false);
 
 	void translate(glm::vec3 offset);
 	void setPosition(glm::vec3 position);
@@ -29,7 +29,11 @@ private:
 	std::vector<TexMesh> m_textures_loaded;
 	std::vector<Mesh> m_meshes;
 	std::string m_directory;
-	bool m_gammaCorrection;
+
+	bool m_flipTexture;
+	bool m_usesColor;
+
+	int m_renderMode;
 
 	glm::mat4 m_TM = glm::mat4(1.0f);
 	glm::vec3 m_position = glm::vec3(0.0f);

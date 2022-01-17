@@ -35,7 +35,7 @@ class Mesh {
 public:
     Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<TexMesh> textures);
 
-    void draw(glm::mat4& TM, ShaderProgram& shader);
+    void draw(glm::mat4& TM, ShaderProgram& shader, int renderMode);
 
     std::vector<Vertex> m_vertices;
     std::vector<unsigned int> m_indices;

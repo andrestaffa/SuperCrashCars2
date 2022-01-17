@@ -149,7 +149,7 @@ PxRigidDynamic* PVehicle::getRigidDynamic() {
 	return this->gVehicle4W->getRigidDynamicActor();
 }
 
-void PVehicle::render(GLMesh& tires, GLMesh& body) {
+void PVehicle::render(Model* tires, Model* body) {
 	const int MAX_NUM_ACTOR_SHAPES = 128;
 	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
 
@@ -173,13 +173,15 @@ void PVehicle::render(GLMesh& tires, GLMesh& body) {
 		// 4 -> body
 
 		if (i < 4) {
-			tires.render(TM);
+			if (tires)
+				tires->draw(TM);
 		} else {
 			PxTransform rotTransform = PxShapeExt::getGlobalPose(*shapes[i], *rigidActor);
 			float bodyAngle = PxPi - rotTransform.q.getAngle();
 			glm::vec3 front = glm::vec3(sin(bodyAngle), 0.0f, -cos(bodyAngle));
 			front = glm::normalize(front);
-			body.render(TM);
+			if (body)
+				body->draw(TM);
 		}
 
 	}

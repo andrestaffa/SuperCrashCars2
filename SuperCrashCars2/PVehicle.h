@@ -33,7 +33,7 @@ public:
 	PxRigidDynamic* getRigidDynamic();
 
 	void removePhysics();
-	void render(GLMesh& tires, GLMesh& body);
+	void render(Model* tires, Model* body);
 
 	void update();
 	void free();

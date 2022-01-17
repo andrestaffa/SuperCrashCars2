@@ -7,7 +7,7 @@ Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std:
     this->setupMesh();
 }
 
-void Mesh::draw(glm::mat4& TM, ShaderProgram& shader) {
+void Mesh::draw(glm::mat4& TM, ShaderProgram& shader, int renderMode) {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
@@ -36,6 +36,7 @@ void Mesh::draw(glm::mat4& TM, ShaderProgram& shader) {
     glBindVertexArray(this->VAO);
     GLint modelLoc = glGetUniformLocation(shader, "TM");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &TM[0][0]);
+    glPolygonMode(GL_FRONT_AND_BACK, renderMode);
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(this->m_indices.size()), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 

@@ -2,7 +2,7 @@
 
 #include <PxPhysicsAPI.h>
 #include <vector>
-#include "GLMesh.h"
+#include "Model.h"
 
 #include "SnippetVehicleFilterShader.h"
 #include "SnippetVehicleCreate.h"

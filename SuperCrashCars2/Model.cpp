@@ -1,6 +1,11 @@
 #include "Model.h"
 
-Model::Model(ShaderProgram& shader, const char* path, bool gamma) : m_shader(shader), m_gammaCorrection(gamma) {
+Model::Model(ShaderProgram& shader, const char* path, bool flipTexture, int renderMode, bool usesColor) : 
+	m_shader(shader), 
+	m_flipTexture(flipTexture),
+	m_usesColor(usesColor),
+	m_renderMode(renderMode)
+{
 	this->loadModel(path);
 }
 
@@ -46,13 +51,14 @@ void Model::reset() {
 }
 
 void Model::draw(glm::mat4& TM) {
+	TM = TM * this->m_TM;
 	for (unsigned int i = 0; i < this->m_meshes.size(); i++)
-		this->m_meshes[i].draw(TM, this->m_shader);
+		this->m_meshes[i].draw(TM, this->m_shader, this->m_renderMode);
 }
 
 void Model::draw() {
 	for (unsigned int i = 0; i < this->m_meshes.size(); i++)
-		this->m_meshes[i].draw(this->m_TM, this->m_shader);
+		this->m_meshes[i].draw(this->m_TM, this->m_shader, this->m_renderMode);
 }
 
 void Model::loadModel(std::string path) {
@@ -101,22 +107,22 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene) {
 
 		if (mesh->mTextureCoords[0]) {
 			glm::vec2 vec;
-			// texCoords
+
 			vec.x = mesh->mTextureCoords[0][i].x;
 			vec.y = mesh->mTextureCoords[0][i].y;
-			vertex.TexCoords = vec;
-			// tangent
+			vertex.TexCoords = (this->m_usesColor) ? glm::vec2(0.0f) : vec;
+
 			vector.x = mesh->mTangents[i].x;
 			vector.y = mesh->mTangents[i].y;
 			vector.z = mesh->mTangents[i].z;
 			vertex.Tangent = vector;
-			// bitangent
+
 			vector.x = mesh->mBitangents[i].x;
 			vector.y = mesh->mBitangents[i].y;
 			vector.z = mesh->mBitangents[i].z;
 			vertex.Bitangent = vector;
-		}
-		else vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+		} else vertex.TexCoords = glm::vec2(0.0f, 0.0f);
+		
 
 		vertices.push_back(vertex);
 	}
@@ -181,7 +187,7 @@ unsigned int Model::TextureFromFile(const char* path, const std::string& directo
 	std::string filename = std::string(path);
 	filename = directory + '/' + filename;
 
-	stbi_set_flip_vertically_on_load(true);
+	stbi_set_flip_vertically_on_load(this->m_flipTexture);
 
 	unsigned int textureID;
 	glGenTextures(1, &textureID);
