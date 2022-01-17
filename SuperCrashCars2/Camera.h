@@ -15,6 +15,14 @@ public:
 	void handleTranslation(int key);
 	void handleRotation(float xpos, float ypos);
 
+	const glm::vec3& getPosition();
+	const float getYaw();
+	const float getPitch();
+
+	void setPosition(glm::vec3 position);
+	void setYaw(float yaw);
+	void setPitch(float pitch);
+
 	void render();
 	void resetLastPos();
 

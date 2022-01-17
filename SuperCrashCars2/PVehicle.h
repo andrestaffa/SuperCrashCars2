@@ -6,6 +6,8 @@
 #include "SnippetVehicleSceneQuery.h"
 #include "SnippetVehicleTireFriction.h"
 
+#include "Log.h"
+
 using namespace physx;
 using namespace snippetvehicle;
 
@@ -15,11 +17,8 @@ class PVehicle {
 
 public:
 
-	PVehicle(PhysicsManager& m_pm, PxTransform transfrom = PxTransform(PxVec3(0.0f, 0.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+	PVehicle(PhysicsManager& pm, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PVehicle();
-
-	void stepPhysics();
-	void cleanupVehicle();
 
 	void accelerate(float throttle);
 	void reverse(float throttle);
@@ -27,12 +26,17 @@ public:
 	void turnLeft(float throttle);
 	void turnRight(float throttle);
 	void handbrake();
+	void jump(PxVec3 impulse);
 	
+	const PxTransform& getTransform();
+	const PxVec3& getPosition();
 	PxRigidDynamic* getRigidDynamic();
 
-	void render(GLMesh& tires, GLMesh& body);
-
 	void removePhysics();
+	void render(Model* tires, Model* body);
+
+	void update();
+	void free();
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -44,6 +48,7 @@ private:
 
 	PhysicsManager& m_pm;
 	bool m_isFalling = false;
+	bool m_isReversing = false;
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,

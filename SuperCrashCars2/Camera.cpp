@@ -20,7 +20,7 @@ Camera::Camera(ShaderProgram& shader, int screenWidth, int screenHeight, glm::ve
 
 void Camera::UpdateMVP() {
 	this->M = glm::mat4(1.0f);
-	this->P = glm::perspective(glm::radians(this->m_fov), this->m_aspectRatio, 0.1f, 100.0f);
+	this->P = glm::perspective(glm::radians(this->m_fov), this->m_aspectRatio, 0.1f, 1000.0f);
 	this->V = glm::lookAt(this->m_position, this->m_position + this->m_front, this->m_up);
 }
 
@@ -29,6 +29,8 @@ void Camera::handleTranslation(int key) {
 	if (key == GLFW_KEY_A) this->m_position -= glm::normalize(glm::cross(this->m_front, this->m_up)) * this->m_cameraTranslateSens;
 	if (key == GLFW_KEY_S) this->m_position -= this->m_cameraTranslateSens * this->m_front;
 	if (key == GLFW_KEY_D) this->m_position += glm::normalize(glm::cross(this->m_front, this->m_up)) * this->m_cameraTranslateSens;
+	if (key == GLFW_KEY_LEFT_SHIFT) this->m_position += this->m_cameraTranslateSens * this->m_up;
+	if (key == GLFW_KEY_LEFT_CONTROL) this->m_position -= this->m_cameraTranslateSens * this->m_up;
 }
 
 void Camera::handleRotation(float xpos, float ypos) {
@@ -57,6 +59,39 @@ void Camera::handleRotation(float xpos, float ypos) {
 	this->m_front = glm::normalize(front);
 }
 
+const glm::vec3& Camera::getPosition() {
+	return this->m_position;
+}
+
+const float Camera::getYaw() {
+	return this->m_yaw;
+}
+
+const float Camera::getPitch() {
+	return this->m_pitch;
+}
+
+void Camera::setPosition(glm::vec3 position) {
+	this->m_position = position;
+}
+
+void Camera::setYaw(float yaw) {
+	this->m_yaw = -90.0f - yaw;
+	glm::vec3 front;
+	front.x = cos(glm::radians(this->m_yaw)) * cos(glm::radians(this->m_pitch));
+	front.y = sin(glm::radians(this->m_pitch));
+	front.z = sin(glm::radians(this->m_yaw)) * cos(glm::radians(this->m_pitch));
+	this->m_front = glm::normalize(front);
+}
+
+void Camera::setPitch(float pitch) {
+	this->m_pitch = pitch;
+	glm::vec3 front;
+	front.x = cos(glm::radians(this->m_yaw)) * cos(glm::radians(this->m_pitch));
+	front.y = sin(glm::radians(this->m_pitch));
+	front.z = sin(glm::radians(this->m_yaw)) * cos(glm::radians(this->m_pitch));
+	this->m_front = glm::normalize(front);
+}
 
 void Camera::render() {
 	GLint modelLoc = glGetUniformLocation(this->m_shader, "M");

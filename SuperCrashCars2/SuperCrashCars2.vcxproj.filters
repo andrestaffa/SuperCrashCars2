@@ -25,6 +25,18 @@
     <Filter Include="Header Files\Physics\thirdparty">
       <UniqueIdentifier>{8243ad82-eda6-46fc-bcd9-67ff31400117}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Mesh &amp; Model">
+      <UniqueIdentifier>{1d259965-163a-4725-acdf-0cfaf2bab6fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Mesh &amp; Model">
+      <UniqueIdentifier>{76508394-1a95-4edb-8d60-ffba21d8f362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Mesh &amp; Model\Primitive Mesh">
+      <UniqueIdentifier>{fdcb37fc-4b86-451b-8608-07178a50ad14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Mesh &amp; Model\Primitive Mesh">
+      <UniqueIdentifier>{d333e42f-7286-4e31-91d4-8f5df1319075}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -34,15 +46,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShaderProgram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Texture.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexArray.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="VertexBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Window.cpp">
@@ -57,13 +60,7 @@
     <ClCompile Include="GLDebug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Geometry.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Camera.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GLMesh.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PhysicsManager.cpp">
@@ -87,6 +84,33 @@
     <ClCompile Include="SnippetVehicleSceneQuery.cpp">
       <Filter>Source Files\Physics\thirdparty</Filter>
     </ClCompile>
+    <ClCompile Include="PDynamic.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PStatic.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Mesh &amp; Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\Mesh &amp; Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="GLMesh.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArray.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -96,15 +120,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShaderProgram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexArray.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VertexBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Log.h">
@@ -119,16 +134,10 @@
     <ClInclude Include="GLDebug.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Geometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GLMesh.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PhysicsManager.h">
@@ -154,6 +163,33 @@
     </ClInclude>
     <ClInclude Include="SnippetVehicleWheelQueryResult.h">
       <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="PDynamic.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PStatic.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Mesh &amp; Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\Mesh &amp; Model</Filter>
+    </ClInclude>
+    <ClInclude Include="GLMesh.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArray.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
