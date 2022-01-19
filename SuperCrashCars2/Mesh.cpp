@@ -1,13 +1,13 @@
 #include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<TexMesh> textures) {
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<TexMesh>& textures) {
     this->m_vertices = vertices;
     this->m_indices = indices;
     this->m_textures = textures;
     this->setupMesh();
 }
 
-void Mesh::draw(glm::mat4& TM, ShaderProgram& shader, int renderMode) {
+void Mesh::draw(const glm::mat4& TM, ShaderProgram& shader, int renderMode) {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
@@ -17,7 +17,7 @@ void Mesh::draw(glm::mat4& TM, ShaderProgram& shader, int renderMode) {
         glActiveTexture(GL_TEXTURE0 + i);
 
         std::string number;
-        std::string name = this->m_textures[i].type;
+        const std::string& name = this->m_textures[i].type;
 
         if (name == "texture_diffuse")
             number = std::to_string(diffuseNr++);

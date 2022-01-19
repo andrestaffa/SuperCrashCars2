@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(ShaderProgram& shader, int screenWidth, int screenHeight, glm::vec3 position, glm::vec3 up) :
+Camera::Camera(ShaderProgram& shader, int screenWidth, int screenHeight, const glm::vec3& position, const glm::vec3& up) :
 	m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	m_aspectRatio((float)screenWidth / (float)screenHeight),
 	m_fov(60.0f),
@@ -59,19 +59,19 @@ void Camera::handleRotation(float xpos, float ypos) {
 	this->m_front = glm::normalize(front);
 }
 
-const glm::vec3& Camera::getPosition() {
+const glm::vec3& Camera::getPosition() const {
 	return this->m_position;
 }
 
-const float Camera::getYaw() {
+const float Camera::getYaw() const {
 	return this->m_yaw;
 }
 
-const float Camera::getPitch() {
+const float Camera::getPitch() const {
 	return this->m_pitch;
 }
 
-void Camera::setPosition(glm::vec3 position) {
+void Camera::setPosition(const glm::vec3& position) {
 	this->m_position = position;
 }
 

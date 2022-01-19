@@ -33,9 +33,9 @@ struct TexMesh {
 class Mesh {
 
 public:
-    Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<TexMesh> textures);
+    Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<TexMesh>& textures);
 
-    void draw(glm::mat4& TM, ShaderProgram& shader, int renderMode);
+    void draw(const glm::mat4& TM, ShaderProgram& shader, int renderMode);
 
     std::vector<Vertex> m_vertices;
     std::vector<unsigned int> m_indices;

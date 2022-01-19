@@ -10,9 +10,9 @@ public:
 	PStatic(PhysicsManager& pm, const PxGeometry& g, const PxVec3& position = PxVec3(0.0f), const PxQuat& rotation = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PStatic() {};
 
-	const PxTransform& getTransform();
-	const PxVec3& getPosition();
-	PxRigidStatic& getRigidStatic();
+	const PxTransform& getTransform() const;
+	const PxVec3& getPosition() const;
+	PxRigidStatic& getRigidStatic() const;
 
 	void render(GLMesh& mesh);
 	void free();

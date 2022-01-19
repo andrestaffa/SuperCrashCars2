@@ -11,13 +11,13 @@
 class Model {
 
 public:
-	Model(ShaderProgram& shader, const char* path, bool flipTexture = false, int renderMode = GL_FILL, bool usesColor = false);
+	Model(ShaderProgram& shader, const char* path, bool flipTexture = false, int renderMode = GL_FILL);
 
-	void translate(glm::vec3 offset);
-	void setPosition(glm::vec3 position);
-	void scale(glm::vec3 scale);
-	void rotate(float angleRadian, glm::vec3 axis);
-	void rotateAround(glm::vec3 position, float theta, float phi, float radius);
+	void translate(const glm::vec3& offset);
+	void setPosition(const glm::vec3& position);
+	void scale(const glm::vec3& scale);
+	void rotate(float angleRadian, const glm::vec3& axis);
+	void rotateAround(const glm::vec3& position, float theta, float phi, float radius);
 	void reset();
 
 	void draw(glm::mat4& TM);
@@ -36,8 +36,6 @@ private:
 	std::string m_directory;
 
 	bool m_flipTexture;
-	bool m_usesColor;
-
 	int m_renderMode;
 
 	glm::mat4 m_TM = glm::mat4(1.0f);
@@ -46,11 +44,11 @@ private:
 	float m_angle = 0.0f;
 	float m_theta = 0.0f;
 
-	void loadModel(std::string path);
+	void loadModel(const std::string& path);
 	void processNode(aiNode* node, const aiScene* scene);
 
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-	std::vector<TexMesh> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+	std::vector<TexMesh> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const std::string& typeName);
 
 	unsigned int TextureFromFile(const char* path, const std::string& directory, bool gamma = false);
 

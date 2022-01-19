@@ -28,9 +28,9 @@ public:
 	void handbrake();
 	void jump(PxVec3 impulse);
 	
-	const PxTransform& getTransform();
-	const PxVec3& getPosition();
-	PxRigidDynamic* getRigidDynamic();
+	const PxTransform& getTransform() const;
+	const PxVec3& getPosition() const;
+	PxRigidDynamic* getRigidDynamic() const;
 
 	void removePhysics();
 	void render(Model* tires, Model* body);

@@ -137,15 +137,15 @@ void PVehicle::releaseAllControls() {
 	gVehicleInputData.setAnalogHandbrake(0.0f);
 }
 
-const PxTransform& PVehicle::getTransform() {
+const PxTransform& PVehicle::getTransform() const {
 	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose();
 }
 
-const PxVec3& PVehicle::getPosition() {
+const PxVec3& PVehicle::getPosition() const {
 	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().p;
 }
 
-PxRigidDynamic* PVehicle::getRigidDynamic() {
+PxRigidDynamic* PVehicle::getRigidDynamic() const {
 	return this->gVehicle4W->getRigidDynamicActor();
 }
 

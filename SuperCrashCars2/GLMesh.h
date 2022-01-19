@@ -16,15 +16,15 @@ public:
 	GLMesh(ShaderProgram& shader, int renderMode = GL_LINE);
 	~GLMesh();
 
-	void createPlane(int size, glm::vec3 color);
-	void createCube(float scale, glm::vec3 color);
-	void createSphere(float radius, int numSectors, glm::vec3 color);
+	void createPlane(int size, const glm::vec3& color);
+	void createCube(float scale, const glm::vec3& color);
+	void createSphere(float radius, int numSectors, const glm::vec3& color);
 
-	void translate(glm::vec3 offset);
-	void setPosition(glm::vec3 position);
-	void scale(glm::vec3 scale);
-	void rotate(float angleRadian, glm::vec3 axis);
-	void rotateAround(glm::vec3 position, float theta, float phi, float radius);
+	void translate(const glm::vec3& offset);
+	void setPosition(const glm::vec3& position);
+	void scale(const glm::vec3& scale);
+	void rotate(float angleRadian, const glm::vec3& axis);
+	void rotateAround(const glm::vec3& position, float theta, float phi, float radius);
 	void reset();
 	void destroy();
 
