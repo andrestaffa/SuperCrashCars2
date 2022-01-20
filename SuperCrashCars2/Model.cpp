@@ -1,11 +1,47 @@
 #include "Model.h"
 
-Model::Model(ShaderProgram& shader, const char* path, bool flipTexture, int renderMode) : 
-	m_shader(shader), 
+Model::Model() :
+	m_flipTexture(false),
+	m_renderMode(GL_FILL),
+	m_TM(1.0f),
+	m_position(0.0f),
+	m_scale(1.0f),
+	m_angle(0.0f),
+	m_theta(0.0f)
+{}
+
+Model::Model(const char* path, bool flipTexture, int renderMode) : 
 	m_flipTexture(flipTexture),
-	m_renderMode(renderMode)
+	m_renderMode(renderMode),
+	m_TM(1.0f),
+	m_position(0.0f),
+	m_scale(1.0f),
+	m_angle(0.0f),
+	m_theta(0.0f)
 {
 	this->loadModel(path);
+}
+
+Model::Model(const Model& model) :
+	m_flipTexture(model.m_flipTexture),
+	m_renderMode(model.m_renderMode),
+	m_textures_loaded(model.m_textures_loaded),
+	m_meshes(model.m_meshes),
+	m_directory(model.m_directory),
+	m_TM(model.m_TM),
+	m_position(model.m_position),
+	m_scale(model.m_scale),
+	m_angle(model.m_angle),
+	m_theta(model.m_theta)
+{}
+
+Model& Model::operator=(const Model& model) {
+	this->m_textures_loaded = model.m_textures_loaded;
+	this->m_meshes = model.m_meshes;
+	this->m_directory = model.m_directory;
+	this->m_flipTexture = model.m_flipTexture;
+	this->m_renderMode = model.m_renderMode;
+	return *this;
 }
 
 void Model::translate(const glm::vec3& offset) {
@@ -52,12 +88,12 @@ void Model::reset() {
 void Model::draw(glm::mat4& TM) {
 	TM = TM * this->m_TM;
 	for (unsigned int i = 0; i < this->m_meshes.size(); i++)
-		this->m_meshes[i].draw(TM, this->m_shader, this->m_renderMode);
+		this->m_meshes[i].draw(TM, this->m_renderMode);
 }
 
 void Model::draw() {
 	for (unsigned int i = 0; i < this->m_meshes.size(); i++)
-		this->m_meshes[i].draw(this->m_TM, this->m_shader, this->m_renderMode);
+		this->m_meshes[i].draw(this->m_TM, this->m_renderMode);
 }
 
 void Model::loadModel(const std::string& path) {
@@ -236,24 +272,3 @@ unsigned int Model::TextureFromFile(const char* path, const std::string& directo
 
 	return textureID;
 }
-
-// Static Methods
-
-std::pair<Model, Model> Model::createJeepModel(ShaderProgram& shader) {
-	Model wheel = Model(shader, "models/wheel/wheel.obj");
-	wheel.scale(glm::vec3(0.5f, 0.5f, 0.5f));
-
-	Model chassis = Model(shader, "models/jeep/jeep.obj");
-	chassis.translate(glm::vec3(-0.0f, -2.0f, 0.0f));
-	chassis.scale(glm::vec3(1.5f, 1.5f, 1.2f));
-
-	return std::make_pair(wheel, chassis);
-}
-
-Model Model::createGroundModel(ShaderProgram& shader) {
-	Model ground = Model(shader, "models/ground/ground.obj");
-	ground.translate(glm::vec3(0.0f, -1.2f, 0.0f));
-	ground.scale(glm::vec3(2.0f, 1.0f, 2.0f));
-	return ground;
-}
-

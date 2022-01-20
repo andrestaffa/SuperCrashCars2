@@ -6,6 +6,7 @@
 #include "SnippetVehicleSceneQuery.h"
 #include "SnippetVehicleTireFriction.h"
 
+#include "Model.h"
 #include "Log.h"
 
 using namespace physx;
@@ -13,11 +14,16 @@ using namespace snippetvehicle;
 
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
 
+enum class VehicleType {
+	eJEEP = 0,
+	eTOYOTA = 1
+};
+
 class PVehicle {
 
 public:
 
-	PVehicle(PhysicsManager& pm, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
+	PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PVehicle();
 
 	void accelerate(float throttle);
@@ -33,7 +39,7 @@ public:
 	PxRigidDynamic* getRigidDynamic() const;
 
 	void removePhysics();
-	void render(Model* tires, Model* body);
+	void render();
 
 	void update();
 	void free();
@@ -49,6 +55,12 @@ private:
 	PhysicsManager& m_pm;
 	bool m_isFalling = false;
 	bool m_isReversing = false;
+
+	VehicleType m_vehicleType;
+
+	Model m_chassis;
+	Model m_tires;
+	
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,
@@ -98,6 +110,7 @@ private:
 
 	PxVehicleDrive4WRawInputData gVehicleInputData;
 
+	void initVehicleModel();
 	VehicleDesc initVehicleDesc();
 	void releaseAllControls();
 

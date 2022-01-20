@@ -188,6 +188,7 @@
     <ClInclude Include="SnippetVehicleTireFriction.h" />
     <ClInclude Include="SnippetVehicleWheelQueryResult.h" />
     <ClInclude Include="Texture.h" />
+    <ClInclude Include="Time.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />

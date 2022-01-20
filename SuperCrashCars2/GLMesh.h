@@ -8,12 +8,14 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "Utils.h"
+
 struct Process { CPU_Geometry cpuGeom; GPU_Geometry gpuGeom; };
 
 class GLMesh {
 
 public:
-	GLMesh(ShaderProgram& shader, int renderMode = GL_LINE);
+	GLMesh(int renderMode = GL_LINE);
 	~GLMesh();
 
 	void createPlane(int size, const glm::vec3& color);
@@ -34,7 +36,6 @@ public:
 
 private:
 	Process m_process;
-	ShaderProgram& m_shader;
 
 	glm::mat4 m_TM;
 	glm::vec3 m_position;

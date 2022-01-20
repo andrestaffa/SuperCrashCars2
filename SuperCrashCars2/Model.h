@@ -11,7 +11,14 @@
 class Model {
 
 public:
-	Model(ShaderProgram& shader, const char* path, bool flipTexture = false, int renderMode = GL_FILL);
+
+	Model();
+	Model(const char* path, bool flipTexture = false, int renderMode = GL_FILL);
+	Model(const Model& model);
+	Model& operator=(const Model& model);
+	Model(Model&& model) = default;
+	Model& operator=(Model&& model) = default;
+	~Model() = default;
 
 	void translate(const glm::vec3& offset);
 	void setPosition(const glm::vec3& position);
@@ -23,13 +30,7 @@ public:
 	void draw(glm::mat4& TM);
 	void draw();
 
-	// static methods
-
-	static std::pair<Model, Model> createJeepModel(ShaderProgram& shader);
-	static Model createGroundModel(ShaderProgram& shader);
-
 private:
-	ShaderProgram& m_shader;
 
 	std::vector<TexMesh> m_textures_loaded;
 	std::vector<Mesh> m_meshes;
@@ -38,11 +39,11 @@ private:
 	bool m_flipTexture;
 	int m_renderMode;
 
-	glm::mat4 m_TM = glm::mat4(1.0f);
-	glm::vec3 m_position = glm::vec3(0.0f);
-	glm::vec3 m_scale = glm::vec3(1.0f);
-	float m_angle = 0.0f;
-	float m_theta = 0.0f;
+	glm::mat4 m_TM;
+	glm::vec3 m_position;
+	glm::vec3 m_scale;
+	float m_angle;
+	float m_theta;
 
 	void loadModel(const std::string& path);
 	void processNode(aiNode* node, const aiScene* scene);

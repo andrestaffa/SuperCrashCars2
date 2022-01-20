@@ -8,7 +8,7 @@
 #include <vector>
 #include <string>
 
-#include "ShaderProgram.h"
+#include "Utils.h"
 #include "Log.h"
 
 #define MAX_BONE_INFLUENCE 4
@@ -35,7 +35,7 @@ class Mesh {
 public:
     Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<TexMesh>& textures);
 
-    void draw(const glm::mat4& TM, ShaderProgram& shader, int renderMode);
+    void draw(const glm::mat4& TM, int renderMode);
 
     std::vector<Vertex> m_vertices;
     std::vector<unsigned int> m_indices;

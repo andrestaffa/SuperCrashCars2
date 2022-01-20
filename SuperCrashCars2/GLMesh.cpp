@@ -1,7 +1,6 @@
 #include "GLMesh.h"
 
-GLMesh::GLMesh(ShaderProgram& shader, int renderMode) :
-	m_shader(shader),
+GLMesh::GLMesh(int renderMode) :
 	m_TM(1.0f),
 	m_position(0.0f),
 	m_scale(1.0f),
@@ -179,7 +178,7 @@ void GLMesh::destroy() {
 
 void GLMesh::render(glm::mat4& TM) {
 	TM = TM * this->m_TM;
-	GLint modelLoc = glGetUniformLocation(this->m_shader, "TM");
+	GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "TM");
 	this->m_process.gpuGeom.bind();
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &TM[0][0]);
 	glPolygonMode(GL_FRONT_AND_BACK, this->m_renderMode);
@@ -187,7 +186,7 @@ void GLMesh::render(glm::mat4& TM) {
 }
 
 void GLMesh::render() {
-	GLint modelLoc = glGetUniformLocation(this->m_shader, "TM");
+	GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "TM");
 	this->m_process.gpuGeom.bind();
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &this->m_TM[0][0]);
 	glPolygonMode(GL_FRONT_AND_BACK, this->m_renderMode);

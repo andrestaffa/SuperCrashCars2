@@ -191,5 +191,8 @@
     <ClInclude Include="Geometry.h">
       <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
