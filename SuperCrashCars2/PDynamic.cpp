@@ -14,15 +14,15 @@ PDyanmic::PDyanmic(PhysicsManager& pm, const PxGeometry& g, const PxVec3& positi
 
 }
 
-const PxTransform& PDyanmic::getTransform() {
+const PxTransform& PDyanmic::getTransform() const {
 	return this->m_dynamic->getGlobalPose();
 }
 
-const PxVec3& PDyanmic::getPosition() {
+const PxVec3& PDyanmic::getPosition() const {
 	return this->m_dynamic->getGlobalPose().p;
 }
 
-PxRigidDynamic& PDyanmic::getRigidDynamic() {
+PxRigidDynamic& PDyanmic::getRigidDynamic() const {
 	return *this->m_dynamic;
 }
 

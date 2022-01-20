@@ -9,15 +9,15 @@ PStatic::PStatic(PhysicsManager& pm, const PxGeometry& g, const PxVec3& position
 	pm.gScene->addActor(*this->m_static);
 }
 
-const PxTransform& PStatic::getTransform() {
+const PxTransform& PStatic::getTransform() const {
 	return this->m_static->getGlobalPose();
 }
 
-const PxVec3& PStatic::getPosition() {
+const PxVec3& PStatic::getPosition() const {
 	return this->m_static->getGlobalPose().p;
 }
 
-PxRigidStatic& PStatic::getRigidStatic() {
+PxRigidStatic& PStatic::getRigidStatic() const {
 	return *this->m_static;
 }
 

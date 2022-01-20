@@ -8,23 +8,25 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#include "Utils.h"
+
 struct Process { CPU_Geometry cpuGeom; GPU_Geometry gpuGeom; };
 
 class GLMesh {
 
 public:
-	GLMesh(ShaderProgram& shader, int renderMode = GL_LINE);
+	GLMesh(int renderMode = GL_LINE);
 	~GLMesh();
 
-	void createPlane(int size, glm::vec3 color);
-	void createCube(float scale, glm::vec3 color);
-	void createSphere(float radius, int numSectors, glm::vec3 color);
+	void createPlane(int size, const glm::vec3& color);
+	void createCube(float scale, const glm::vec3& color);
+	void createSphere(float radius, int numSectors, const glm::vec3& color);
 
-	void translate(glm::vec3 offset);
-	void setPosition(glm::vec3 position);
-	void scale(glm::vec3 scale);
-	void rotate(float angleRadian, glm::vec3 axis);
-	void rotateAround(glm::vec3 position, float theta, float phi, float radius);
+	void translate(const glm::vec3& offset);
+	void setPosition(const glm::vec3& position);
+	void scale(const glm::vec3& scale);
+	void rotate(float angleRadian, const glm::vec3& axis);
+	void rotateAround(const glm::vec3& position, float theta, float phi, float radius);
 	void reset();
 	void destroy();
 
@@ -34,7 +36,6 @@ public:
 
 private:
 	Process m_process;
-	ShaderProgram& m_shader;
 
 	glm::mat4 m_TM;
 	glm::vec3 m_position;

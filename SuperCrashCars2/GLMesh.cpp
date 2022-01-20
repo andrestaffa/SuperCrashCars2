@@ -1,7 +1,6 @@
 #include "GLMesh.h"
 
-GLMesh::GLMesh(ShaderProgram& shader, int renderMode) :
-	m_shader(shader),
+GLMesh::GLMesh(int renderMode) :
 	m_TM(1.0f),
 	m_position(0.0f),
 	m_scale(1.0f),
@@ -10,7 +9,7 @@ GLMesh::GLMesh(ShaderProgram& shader, int renderMode) :
 	m_renderMode(renderMode)
 {}
 
-void GLMesh::createPlane(int size, glm::vec3 color) {
+void GLMesh::createPlane(int size, const glm::vec3& color) {
 	std::vector<std::vector<glm::vec3>> vertices;
 
 	int index = 0;
@@ -29,7 +28,7 @@ void GLMesh::createPlane(int size, glm::vec3 color) {
 	this->m_process.gpuGeom.setCols(this->m_process.cpuGeom.cols);
 }
 
-void GLMesh::createCube(float scale, glm::vec3 color) {
+void GLMesh::createCube(float scale, const glm::vec3& color) {
 	std::vector<glm::vec3> vertices, back_face, bottom_face, top_face, left_face, right_face;
 	
 	// front face
@@ -82,7 +81,7 @@ void GLMesh::createCube(float scale, glm::vec3 color) {
 
 }
 
-void GLMesh::createSphere(float radius, int numSectors, glm::vec3 color) {
+void GLMesh::createSphere(float radius, int numSectors, const glm::vec3& color) {
 	std::vector<std::vector<glm::vec3>> vertices, normals;
 	std::vector<std::vector<glm::vec2>> textures;
 
@@ -130,18 +129,18 @@ void GLMesh::createSphere(float radius, int numSectors, glm::vec3 color) {
 	this->m_process.gpuGeom.setCols(this->m_process.cpuGeom.cols);
 }
 
-void GLMesh::translate(glm::vec3 offset) {
+void GLMesh::translate(const glm::vec3& offset) {
 	glm::mat4 T = glm::translate(glm::mat4(1.0f), offset);
 	this->m_TM = T * this->m_TM;
 	this->m_position = this->m_position + offset;
 }
 
-void GLMesh::setPosition(glm::vec3 position) {
+void GLMesh::setPosition(const glm::vec3& position) {
 	this->translate(-this->m_position);
 	this->translate(position);
 }
 
-void GLMesh::scale(glm::vec3 scale) {
+void GLMesh::scale(const glm::vec3& scale) {
 	glm::mat4 T_P = glm::translate(glm::mat4(1.0f), this->m_position);
 	glm::mat4 S = glm::scale(glm::mat4(1.0f), scale);
 	glm::mat4 T_N = glm::translate(glm::mat4(1.0f), -this->m_position);
@@ -149,7 +148,7 @@ void GLMesh::scale(glm::vec3 scale) {
 	this->m_scale *= scale;
 }
 
-void GLMesh::rotate(float angleRadian, glm::vec3 axis) {
+void GLMesh::rotate(float angleRadian, const glm::vec3& axis) {
 	glm::mat4 T_P = glm::translate(glm::mat4(1.0f), this->m_position);
 	glm::mat4 R = glm::rotate(glm::mat4(1.0f), angleRadian, axis);
 	glm::mat4 T_N = glm::translate(glm::mat4(1.0f), -this->m_position);
@@ -159,7 +158,7 @@ void GLMesh::rotate(float angleRadian, glm::vec3 axis) {
 	if (degree >= 360.0f) this->m_angle = (degree - 360) * glm::pi<float>() / 180.0f;
 }
 
-void GLMesh::rotateAround(glm::vec3 position, float theta, float phi, float radius) {
+void GLMesh::rotateAround(const glm::vec3& position, float theta, float phi, float radius) {
 	this->setPosition(position);
 	this->translate(glm::vec3(radius * glm::sin(this->m_theta + theta) * glm::cos(phi), radius * glm::sin(this->m_theta + theta) * glm::sin(phi), radius * glm::cos(this->m_theta + theta)));
 	this->m_theta += theta;
@@ -179,7 +178,7 @@ void GLMesh::destroy() {
 
 void GLMesh::render(glm::mat4& TM) {
 	TM = TM * this->m_TM;
-	GLint modelLoc = glGetUniformLocation(this->m_shader, "TM");
+	GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "TM");
 	this->m_process.gpuGeom.bind();
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &TM[0][0]);
 	glPolygonMode(GL_FRONT_AND_BACK, this->m_renderMode);
@@ -187,7 +186,7 @@ void GLMesh::render(glm::mat4& TM) {
 }
 
 void GLMesh::render() {
-	GLint modelLoc = glGetUniformLocation(this->m_shader, "TM");
+	GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "TM");
 	this->m_process.gpuGeom.bind();
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &this->m_TM[0][0]);
 	glPolygonMode(GL_FRONT_AND_BACK, this->m_renderMode);
