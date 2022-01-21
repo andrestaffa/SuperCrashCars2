@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-Camera::Camera(ShaderProgram& shader, int screenWidth, int screenHeight, glm::vec3 position, glm::vec3 up) :
+Camera::Camera(int screenWidth, int screenHeight, const glm::vec3& position, const glm::vec3& up) :
 	m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
 	m_aspectRatio((float)screenWidth / (float)screenHeight),
 	m_fov(60.0f),
@@ -10,8 +10,7 @@ Camera::Camera(ShaderProgram& shader, int screenWidth, int screenHeight, glm::ve
 	m_cameraRotationSens(40.0f),
 	m_firstMouse(false),
 	m_lastX(0.0f),
-	m_lastY(0.0f),
-	m_shader(shader)
+	m_lastY(0.0f)
 {
 	this->m_position = position;
 	this->m_up = up;
@@ -59,19 +58,19 @@ void Camera::handleRotation(float xpos, float ypos) {
 	this->m_front = glm::normalize(front);
 }
 
-const glm::vec3& Camera::getPosition() {
+const glm::vec3& Camera::getPosition() const {
 	return this->m_position;
 }
 
-const float Camera::getYaw() {
+const float Camera::getYaw() const {
 	return this->m_yaw;
 }
 
-const float Camera::getPitch() {
+const float Camera::getPitch() const {
 	return this->m_pitch;
 }
 
-void Camera::setPosition(glm::vec3 position) {
+void Camera::setPosition(const glm::vec3& position) {
 	this->m_position = position;
 }
 
@@ -94,9 +93,9 @@ void Camera::setPitch(float pitch) {
 }
 
 void Camera::render() {
-	GLint modelLoc = glGetUniformLocation(this->m_shader, "M");
-	GLint viewLoc = glGetUniformLocation(this->m_shader, "V");
-	GLint projectionLoc = glGetUniformLocation(this->m_shader, "P");
+	GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "M");
+	GLint viewLoc = glGetUniformLocation(*Utils::instance().shader, "V");
+	GLint projectionLoc = glGetUniformLocation(*Utils::instance().shader, "P");
 	this->UpdateMVP();
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &this->M[0][0]);
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &this->V[0][0]);

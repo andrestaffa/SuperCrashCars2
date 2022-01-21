@@ -37,6 +37,10 @@ INSTRUCTIONS:
 			- .\vcpkg.exe install physx:x64-windows
 				- physx 4.1.2
 				
+		ASSIMP:
+			- .\vcpkg.exe install assimp:x64-windows
+				- assimp 5.0.1#5
+				
 		
 	STEP 4: Run this command
 		- .\vcpkg integrate install

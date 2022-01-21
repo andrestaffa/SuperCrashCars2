@@ -5,21 +5,21 @@
 
 #include "glm/gtc/type_ptr.hpp"
 
-#include "ShaderProgram.h"
+#include "Utils.h"
 
 class Camera {
 
 public:
-	Camera(ShaderProgram& shader, int screenWidth, int screenHeight, glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f));
+	Camera(int screenWidth, int screenHeight, const glm::vec3& position = glm::vec3(0.0f, 0.0f, 3.0f), const glm::vec3& up = glm::vec3(0.0f, 1.0f, 0.0f));
 
 	void handleTranslation(int key);
 	void handleRotation(float xpos, float ypos);
 
-	const glm::vec3& getPosition();
-	const float getYaw();
-	const float getPitch();
+	const glm::vec3& getPosition() const;
+	const float getYaw() const;
+	const float getPitch() const;
 
-	void setPosition(glm::vec3 position);
+	void setPosition(const glm::vec3& position);
 	void setYaw(float yaw);
 	void setPitch(float pitch);
 
@@ -33,8 +33,6 @@ private:
 	glm::vec3 m_position;
 	glm::vec3 m_front;
 	glm::vec3 m_up;
-
-	ShaderProgram& m_shader;
 
 	float m_aspectRatio;
 	float m_fov;

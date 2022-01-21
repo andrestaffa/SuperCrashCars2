@@ -2,13 +2,15 @@
 
 using namespace physx;
 
-PVehicle::PVehicle(PhysicsManager& pm, const PxVec3& position, const PxQuat& quat) : m_pm(pm) {
+PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position, const PxQuat& quat) : m_pm(pm), m_vehicleType(vehicleType) {
 	//Create the batched scene queries for the suspension raycasts.
 	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pm.gAllocator);
 	gBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *gVehicleSceneQueryData, pm.gScene);
 
 	//Create the friction table for each combination of tire and surface type.
 	gFrictionPairs = createFrictionPairs(pm.gMaterial);
+
+	this->initVehicleModel(); // maybe change where this is called.
 
 	VehicleDesc vehicleDesc = initVehicleDesc();
 
@@ -26,12 +28,51 @@ PVehicle::PVehicle(PhysicsManager& pm, const PxVec3& position, const PxQuat& qua
 	brake(1.0f);
 }
 
+void PVehicle::initVehicleModel() {
+	
+	switch (this->m_vehicleType) {
+		case VehicleType::eJEEP:
+		{
+			this->m_chassis = Model("models/jeep/jeep.obj");
+			this->m_chassis.translate(glm::vec3(-0.0f, -2.0f, 0.0f));
+			this->m_chassis.scale(glm::vec3(1.5f, 1.5f, 1.2f));
+
+			this->m_tires = Model("models/wheel/wheel.obj");
+			this->m_tires.scale(glm::vec3(0.5f, 0.5f, 0.5f));
+			break;
+		}
+		case VehicleType::eTOYOTA:
+		{
+			this->m_chassis = Model("models/toyota/toyota.obj");
+			this->m_chassis.translate(glm::vec3(-0.125f, -2.5f, 0.20f));
+			this->m_chassis.scale(glm::vec3(1.65f, 1.5f, 1.2f));
+
+			this->m_tires = Model("models/wheel/wheel.obj");
+			this->m_tires.scale(glm::vec3(0.75f, 0.625f, 0.625f));
+
+			break;
+		}
+		default:
+			break;
+	}
+
+}
+
 VehicleDesc PVehicle::initVehicleDesc() {
 	//Set up the chassis mass, dimensions, moment of inertia, and center of mass offset.
 	//The moment of inertia is just the moment of inertia of a cuboid but modified for easier steering.
 	//Center of mass offset is 0.65m above the base of the chassis and 0.25m towards the front.
-	const PxF32 chassisMass = 1500.0f;
-	const PxVec3 chassisDims(2.5f, 2.0f, 5.0f);
+
+	PxF32 chassisMass = 1500.0f;
+	PxVec3 chassisDims = PxVec3(2.5f, 2.0f, 5.0f);
+
+	if (this->m_vehicleType == VehicleType::eJEEP) {
+		chassisMass = 1500.0f;
+		chassisDims = PxVec3(2.5f, 2.0f, 5.0f);
+	} else if (this->m_vehicleType == VehicleType::eTOYOTA) {
+		chassisMass = 8000.0f;
+		chassisDims = PxVec3(3.0f, 2.0f, 7.5f);
+	}
 	const PxVec3 chassisMOI
 	((chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.z * chassisDims.z) * 0.8f * chassisMass / 12.0f,
@@ -40,9 +81,21 @@ VehicleDesc PVehicle::initVehicleDesc() {
 
 	//Set up the wheel mass, radius, width, moment of inertia, and number of wheels.
 	//Moment of inertia is just the moment of inertia of a cylinder.
-	const PxF32 wheelMass = 20.0f;
-	const PxF32 wheelRadius = 0.5f;
-	const PxF32 wheelWidth = 0.4f;
+
+	PxF32 wheelMass = 20.0f;
+	PxF32 wheelRadius = 0.5f;
+	PxF32 wheelWidth = 0.4f;
+
+	if (this->m_vehicleType == VehicleType::eJEEP) {
+		wheelMass = 20.0f;
+		wheelRadius = 0.5f;
+		wheelWidth = 0.4f;
+	} else if (this->m_vehicleType == VehicleType::eTOYOTA) {
+		wheelMass = 40.0f;
+		wheelRadius = 0.6;
+		wheelWidth = 0.5f;
+	}
+
 	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
 	const PxU32 nbWheels = 4;
 
@@ -137,19 +190,19 @@ void PVehicle::releaseAllControls() {
 	gVehicleInputData.setAnalogHandbrake(0.0f);
 }
 
-const PxTransform& PVehicle::getTransform() {
+const PxTransform& PVehicle::getTransform() const {
 	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose();
 }
 
-const PxVec3& PVehicle::getPosition() {
+const PxVec3& PVehicle::getPosition() const {
 	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().p;
 }
 
-PxRigidDynamic* PVehicle::getRigidDynamic() {
+PxRigidDynamic* PVehicle::getRigidDynamic() const {
 	return this->gVehicle4W->getRigidDynamicActor();
 }
 
-void PVehicle::render(Model* tires, Model* body) {
+void PVehicle::render() {
 	const int MAX_NUM_ACTOR_SHAPES = 128;
 	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
 
@@ -173,15 +226,13 @@ void PVehicle::render(Model* tires, Model* body) {
 		// 4 -> body
 
 		if (i < 4) {
-			if (tires)
-				tires->draw(TM);
+			this->m_tires.draw(TM);
 		} else {
 			PxTransform rotTransform = PxShapeExt::getGlobalPose(*shapes[i], *rigidActor);
 			float bodyAngle = PxPi - rotTransform.q.getAngle();
 			glm::vec3 front = glm::vec3(sin(bodyAngle), 0.0f, -cos(bodyAngle));
 			front = glm::normalize(front);
-			if (body)
-				body->draw(TM);
+			this->m_chassis.draw(TM);
 		}
 
 	}

@@ -1,13 +1,13 @@
 #include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<TexMesh> textures) {
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<TexMesh>& textures) {
     this->m_vertices = vertices;
     this->m_indices = indices;
     this->m_textures = textures;
     this->setupMesh();
 }
 
-void Mesh::draw(glm::mat4& TM, ShaderProgram& shader, int renderMode) {
+void Mesh::draw(const glm::mat4& TM, int renderMode) {
     unsigned int diffuseNr = 1;
     unsigned int specularNr = 1;
     unsigned int normalNr = 1;
@@ -17,7 +17,7 @@ void Mesh::draw(glm::mat4& TM, ShaderProgram& shader, int renderMode) {
         glActiveTexture(GL_TEXTURE0 + i);
 
         std::string number;
-        std::string name = this->m_textures[i].type;
+        const std::string& name = this->m_textures[i].type;
 
         if (name == "texture_diffuse")
             number = std::to_string(diffuseNr++);
@@ -28,13 +28,13 @@ void Mesh::draw(glm::mat4& TM, ShaderProgram& shader, int renderMode) {
         else if (name == "texture_height")
             number = std::to_string(heightNr++);
 
-        glUniform1i(glGetUniformLocation(shader, (name + number).c_str()), i);
+        glUniform1i(glGetUniformLocation(*Utils::instance().shader, (name + number).c_str()), i);
         glBindTexture(GL_TEXTURE_2D, this->m_textures[i].id);
     }
     glActiveTexture(GL_TEXTURE0);
 
     glBindVertexArray(this->VAO);
-    GLint modelLoc = glGetUniformLocation(shader, "TM");
+    GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "TM");
     glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &TM[0][0]);
     glPolygonMode(GL_FRONT_AND_BACK, renderMode);
     glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(this->m_indices.size()), GL_UNSIGNED_INT, 0);
