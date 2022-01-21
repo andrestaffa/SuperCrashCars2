@@ -63,6 +63,8 @@ public:
 	void makeContextCurrent() { glfwMakeContextCurrent(window.get()); }
 	void swapBuffers() { glfwSwapBuffers(window.get()); }
 
+	GLFWwindow* getWindow() {return window.get();}
+
 private:
 	std::unique_ptr<GLFWwindow, WindowDeleter> window; // owning ptr (from GLFW)
 	std::shared_ptr<CallbackInterface> callbacks;      // optional shared owning ptr (user provided)

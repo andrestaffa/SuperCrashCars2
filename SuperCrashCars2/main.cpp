@@ -3,6 +3,10 @@
 
 #include "Time.h"
 
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+
 #include "Geometry.h"
 #include "GLDebug.h"
 #include "Log.h"
@@ -54,6 +58,14 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(pm, VehicleType::eJEEP, PxVec3(5.0f, 0.0f, 0.0f));
 	PDyanmic obstacle_d = PDyanmic(pm, PxSphereGeometry(1), PxVec3(-20.0f, 20.0f, -10.0f));
 	PStatic obstacle_s = PStatic(pm, PxBoxGeometry(1.0f, 1.0f, 1.0f), PxVec3(-20.0f, 0.0f, -20.0f));
+
+	// ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
+	ImGui_ImplOpenGL3_Init("#version 400"); // update with version of openGL 3 = 300 4 = 400 4.1 = 410 ect
 
 	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	playerCamera.setPitch(-30.0f);
