@@ -48,10 +48,18 @@ int main(int argc, char** argv) {
 	ground.scale(glm::vec3(2.0f, 1.0f, 2.0f));
 
 	// Physx
+	double playerMass;
+	VehicleType playerType = VehicleType::eTOYOTA;
+	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
+	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
+	double jumpCoefficient = playerMass * 7;
+
+	VehicleType enemyType = VehicleType::eJEEP;
+
 	float throttle = 1.0f;
 	PhysicsManager pm = PhysicsManager(1.0f/60.0f);
-	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA);
-	PVehicle enemy = PVehicle(pm, VehicleType::eJEEP, PxVec3(5.0f, 0.0f, 0.0f));
+	PVehicle player = PVehicle(pm, playerType);
+	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 0.0f, 0.0f));
 	PDyanmic obstacle_d = PDyanmic(pm, PxSphereGeometry(1), PxVec3(-20.0f, 20.0f, -10.0f));
 	PStatic obstacle_s = PStatic(pm, PxBoxGeometry(1.0f, 1.0f, 1.0f), PxVec3(-20.0f, 0.0f, -20.0f));
 
@@ -90,7 +98,7 @@ int main(int argc, char** argv) {
 		if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) player.handbrake();
 
 		if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS) && Time::interval(2.0f)) 
-			player.getRigidDynamic()->addForce(PxVec3(0.0, 15000.0, 0.0), PxForceMode::eIMPULSE);
+			player.getRigidDynamic()->addForce(PxVec3(0.0, 4500 + jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
 
 		if (inputManager->onKeyAction(GLFW_KEY_C, GLFW_PRESS) && Time::interval(1.0f))
 			cameraToggle = !cameraToggle;

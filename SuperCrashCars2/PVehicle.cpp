@@ -20,7 +20,7 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	pm.gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
-	//Set the vehicle to rest in first gear.
+	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
 	gVehicle4W->setToRestState();
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
