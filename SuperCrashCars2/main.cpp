@@ -42,8 +42,6 @@ int main(int argc, char** argv) {
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
 
-	Camera editorCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
-
 	GLMesh obstacleMesh(GL_FILL), ball(GL_FILL);
 	obstacleMesh.createCube(1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 	ball.createSphere(1.0f, 25, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -73,11 +71,13 @@ int main(int argc, char** argv) {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
-	ImGui_ImplOpenGL3_Init("#version 400"); // update with version of openGL 3 = 300 4 = 400 4.1 = 410 ect
+	ImGui_ImplOpenGL3_Init("#version 330");
 
+
+	// Camera
 	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Camera editorCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
 	playerCamera.setPitch(-30.0f);
-
 	bool cameraToggle = false;
 
 	while (!window.shouldClose()) {
@@ -90,6 +90,12 @@ int main(int argc, char** argv) {
 		glfwPollEvents();
 
 		Utils::instance().shader->use();
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		#pragma region inputs
 
 		if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_REPEAT))
 			editorCamera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
@@ -117,6 +123,9 @@ int main(int argc, char** argv) {
 
 		if (abs(player.getPosition().z) >= 101.0f || abs(player.getPosition().x) >= 101.0) player.removePhysics();
 
+		#pragma endregion
+
+
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LINE_SMOOTH);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -130,11 +139,25 @@ int main(int argc, char** argv) {
 			playerCamera.render();
 		}
 
+
 		ground.draw();
+		player.render();
 		player.render();
 		enemy.render();
 		obstacle_d.render(ball);
 		obstacle_s.render(obstacleMesh);
+
+		ImGui::Begin("Controls");
+		ImGui::Text("Drive with arrow keys");
+		ImGui::Text("E = jump");
+		ImGui::Text("Spacebar = handbrake");
+		ImGui::Text("C = toggle between editor and player cam");
+		ImGui::Text("wasd + mouse = control editor cam");
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
@@ -146,6 +169,11 @@ int main(int argc, char** argv) {
 	obstacle_d.free();
 	obstacle_s.free();
 	pm.free();
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 
 	glfwTerminate();
 	return 0;
