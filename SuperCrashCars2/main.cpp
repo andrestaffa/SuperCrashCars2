@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 
 #include "Time.h"
+#include <iostream>
+#include <cmath>
+#include <string>
 
 #include "Geometry.h"
 #include "GLDebug.h"
@@ -27,6 +30,69 @@
 		- Learn about convex hulls.
 		- Create differnt colliders for each new car. (after learning convex hulls).
 */
+
+//************************************************************************************************//
+void XboxInput(PVehicle& p1, const float* axes, const unsigned char* buttons) {
+	//Xbox con code
+	float throttle = 1.0f;
+	if (abs(axes[0]) > 0.15) {
+		if (axes[0] < 0) {
+			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
+		}
+		else
+		{
+			p1.turnRight(throttle * abs(axes[0]) * 0.5);
+		}
+	}
+	if (GLFW_PRESS == buttons[0])
+	{
+		p1.handbrake();
+	}
+	if (axes[4] != -1)
+	{
+		p1.reverse(throttle * 0.5f);
+	}
+	if (axes[5] != -1)
+	{
+		p1.accelerate(throttle);
+	}
+	//if (abs(p1.getPosition().z) >= 101.0f || abs(p1.getPosition().x) >= 101.0) p1.removePhysics();
+
+	return;
+}
+
+void PS4Input(PVehicle& p1, const float* axes, const unsigned char* buttons) {
+	/*std::cout << "Left Stick X Axis: " << axes[0] << std::endl; 
+	std::cout << "Left Stick Y Axis: " << axes[1] << std::endl; 
+	std::cout << "Right Stick X Axis: " << axes[2] << std::endl; 
+	std::cout << "Right Stick Y Axis: " << axes[5] << std::endl; 
+	std::cout << "Right Trigger/R2: " << axes[4] << std::endl; 
+	std::cout << "Left Trigger/L2: " << axes[3] << std::endl; */
+	float throttle = 1.0f;
+	if (abs(axes[0]) > 0.15) {
+		if (axes[0] < 0) {
+			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
+		}
+		else
+		{
+			p1.turnRight(throttle * abs(axes[0]) * 0.5);
+		}
+	}
+	if (GLFW_PRESS == buttons[0])
+	{
+		p1.handbrake();
+	}
+	if (axes[3] != -1)
+	{
+		p1.reverse(throttle * 0.5f);
+	}
+	if (axes[4] != -1)
+	{
+		p1.accelerate(throttle);
+	}
+	//if (abs(p1.getPosition().z) >= 101.0f || abs(p1.getPosition().x) >= 101.0) p1.removePhysics();
+}
+//************************************************************************************************//
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
@@ -59,7 +125,7 @@ int main(int argc, char** argv) {
 	playerCamera.setPitch(-30.0f);
 
 	bool cameraToggle = false;
-
+	int flag = 0;
 	while (!window.shouldClose()) {
 
 		Time::update();
@@ -70,6 +136,27 @@ int main(int argc, char** argv) {
 		glfwPollEvents();
 
 		Utils::instance().shader->use();
+
+//************************************************************************************************//		
+		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+			const char* name = glfwGetJoystickName(GLFW_JOYSTICK_1);
+			if (flag == 0)
+			{
+				std::cout << name << " connected." << std::endl;
+				flag = 1;
+			}
+			int countA;
+			int axesCount;
+			const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+			int buttonCount;
+			const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+			const char* Xname = "Xbox Controller";
+			const char* Pname = "PS4 Controller";
+			
+			//XboxInput(player, axes, buttons);
+			PS4Input(player, axes, buttons);
+		}
+//************************************************************************************************//
 
 		if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_REPEAT))
 			editorCamera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
