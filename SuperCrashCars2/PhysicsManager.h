@@ -2,8 +2,8 @@
 
 #include <PxPhysicsAPI.h>
 #include <vector>
-#include "Model.h"
 
+#include "EventCallback.h"
 #include "SnippetVehicleFilterShader.h"
 #include "SnippetVehicleCreate.h"
 
@@ -26,6 +26,7 @@ public:
 	PxMaterial* gMaterial = NULL;
 	PxPvd* gPvd = NULL;
 	PxRigidStatic* gGroundPlane = NULL;
+	EventCallback gEventCallback;
 
 	const PxF32 timestep;
 
