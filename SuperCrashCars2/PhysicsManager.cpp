@@ -17,6 +17,7 @@ PhysicsManager::PhysicsManager(const PxF32 timestep) : timestep(timestep) {
 	gDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
 	sceneDesc.cpuDispatcher = gDispatcher;
 	sceneDesc.filterShader = VehicleFilterShader;
+	sceneDesc.simulationEventCallback = &gEventCallback;
 
 	gScene = gPhysics->createScene(sceneDesc);
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();

@@ -24,14 +24,6 @@
 #include "PStatic.h"
 
 
-/*
-	TODO:
-		- Calculate vehicle acceleration.
-		- Create better player camera. (find a way to get the car's angle).
-		- Learn about convex hulls.
-		- Create differnt colliders for each new car. (after learning convex hulls).
-*/
-
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
@@ -42,6 +34,13 @@ int main(int argc, char** argv) {
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
 
+	// Camera
+	bool cameraToggle = false;
+	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Camera editorCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
+	playerCamera.setPitch(-30.0f);
+
+	// Mesh
 	GLMesh obstacleMesh(GL_FILL), ball(GL_FILL);
 	obstacleMesh.createCube(1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 	ball.createSphere(1.0f, 25, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -51,12 +50,11 @@ int main(int argc, char** argv) {
 
 	// Physx
 	double playerMass;
-	VehicleType playerType = VehicleType::eTOYOTA;
+	VehicleType playerType = VehicleType::eJEEP;
 	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
 	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
 	double jumpCoefficient = playerMass * 7;
-
-	VehicleType enemyType = VehicleType::eJEEP;
+	VehicleType enemyType = VehicleType::eTOYOTA;
 
 	float throttle = 1.0f;
 	PhysicsManager pm = PhysicsManager(1.0f/60.0f);
@@ -72,13 +70,6 @@ int main(int argc, char** argv) {
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-
-
-	// Camera
-	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	Camera editorCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
-	playerCamera.setPitch(-30.0f);
-	bool cameraToggle = false;
 
 	while (!window.shouldClose()) {
 
@@ -125,12 +116,10 @@ int main(int argc, char** argv) {
 
 		#pragma endregion
 
-
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LINE_SMOOTH);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 		if (cameraToggle) 
 			editorCamera.render();
@@ -147,17 +136,19 @@ int main(int argc, char** argv) {
 		obstacle_d.render(ball);
 		obstacle_s.render(obstacleMesh);
 
-		ImGui::Begin("Controls");
+		ImGui::Begin("Information/Controls");
+		std::string fps = ("FPS " + std::to_string((int)Time::fps));
+		ImGui::Text(fps.c_str());
+		ImGui::Text("");
 		ImGui::Text("Drive with arrow keys");
 		ImGui::Text("E = jump");
 		ImGui::Text("Spacebar = handbrake");
 		ImGui::Text("C = toggle between editor and player cam");
-		ImGui::Text("wasd + mouse = control editor cam");
+		ImGui::Text("wasd + right-click/hold mouse = control editor cam");
 		ImGui::End();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
