@@ -52,6 +52,17 @@ void PVehicle::initVehicleModel() {
 
 			break;
 		}
+		case VehicleType::eSHUCKLE:
+		{
+			this->m_chassis = Model("models/shuckle/shuckle.obj");
+			this->m_chassis.translate(glm::vec3(0.125f, 2.5f, -0.20f));
+			this->m_chassis.scale(glm::vec3(1.65f, 1.5f, 1.2f));
+
+			this->m_tires = Model("models/wheel/wheel.obj");
+			this->m_tires.scale(glm::vec3(0.75f, 0.625f, 0.625f));
+
+			break;
+		}
 		default:
 			break;
 	}
@@ -72,6 +83,10 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	} else if (this->m_vehicleType == VehicleType::eTOYOTA) {
 		chassisMass = 8000.0f;
 		chassisDims = PxVec3(3.0f, 2.0f, 7.5f);
+	}
+	 else if (this->m_vehicleType == VehicleType::eSHUCKLE) {
+		 chassisMass = 800.0f;
+		 chassisDims = PxVec3(2.0f, -5.0f, 3.5f);
 	}
 	const PxVec3 chassisMOI
 	((chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
@@ -94,6 +109,11 @@ VehicleDesc PVehicle::initVehicleDesc() {
 		wheelMass = 40.0f;
 		wheelRadius = 0.6;
 		wheelWidth = 0.5f;
+	}
+	else if (this->m_vehicleType == VehicleType::eSHUCKLE) {
+		wheelMass = 15.0f;
+		wheelRadius = 0.4;
+		wheelWidth = 0.4f;
 	}
 
 	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
