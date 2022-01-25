@@ -61,22 +61,38 @@ void PhysicsManager::free() {
 	PX_RELEASE(gFoundation);
 }
 
-PxConvexMesh* PhysicsManager::createConvexMesh(const PxVec3* verts, const PxU32 numVerts) {
+PxTriangleMesh* PhysicsManager::createTriangleMesh(const std::vector<PxVec3>& verts, const std::vector<PxU32>& indices) {
 
-	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = numVerts;
-	convexDesc.points.stride = sizeof(PxVec3);
-	convexDesc.points.data = verts;
-	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+	PxTriangleMeshDesc meshDesc;
+	meshDesc.points.count = verts.size();
+	meshDesc.points.stride = sizeof(PxVec3);
+	meshDesc.points.data = &verts[0];
 
-	PxConvexMesh* convexMesh = NULL;
-	PxDefaultMemoryOutputStream buf;
-	if (gCooking->cookConvexMesh(convexDesc, buf)) {
-		PxDefaultMemoryInputData id(buf.getData(), buf.getSize());
-		convexMesh = gPhysics->createConvexMesh(id);
+	meshDesc.triangles.count = indices.size();
+	meshDesc.triangles.stride = 3 * sizeof(PxU32);
+	meshDesc.triangles.data = &indices[0];
+
+	PxDefaultMemoryOutputStream writeBuffer;
+	PxTriangleMeshCookingResult::Enum result;
+	bool status = gCooking->cookTriangleMesh(meshDesc, writeBuffer, &result);
+	if (!status) return NULL;
+
+	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	return gPhysics->createTriangleMesh(readBuffer);
+}
+
+PxRigidDynamic* PhysicsManager::createDynamic(PxTriangleMesh* triMesh) {
+	PxRigidDynamic* meshActor = gPhysics->createRigidDynamic(PxTransform(PxIdentity));
+	PxShape* meshShape;
+	if (meshActor) {
+		meshActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, true);
+		PxTriangleMeshGeometry triGeom;
+		triGeom.triangleMesh = triMesh;
+		PxRigidActorExt::createExclusiveShape(*meshActor, triGeom, *gMaterial);
+		gScene->addActor(*meshActor);
+		return meshActor;
 	}
-
-	return convexMesh;
+	return NULL;
 }
 
 PhysicsManager::~PhysicsManager() {}

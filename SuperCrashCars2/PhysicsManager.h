@@ -33,6 +33,7 @@ public:
 	void simulate();
 	void free();
 
-	PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts);
+	PxTriangleMesh* createTriangleMesh(const std::vector<PxVec3>& verts, const std::vector<PxU32>& indices);
+	PxRigidDynamic* createDynamic(PxTriangleMesh* triMesh);
 
 };

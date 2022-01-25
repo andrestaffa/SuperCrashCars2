@@ -48,6 +48,9 @@ int main(int argc, char** argv) {
 	ground.translate(glm::vec3(0.0f, -1.2f, 0.0f));
 	ground.scale(glm::vec3(2.0f, 1.0f, 2.0f));
 
+	Model cybertruck = Model("models/cybertruck/cybertruck.obj");
+	cybertruck.translate(glm::vec3(0.0f, 0.0f, -20.0f));
+
 	// Physx
 	double playerMass;
 	VehicleType playerType = VehicleType::eJEEP;
@@ -62,6 +65,21 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 0.0f, 0.0f));
 	PDyanmic obstacle_d = PDyanmic(pm, PxSphereGeometry(1), PxVec3(-20.0f, 20.0f, -10.0f));
 	PStatic obstacle_s = PStatic(pm, PxBoxGeometry(1.0f, 1.0f, 1.0f), PxVec3(-20.0f, 0.0f, -20.0f));
+
+	/*std::vector<PxVec3> verts;
+	std::vector<PxU32> indices;
+	for (const Mesh& mesh : cybertruck.getMeshData()) {
+		for (PxU32 i = 0; i < mesh.m_vertices.size(); i++) {
+			verts.push_back(PxVec3(mesh.m_vertices[i].Position.x, mesh.m_vertices[i].Position.y, mesh.m_vertices[i].Position.z));
+		}
+		for (PxU32 i = 0; i < mesh.m_indices.size(); i++) {
+			indices.push_back(mesh.m_indices[i]);
+		}
+	}
+
+	PxTriangleMesh* triMesh = pm.createTriangleMesh(verts, indices);
+	PxRigidDynamic* actor = pm.createDynamic(triMesh);*/
+
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -130,6 +148,7 @@ int main(int argc, char** argv) {
 
 
 		ground.draw();
+		cybertruck.draw();
 		player.render();
 		player.render();
 		enemy.render();
