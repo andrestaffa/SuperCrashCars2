@@ -17,7 +17,6 @@
 
 #include "InputManager.h"
 #include "Camera.h"
-#include "GLMesh.h"
 
 #include "PVehicle.h"
 #include "PDynamic.h"
@@ -40,14 +39,6 @@ int main(int argc, char** argv) {
 	Camera editorCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
 	playerCamera.setPitch(-30.0f);
 
-	// Mesh
-	GLMesh obstacleMesh(GL_FILL), ball(GL_FILL);
-	obstacleMesh.createCube(1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-	ball.createSphere(1.0f, 25, glm::vec3(1.0f, 0.0f, 0.0f));
-	Model ground = Model("models/ground/ground.obj");
-	ground.translate(glm::vec3(0.0f, -1.2f, 0.0f));
-	ground.scale(glm::vec3(2.0f, 1.0f, 2.0f));
-
 	// Physx
 	double playerMass;
 	VehicleType playerType = VehicleType::eJEEP;
@@ -58,10 +49,8 @@ int main(int argc, char** argv) {
 
 	float throttle = 1.0f;
 	PhysicsManager pm = PhysicsManager(1.0f/60.0f);
-	PVehicle player = PVehicle(pm, playerType);
-	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 0.0f, 0.0f));
-	PDyanmic obstacle_d = PDyanmic(pm, PxSphereGeometry(1), PxVec3(-20.0f, 20.0f, -10.0f));
-	PStatic obstacle_s = PStatic(pm, PxBoxGeometry(1.0f, 1.0f, 1.0f), PxVec3(-20.0f, 0.0f, -20.0f));
+	PVehicle player = PVehicle(pm, playerType, PxVec3(0.0f, 10.0f, 0.0f));
+	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 10.0f, 0.0f));
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -112,8 +101,6 @@ int main(int argc, char** argv) {
 		if (inputManager->onKeyAction(GLFW_KEY_C, GLFW_PRESS) && Time::interval(1.0f))
 			cameraToggle = !cameraToggle;
 
-		if (abs(player.getPosition().z) >= 101.0f || abs(player.getPosition().x) >= 101.0) player.removePhysics();
-
 		#pragma endregion
 
 		glEnable(GL_DEPTH_TEST);
@@ -128,13 +115,9 @@ int main(int argc, char** argv) {
 			playerCamera.render();
 		}
 
-
-		ground.draw();
-		player.render();
+		pm.drawGround();
 		player.render();
 		enemy.render();
-		obstacle_d.render(ball);
-		obstacle_s.render(obstacleMesh);
 
 		ImGui::Begin("Information/Controls");
 		std::string fps = ("FPS " + std::to_string((int)Time::fps));
@@ -157,8 +140,6 @@ int main(int argc, char** argv) {
 
 	player.free();
 	enemy.free();
-	obstacle_d.free();
-	obstacle_s.free();
 	pm.free();
 
 	ImGui_ImplOpenGL3_Shutdown();

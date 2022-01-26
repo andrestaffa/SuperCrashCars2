@@ -105,9 +105,6 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="GLMesh.cpp">
-      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClCompile>
@@ -205,9 +202,6 @@
     </ClInclude>
     <ClInclude Include="Model.h">
       <Filter>Header Files\Mesh &amp; Model</Filter>
-    </ClInclude>
-    <ClInclude Include="GLMesh.h">
-      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
