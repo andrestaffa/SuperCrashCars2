@@ -85,6 +85,10 @@ void Model::reset() {
 	this->m_scale = glm::vec3(1.0f);
 }
 
+const std::vector<Mesh>& Model::getMeshData() const {
+	return this->m_meshes;
+}
+
 void Model::draw(glm::mat4& TM) {
 	TM = TM * this->m_TM;
 	for (unsigned int i = 0; i < this->m_meshes.size(); i++)

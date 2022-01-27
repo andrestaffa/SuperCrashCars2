@@ -105,9 +105,6 @@
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClCompile>
-    <ClCompile Include="GLMesh.cpp">
-      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
-    </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClCompile>
@@ -137,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
       <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="EventCallback.cpp">
+      <Filter>Source Files\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -203,9 +203,6 @@
     <ClInclude Include="Model.h">
       <Filter>Header Files\Mesh &amp; Model</Filter>
     </ClInclude>
-    <ClInclude Include="GLMesh.h">
-      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
-    </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClInclude>
@@ -247,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="imgui\imconfig.h">
       <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="EventCallback.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

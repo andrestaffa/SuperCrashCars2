@@ -1,11 +1,8 @@
 #include "PStatic.h"
 
-PStatic::PStatic(PhysicsManager& pm, const PxGeometry& g, const PxVec3& position, const PxQuat& rotation) : m_pm(pm) {
-	this->m_static = PxCreateStatic(*pm.gPhysics, PxTransform(position, rotation), g, *pm.gMaterial);
+PStatic::PStatic(PhysicsManager& pm, const Model& model, const PxVec3& position, const PxQuat& rotation) : m_pm(pm), m_model(model) {
 
-	PxFilterData obstacleSimFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
-	this->setSimFilterData(this->m_static, obstacleSimFilterData);
-
+	this->m_static = this->createStatic(position, rotation);
 	pm.gScene->addActor(*this->m_static);
 }
 
@@ -21,16 +18,7 @@ PxRigidStatic& PStatic::getRigidStatic() const {
 	return *this->m_static;
 }
 
-void PStatic::setSimFilterData(PxRigidActor* actor, PxFilterData& filterData) {
-	const int MAX_NUM_ACTOR_SHAPES = 128;
-	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
-	const PxU32 nbShapes = actor->getNbShapes();
-	PX_ASSERT(nbShapes <= MAX_NUM_ACTOR_SHAPES);
-	actor->getShapes(shapes, nbShapes);
-	for (PxU32 i = 0; i < nbShapes; i++) shapes[i]->setSimulationFilterData(filterData);
-}
-
-void PStatic::render(GLMesh& mesh) {
+void PStatic::render() {
 	const int MAX_NUM_ACTOR_SHAPES = 128;
 	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
 
@@ -46,8 +34,29 @@ void PStatic::render(GLMesh& mesh) {
 		const PxGeometryHolder h = shapes[i]->getGeometry();
 
 		glm::mat4 TM = glm::make_mat4(&shapePose.column0.x);
-		mesh.render(TM);
+		this->m_model.draw(TM);
 	}
+}
+
+PxRigidStatic* PStatic::createStatic(const PxVec3& position, const PxQuat& rotation) {
+	std::vector<PxVec3> vertices;
+	for (const Mesh& mesh : this->m_model.getMeshData())
+		for (const Vertex& vertex : mesh.m_vertices)
+			vertices.push_back(PxVec3(vertex.Position.x, vertex.Position.y, vertex.Position.z));
+
+	PxConvexMesh* convexMesh = this->m_pm.createConvexMesh(vertices);
+	PxRigidStatic* meshActor = this->m_pm.gPhysics->createRigidStatic(PxTransform(position, rotation));
+	PxFilterData obstacleSimFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+
+	if (meshActor) {
+		PxConvexMeshGeometry convexGeom = PxConvexMeshGeometry(convexMesh);
+		convexGeom.meshFlags = PxConvexMeshGeometryFlag::eTIGHT_BOUNDS;
+		PxShape* convexShape = PxRigidActorExt::createExclusiveShape(*meshActor, convexGeom, *this->m_pm.gMaterial);
+		if (convexShape) convexShape->setSimulationFilterData(obstacleSimFilterData);
+		return meshActor;
+	}
+
+	return nullptr;
 }
 
 void PStatic::free() {

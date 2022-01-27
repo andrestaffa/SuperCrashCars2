@@ -17,20 +17,11 @@
 
 #include "InputManager.h"
 #include "Camera.h"
-#include "GLMesh.h"
 
 #include "PVehicle.h"
 #include "PDynamic.h"
 #include "PStatic.h"
 
-
-/*
-	TODO:
-		- Calculate vehicle acceleration.
-		- Create better player camera. (find a way to get the car's angle).
-		- Learn about convex hulls.
-		- Create differnt colliders for each new car. (after learning convex hulls).
-*/
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
@@ -42,31 +33,26 @@ int main(int argc, char** argv) {
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
 
+	// Camera
+	bool cameraToggle = false;
+	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Camera editorCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
-
-	GLMesh obstacleMesh(GL_FILL), ball(GL_FILL);
-	obstacleMesh.createCube(1.0f, glm::vec3(0.0f, 1.0f, 0.0f));
-	ball.createSphere(1.0f, 25, glm::vec3(1.0f, 0.0f, 0.0f));
-	Model ground = Model("models/ground/ground.obj");
-	ground.translate(glm::vec3(0.0f, -1.2f, 0.0f));
-	ground.scale(glm::vec3(2.0f, 1.0f, 2.0f));
+	playerCamera.setPitch(-30.0f);
 
 	// Physx
 	double playerMass;
 	VehicleType playerType = VehicleType::eSHUCKLE;
+
 	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
 	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
 	if (playerType == VehicleType::eSHUCKLE) playerMass = 1000.0;
 	double jumpCoefficient = playerMass * 7;
-
-	VehicleType enemyType = VehicleType::eJEEP;
+	VehicleType enemyType = VehicleType::eTOYOTA;
 
 	float throttle = 1.0f;
 	PhysicsManager pm = PhysicsManager(1.0f/60.0f);
-	PVehicle player = PVehicle(pm, playerType);
-	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 0.0f, 0.0f));
-	PDyanmic obstacle_d = PDyanmic(pm, PxSphereGeometry(1), PxVec3(-20.0f, 20.0f, -10.0f));
-	PStatic obstacle_s = PStatic(pm, PxBoxGeometry(1.0f, 1.0f, 1.0f), PxVec3(-20.0f, 0.0f, -20.0f));
+	PVehicle player = PVehicle(pm, playerType, PxVec3(0.0f, 10.0f, 0.0f));
+	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 10.0f, 0.0f));
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -74,12 +60,7 @@ int main(int argc, char** argv) {
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
-	ImGui_ImplOpenGL3_Init("#version 400"); // update with version of openGL 3 = 300 4 = 400 4.1 = 410 ect
-
-	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	playerCamera.setPitch(-30.0f);
-
-	bool cameraToggle = false;
+	ImGui_ImplOpenGL3_Init("#version 330");
 
 	while (!window.shouldClose()) {
 
@@ -91,6 +72,12 @@ int main(int argc, char** argv) {
 		glfwPollEvents();
 
 		Utils::instance().shader->use();
+
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		#pragma region inputs
 
 		if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_REPEAT))
 			editorCamera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
@@ -116,13 +103,12 @@ int main(int argc, char** argv) {
 		if (inputManager->onKeyAction(GLFW_KEY_C, GLFW_PRESS) && Time::interval(1.0f))
 			cameraToggle = !cameraToggle;
 
-		if (abs(player.getPosition().z) >= 101.0f || abs(player.getPosition().x) >= 101.0) player.removePhysics();
+		#pragma endregion
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LINE_SMOOTH);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 		if (cameraToggle) 
 			editorCamera.render();
@@ -131,11 +117,23 @@ int main(int argc, char** argv) {
 			playerCamera.render();
 		}
 
-		ground.draw();
+		pm.drawGround();
 		player.render();
 		enemy.render();
-		obstacle_d.render(ball);
-		obstacle_s.render(obstacleMesh);
+
+		ImGui::Begin("Information/Controls");
+		std::string fps = ("FPS " + std::to_string((int)Time::fps));
+		ImGui::Text(fps.c_str());
+		ImGui::Text("");
+		ImGui::Text("Drive with arrow keys");
+		ImGui::Text("E = jump");
+		ImGui::Text("Spacebar = handbrake");
+		ImGui::Text("C = toggle between editor and player cam");
+		ImGui::Text("wasd + right-click/hold mouse = control editor cam");
+		ImGui::End();
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
@@ -144,9 +142,12 @@ int main(int argc, char** argv) {
 
 	player.free();
 	enemy.free();
-	obstacle_d.free();
-	obstacle_s.free();
 	pm.free();
+
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
 
 	glfwTerminate();
 	return 0;

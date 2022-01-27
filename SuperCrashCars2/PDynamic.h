@@ -2,25 +2,26 @@
 
 #include <PxPhysicsAPI.h>
 #include "PhysicsManager.h"
-#include "GLMesh.h"
+#include "Model.h"
 
 class PDyanmic {
 
 public:
-	PDyanmic(PhysicsManager& pm, const PxGeometry& g, const PxVec3& position = PxVec3(0.0f), const PxQuat& rotation = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
+	PDyanmic(PhysicsManager& pm, const Model& model, const PxVec3& position = PxVec3(0.0f), const PxQuat& rotation = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PDyanmic() {};
 
 	const PxTransform& getTransform() const;
 	const PxVec3& getPosition() const;
 	PxRigidDynamic& getRigidDynamic() const;
 
-	void render(GLMesh& mesh);
+	void render();
 	void free();
 
 private:
 	PhysicsManager& m_pm;
 	PxRigidDynamic* m_dynamic = NULL;
+	Model m_model;
 
-	void setSimFilterData(PxRigidActor* actor, PxFilterData& filterData);
+	PxRigidDynamic* createDynamic(const PxVec3& position, const PxQuat& rotation);
 
 };

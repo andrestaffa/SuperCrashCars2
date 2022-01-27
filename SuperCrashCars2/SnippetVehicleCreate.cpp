@@ -39,23 +39,17 @@ namespace snippetvehicle
 
 using namespace physx;
 
-PxRigidStatic* createDrivablePlane(const PxFilterData& simFilterData, PxMaterial* material, PxPhysics* physics)
+PxRigidStatic* createDrivablePlane(const PxFilterData& simFilterData, PxMaterial* material, PxPhysics* physics, PxTriangleMesh* triMesh)
 {
-	//Add a plane to the scene.
-	PxRigidStatic* groundPlane = PxCreatePlane(*physics, PxPlane(0,1,0,1), *material);
-
-	//Get the plane shape so we can set query and simulation filter data.
-	PxShape* shapes[1];
-	groundPlane->getShapes(shapes, 1);
-
-	//Set the query filter data of the ground plane so that the vehicle raycasts can hit the ground.
+	PxRigidStatic* groundPlane = physics->createRigidStatic(PxTransform(PxIdentity));
+	PxTriangleMeshGeometry triGeom;
+	triGeom.triangleMesh = triMesh;
+	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*groundPlane, triGeom, *material);
 	PxFilterData qryFilterData;
 	setupDrivableSurface(qryFilterData);
-	shapes[0]->setQueryFilterData(qryFilterData);
-
-	//Set the simulation filter data of the ground plane so that it collides with the chassis of a vehicle but not the wheels.
-	shapes[0]->setSimulationFilterData(simFilterData);
-
+	meshShape->setQueryFilterData(qryFilterData);
+	meshShape->setSimulationFilterData(simFilterData);
+	
 	return groundPlane;
 }
 

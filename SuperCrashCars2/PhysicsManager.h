@@ -1,9 +1,9 @@
 #pragma once
 
 #include <PxPhysicsAPI.h>
-#include <vector>
 #include "Model.h"
 
+#include "EventCallback.h"
 #include "SnippetVehicleFilterShader.h"
 #include "SnippetVehicleCreate.h"
 
@@ -26,12 +26,17 @@ public:
 	PxMaterial* gMaterial = NULL;
 	PxPvd* gPvd = NULL;
 	PxRigidStatic* gGroundPlane = NULL;
+	EventCallback gEventCallback;
 
 	const PxF32 timestep;
+
+	Model m_groundModel;
 
 	void simulate();
 	void free();
 
-	PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts);
+	void drawGround();
 
+	PxTriangleMesh* createTriangleMesh(const std::vector<PxVec3>& verts, const std::vector<PxU32>& indices);
+	PxConvexMesh* createConvexMesh(const std::vector<PxVec3>& verts);
 };
