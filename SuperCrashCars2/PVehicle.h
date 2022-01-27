@@ -16,7 +16,8 @@ using namespace snippetvehicle;
 
 enum class VehicleType {
 	eJEEP = 0,
-	eTOYOTA = 1
+	eTOYOTA = 1,
+	eSHUCKLE = 2
 };
 
 class PVehicle {
@@ -63,7 +64,7 @@ private:
 	
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
-		0.0f,		0.75f,
+		0.0f,		0.75f,		
 		5.0f,		0.75f,
 		30.0f,		0.125f,
 		120.0f,		0.1f,

@@ -41,9 +41,11 @@ int main(int argc, char** argv) {
 
 	// Physx
 	double playerMass;
-	VehicleType playerType = VehicleType::eJEEP;
+	VehicleType playerType = VehicleType::eSHUCKLE;
+
 	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
 	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
+	if (playerType == VehicleType::eSHUCKLE) playerMass = 1000.0;
 	double jumpCoefficient = playerMass * 7;
 	VehicleType enemyType = VehicleType::eTOYOTA;
 
