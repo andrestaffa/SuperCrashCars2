@@ -200,7 +200,7 @@ void PVehicle::handbrake() {
 }
 
 void PVehicle::jump(PxVec3 impulse) {
-	// 
+	// not implemented
 }
 
 void PVehicle::releaseAllControls() {
