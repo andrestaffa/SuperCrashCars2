@@ -72,6 +72,7 @@ int main(int argc, char** argv) {
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
+
 	while (!window.shouldClose()) {
 
 		Time::update();
@@ -119,6 +120,9 @@ int main(int argc, char** argv) {
 		#pragma endregion
 
 		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_CULL_FACE); // if faces are randomly missing try
+		glCullFace(GL_FRONT);	// commenting out these three lines
+		glFrontFace(GL_CW);		// 
 		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_LINE_SMOOTH);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
