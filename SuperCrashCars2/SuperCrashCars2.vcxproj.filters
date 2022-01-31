@@ -249,4 +249,18 @@
       <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shader_fragment.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\shader_vertex.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\light.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\light.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>
