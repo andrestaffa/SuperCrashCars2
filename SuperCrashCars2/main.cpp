@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 
 	// Physx
 	double playerMass;
-	VehicleType playerType = VehicleType::eSHUCKLE;
+	VehicleType playerType = VehicleType::eJEEP;
 
 	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
 	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
@@ -53,6 +53,10 @@ int main(int argc, char** argv) {
 	PhysicsManager pm = PhysicsManager(1.0f/60.0f);
 	PVehicle player = PVehicle(pm, playerType, PxVec3(0.0f, 10.0f, 0.0f));
 	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 10.0f, 0.0f));
+
+	Model skybox = Model("models/anime/skybox.obj");
+	skybox.scale(glm::vec3(30, 30, 30));
+
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -120,6 +124,7 @@ int main(int argc, char** argv) {
 		pm.drawGround();
 		player.render();
 		enemy.render();
+		skybox.draw();
 
 		ImGui::Begin("Information/Controls");
 		std::string fps = ("FPS " + std::to_string((int)Time::fps));
@@ -137,7 +142,7 @@ int main(int argc, char** argv) {
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
-
+		
 	}
 
 	player.free();
