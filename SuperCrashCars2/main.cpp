@@ -57,6 +57,10 @@ int main(int argc, char** argv) {
 	PVehicle player = PVehicle(pm, playerType, PxVec3(0.0f, 10.0f, 0.0f));
 	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 10.0f, 0.0f));
 
+	Model skybox = Model("models/anime/skybox.obj");
+	skybox.scale(glm::vec3(30, 30, 30));
+
+
 	// ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -137,6 +141,7 @@ int main(int argc, char** argv) {
 
 		pm.drawGround();
 		enemy.render();
+		skybox.draw();
 
 		Utils::instance().shader = defualt;
 		glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -170,7 +175,7 @@ int main(int argc, char** argv) {
 
 		glDisable(GL_FRAMEBUFFER_SRGB);
 		window.swapBuffers();
-
+		
 	}
 
 	player.free();

@@ -134,7 +134,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	vehicleDesc.wheelMOI = wheelMOI;
 	vehicleDesc.numWheels = nbWheels;
 	vehicleDesc.wheelMaterial = this->m_pm.gMaterial;
-	vehicleDesc.chassisSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST, 0, 0);
+	vehicleDesc.wheelSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST, 0, 0);
 
 	return vehicleDesc;
 }
@@ -244,6 +244,21 @@ void PVehicle::render() {
 		// 2 -> back-right tire
 		// 3 -> back-left tire
 		// 4 -> body
+
+
+		PxVec3 frontRightTirePos = PxShapeExt::getGlobalPose(*shapes[0], *rigidActor).p;
+		PxVec3 frontLeftTirePos = PxShapeExt::getGlobalPose(*shapes[1], *rigidActor).p;
+		PxVec3 backRightTirePos = PxShapeExt::getGlobalPose(*shapes[2], *rigidActor).p;
+		PxVec3 backLeftTirePos = PxShapeExt::getGlobalPose(*shapes[3], *rigidActor).p;
+
+		PxVec3 midPointFront = (frontRightTirePos + frontLeftTirePos) / 2;
+		PxVec3 midPointBack = (backRightTirePos + backLeftTirePos) / 2;
+
+		PxVec3 forwardVector = midPointFront - midPointBack;
+		forwardVector = forwardVector.getNormalized();
+
+		//Log::debug("forwardVector {}:{}:{}", forwardVector.x, forwardVector.y, forwardVector.z);
+
 
 		if (i < 4) {
 			this->m_tires.draw(TM);
