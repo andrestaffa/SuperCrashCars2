@@ -222,6 +222,16 @@ PxRigidDynamic* PVehicle::getRigidDynamic() const {
 	return this->gVehicle4W->getRigidDynamicActor();
 }
 
+glm::vec3 PVehicle::getFrontVec() {
+	PxMat44 transformMat = PxTransform(this->getTransform());
+	return glm::normalize(glm::vec3(-transformMat[0][2], transformMat[1][2], transformMat[2][2]));
+}
+
+glm::vec3 PVehicle::getUpVec() {
+	PxMat44 transformMat = PxTransform(this->getTransform());
+	return glm::normalize(glm::vec3(transformMat[0][1], transformMat[1][1], transformMat[2][1]));
+}
+
 void PVehicle::render() {
 	const int MAX_NUM_ACTOR_SHAPES = 128;
 	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
