@@ -38,12 +38,16 @@ public:
 	const PxTransform& getTransform() const;
 	const PxVec3& getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
+	glm::vec3 getFrontVec();
+	glm::vec3 getUpVec();
 
 	void removePhysics();
 	void render();
 
 	void update();
 	void free();
+
+
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;

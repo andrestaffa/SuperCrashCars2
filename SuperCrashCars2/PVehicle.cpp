@@ -134,7 +134,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	vehicleDesc.wheelMOI = wheelMOI;
 	vehicleDesc.numWheels = nbWheels;
 	vehicleDesc.wheelMaterial = this->m_pm.gMaterial;
-	vehicleDesc.chassisSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST, 0, 0);
+	vehicleDesc.wheelSimFilterData = PxFilterData(COLLISION_FLAG_WHEEL, COLLISION_FLAG_WHEEL_AGAINST, 0, 0);
 
 	return vehicleDesc;
 }
@@ -220,6 +220,16 @@ const PxVec3& PVehicle::getPosition() const {
 
 PxRigidDynamic* PVehicle::getRigidDynamic() const {
 	return this->gVehicle4W->getRigidDynamicActor();
+}
+
+glm::vec3 PVehicle::getFrontVec() {
+	PxMat44 transformMat = PxTransform(this->getTransform());
+	return glm::normalize(glm::vec3(-transformMat[0][2], transformMat[1][2], transformMat[2][2]));
+}
+
+glm::vec3 PVehicle::getUpVec() {
+	PxMat44 transformMat = PxTransform(this->getTransform());
+	return glm::normalize(glm::vec3(transformMat[0][1], transformMat[1][1], transformMat[2][1]));
 }
 
 void PVehicle::render() {
