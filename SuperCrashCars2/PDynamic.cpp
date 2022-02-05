@@ -8,16 +8,16 @@ PDyanmic::PDyanmic(PhysicsManager& pm, const Model& model, const PxVec3& positio
 
 }
 
-const PxTransform& PDyanmic::getTransform() const {
+PxTransform PDyanmic::getTransform() const {
 	return this->m_dynamic->getGlobalPose();
 }
 
-const PxVec3& PDyanmic::getPosition() const {
+PxVec3 PDyanmic::getPosition() const {
 	return this->m_dynamic->getGlobalPose().p;
 }
 
-PxRigidDynamic& PDyanmic::getRigidDynamic() const {
-	return *this->m_dynamic;
+PxRigidDynamic* PDyanmic::getRigidDynamic() const {
+	return this->m_dynamic;
 }
 
 void PDyanmic::render() {

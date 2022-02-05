@@ -60,7 +60,6 @@ int main(int argc, char** argv) {
 	Model skybox = Model("models/anime/skybox.obj");
 	skybox.scale(glm::vec3(30, 30, 30));
 
-
 	// ImGui
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -69,13 +68,9 @@ int main(int argc, char** argv) {
 	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 330");
 
-	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// Anti-Aliasing not sure if this works rn becuase doesn't work for frame buffer, but we are missing some parts of frame buffer if we use it can't tell
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
-
 
 	while (!window.shouldClose()) {
 
@@ -124,37 +119,26 @@ int main(int argc, char** argv) {
 		#pragma endregion
 
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE); // if faces are randomly missing try
-		glCullFace(GL_FRONT);	// commenting out these three lines
-		glFrontFace(GL_CW);		// 
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_FRONT);
+		glFrontFace(GL_CW);
 		glEnable(GL_MULTISAMPLE);
 		glEnable(GL_LINE_SMOOTH);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (cameraToggle)
-			editorCamera.render();
+		if (cameraToggle) editorCamera.render();
 		else {
-			// update the camera based on front vec and player car position
 			PxVec3 pxPlayerPos = player.getPosition();
 			glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
 			playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
-			//playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 6.0f, player.getPosition().z + 12.0f));
 			playerCamera.render();
 		}
 
 		pm.drawGround();
+		player.render();
 		enemy.render();
 		skybox.draw();
-
-		Utils::instance().shader = defualt;
-		glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
-		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
-		Utils::instance().shader->use();
-
-		player.render();
-
 
 		ImGui::Begin("Information/Controls");
 		std::string fps = ("FPS " + std::to_string((int)Time::fps));

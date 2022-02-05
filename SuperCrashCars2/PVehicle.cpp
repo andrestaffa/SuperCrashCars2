@@ -210,11 +210,11 @@ void PVehicle::releaseAllControls() {
 	gVehicleInputData.setAnalogHandbrake(0.0f);
 }
 
-const PxTransform& PVehicle::getTransform() const {
+PxTransform PVehicle::getTransform() const {
 	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose();
 }
 
-const PxVec3& PVehicle::getPosition() const {
+PxVec3 PVehicle::getPosition() const {
 	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().p;
 }
 
@@ -223,12 +223,12 @@ PxRigidDynamic* PVehicle::getRigidDynamic() const {
 }
 
 glm::vec3 PVehicle::getFrontVec() {
-	PxMat44 transformMat = PxTransform(this->getRigidDynamic()->getGlobalPose());
+	PxMat44 transformMat = PxTransform(this->getTransform());
 	return glm::normalize(glm::vec3(-transformMat[0][2], transformMat[1][2], transformMat[2][2]));
 }
 
 glm::vec3 PVehicle::getUpVec() {
-	PxMat44 transformMat = PxTransform(this->getRigidDynamic()->getGlobalPose());
+	PxMat44 transformMat = PxTransform(this->getTransform());
 	return glm::normalize(glm::vec3(transformMat[0][1], transformMat[1][1], transformMat[2][1]));
 }
 
@@ -254,21 +254,6 @@ void PVehicle::render() {
 		// 2 -> back-right tire
 		// 3 -> back-left tire
 		// 4 -> body
-
-
-		PxVec3 frontRightTirePos = PxShapeExt::getGlobalPose(*shapes[0], *rigidActor).p;
-		PxVec3 frontLeftTirePos = PxShapeExt::getGlobalPose(*shapes[1], *rigidActor).p;
-		PxVec3 backRightTirePos = PxShapeExt::getGlobalPose(*shapes[2], *rigidActor).p;
-		PxVec3 backLeftTirePos = PxShapeExt::getGlobalPose(*shapes[3], *rigidActor).p;
-
-		PxVec3 midPointFront = (frontRightTirePos + frontLeftTirePos) / 2;
-		PxVec3 midPointBack = (backRightTirePos + backLeftTirePos) / 2;
-
-		PxVec3 forwardVector = midPointFront - midPointBack;
-		forwardVector = forwardVector.getNormalized();
-
-		//Log::debug("forwardVector {}:{}:{}", forwardVector.x, forwardVector.y, forwardVector.z);
-
 
 		if (i < 4) {
 			this->m_tires.draw(TM);

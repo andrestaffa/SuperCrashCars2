@@ -35,8 +35,8 @@ public:
 	void handbrake();
 	void jump(PxVec3 impulse);
 	
-	const PxTransform& getTransform() const;
-	const PxVec3& getPosition() const;
+	PxTransform getTransform() const;
+	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
 	glm::vec3 getFrontVec();
 	glm::vec3 getUpVec();
