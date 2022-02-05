@@ -28,6 +28,10 @@ public:
 
 	void updateCamera(glm::vec3 newPosition, glm::vec3 frontVector);
 
+	glm::mat4 getViewMat();
+	glm::mat4 getPerspMat();
+
+
 private:
 	glm::mat4 P, V, M;
 	float m_cameraTranslateSens, m_cameraRotationSens, cam_coeff;
