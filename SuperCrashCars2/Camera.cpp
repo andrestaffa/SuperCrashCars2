@@ -118,3 +118,11 @@ void Camera::updateCamera(glm::vec3 newPosition, glm::vec3 frontVector){
 	this->m_front = (m_front * (1.f - cam_coeff*1.5f) + m_front_goal * cam_coeff*1.5f);
 
 }
+
+glm::mat4 Camera::getViewMat() {
+	return M;
+}
+
+glm::mat4 Camera::getPerspMat() {
+	return P;
+}

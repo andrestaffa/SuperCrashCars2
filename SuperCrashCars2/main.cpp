@@ -121,6 +121,10 @@ int main(int argc, char** argv) {
 		if (inputManager->onKeyAction(GLFW_KEY_C, GLFW_PRESS) && Time::interval(1.0f))
 			cameraToggle = !cameraToggle;
 
+		if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
+			//put code for resetting the game here.
+		};
+
 		#pragma endregion
 
 		glEnable(GL_DEPTH_TEST);
