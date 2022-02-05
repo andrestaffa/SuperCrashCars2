@@ -26,9 +26,11 @@ public:
 	void render();
 	void resetLastPos();
 
+	void updateCamera(glm::vec3 newPosition, glm::vec3 frontVector);
+
 private:
 	glm::mat4 P, V, M;
-	float m_cameraTranslateSens, m_cameraRotationSens;
+	float m_cameraTranslateSens, m_cameraRotationSens, cam_coeff;
 
 	glm::vec3 m_position;
 	glm::vec3 m_front;
@@ -45,6 +47,9 @@ private:
 	bool m_firstMouse;
 	float m_lastX;
 	float m_lastY;
+
+	glm::vec3 m_front_goal;
+	glm::vec3 m_position_goal;
 
 
 };

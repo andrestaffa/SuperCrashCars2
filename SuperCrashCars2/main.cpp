@@ -132,10 +132,14 @@ int main(int argc, char** argv) {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (cameraToggle) 
+		if (cameraToggle)
 			editorCamera.render();
 		else {
-			playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 6.0f, player.getPosition().z + 12.0f));
+			// update the camera based on front vec and player car position
+			PxVec3 pxPlayerPos = player.getPosition();
+			glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
+			playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
+			//playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 6.0f, player.getPosition().z + 12.0f));
 			playerCamera.render();
 		}
 
@@ -148,13 +152,6 @@ int main(int argc, char** argv) {
 		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
 		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
 		Utils::instance().shader->use();
-
-		if (cameraToggle)
-			editorCamera.render();
-		else {
-			playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 6.0f, player.getPosition().z + 12.0f));
-			playerCamera.render();
-		}
 
 		player.render();
 

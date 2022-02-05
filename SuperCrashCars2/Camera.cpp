@@ -2,6 +2,7 @@
 
 Camera::Camera(int screenWidth, int screenHeight, const glm::vec3& position, const glm::vec3& up) :
 	m_front(glm::vec3(0.0f, 0.0f, -1.0f)),
+	m_front_goal(glm::vec3(0.0f, 0.0f, -1.0f)),
 	m_aspectRatio((float)screenWidth / (float)screenHeight),
 	m_fov(60.0f),
 	m_yaw(-90.0f),
@@ -10,9 +11,11 @@ Camera::Camera(int screenWidth, int screenHeight, const glm::vec3& position, con
 	m_cameraRotationSens(40.0f),
 	m_firstMouse(false),
 	m_lastX(0.0f),
-	m_lastY(0.0f)
+	m_lastY(0.0f),
+	cam_coeff(0.07)
 {
 	this->m_position = position;
+	this->m_position_goal = position;
 	this->m_up = up;
 	this->UpdateMVP();
 }
@@ -105,4 +108,13 @@ void Camera::render() {
 void Camera::resetLastPos() {
 	this->m_lastX = 0.0f;
 	this->m_lastY = 0.0f;
+}
+
+void Camera::updateCamera(glm::vec3 newPosition, glm::vec3 frontVector){
+	this->m_position_goal = newPosition - (frontVector * 15.f) + glm::vec3(0.0f, 7.f, 0.0f);
+	this->setPosition(m_position * (1.f - cam_coeff) + m_position_goal * cam_coeff);
+	 
+	this->m_front_goal =  glm::vec3(frontVector.x , -0.4f + frontVector.y * 0.3f, frontVector.z);
+	this->m_front = (m_front * (1.f - cam_coeff*1.5f) + m_front_goal * cam_coeff*1.5f);
+
 }
