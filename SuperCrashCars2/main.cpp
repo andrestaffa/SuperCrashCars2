@@ -39,7 +39,6 @@ int main(int argc, char** argv) {
 	// Camera
 	bool cameraToggle = false;
 	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	Camera editorCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, glm::vec3(-2.0f, 4.0f, 10.0f));
 	playerCamera.setPitch(-30.0f);
 
 	// Physx
@@ -86,28 +85,11 @@ int main(int argc, char** argv) {
 		enemy.update();
 		glfwPollEvents();
 
-		Utils::instance().shader = defualt;
-		glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
-		Utils::instance().shader->use();
-
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
 		#pragma region inputs
-
-		if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_REPEAT))
-			editorCamera.handleRotation(inputManager->getMousePosition().x, inputManager->getMousePosition().y);
-		else if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_RIGHT, GLFW_RELEASE))
-			editorCamera.resetLastPos();
-
-		if (inputManager->onKeyAction(GLFW_KEY_W, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_W);
-		if (inputManager->onKeyAction(GLFW_KEY_A, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_A);
-		if (inputManager->onKeyAction(GLFW_KEY_S, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_S);
-		if (inputManager->onKeyAction(GLFW_KEY_D, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_D);
-		if (inputManager->onKeyAction(GLFW_KEY_LEFT_SHIFT, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_LEFT_SHIFT);
-		if (inputManager->onKeyAction(GLFW_KEY_LEFT_CONTROL, GLFW_PRESS)) editorCamera.handleTranslation(GLFW_KEY_LEFT_CONTROL);
 
 		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(throttle);
 		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(throttle * 0.5f);
@@ -117,9 +99,6 @@ int main(int argc, char** argv) {
 
 		if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS) && Time::interval(2.0f)) 
 			player.getRigidDynamic()->addForce(PxVec3(0.0, 4500 + jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
-
-		if (inputManager->onKeyAction(GLFW_KEY_C, GLFW_PRESS) && Time::interval(1.0f))
-			cameraToggle = !cameraToggle;
 
 		if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
 			//put code for resetting the game here.
@@ -136,26 +115,34 @@ int main(int argc, char** argv) {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (cameraToggle)
-			editorCamera.render();
-		else {
-			// update the camera based on front vec and player car position
-			PxVec3 pxPlayerPos = player.getPosition();
-			glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
-			playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
-			//playerCamera.setPosition(glm::vec3(player.getPosition().x, player.getPosition().y + 6.0f, player.getPosition().z + 12.0f));
-			playerCamera.render();
-		}
 
-		pm.drawGround();
-		enemy.render();
-		skybox.draw();
 
 		Utils::instance().shader = defualt;
 		glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
 		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
 		Utils::instance().shader->use();
+
+
+		// update the camera based on front vec and player car position
+		PxVec3 pxPlayerPos = player.getPosition();
+		glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
+		playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
+		playerCamera.UpdateMVP();
+		playerCamera.updateShaderUniforms();
+		
+
+		pm.drawGround();
+		enemy.render();
+		skybox.draw();
+
+
+		Utils::instance().shader = light;
+		glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
+		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
+		Utils::instance().shader->use();
+
 
 		player.render();
 

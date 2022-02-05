@@ -95,15 +95,19 @@ void Camera::setPitch(float pitch) {
 	this->m_front = glm::normalize(front);
 }
 
-void Camera::render() {
+
+void Camera::updateShaderUniforms()
+{
 	GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "M");
 	GLint viewLoc = glGetUniformLocation(*Utils::instance().shader, "V");
 	GLint projectionLoc = glGetUniformLocation(*Utils::instance().shader, "P");
-	this->UpdateMVP();
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &this->M[0][0]);
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &this->V[0][0]);
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &this->P[0][0]);
 }
+
+
+
 
 void Camera::resetLastPos() {
 	this->m_lastX = 0.0f;
