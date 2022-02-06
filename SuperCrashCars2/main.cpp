@@ -143,7 +143,7 @@ int main(int argc, char** argv) {
 		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
 		Utils::instance().shader->use();
 
-
+		playerCamera.updateShaderUniforms();
 		player.render();
 
 
