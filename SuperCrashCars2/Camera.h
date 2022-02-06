@@ -23,10 +23,15 @@ public:
 	void setYaw(float yaw);
 	void setPitch(float pitch);
 
-	void render();
+	void UpdateMVP();
+	void updateShaderUniforms();
 	void resetLastPos();
 
 	void updateCamera(glm::vec3 newPosition, glm::vec3 frontVector);
+
+	glm::mat4 getViewMat();
+	glm::mat4 getPerspMat();
+
 
 private:
 	glm::mat4 P, V, M;
@@ -42,7 +47,6 @@ private:
 	float m_yaw;
 	float m_pitch;
 
-	void UpdateMVP();
 
 	bool m_firstMouse;
 	float m_lastX;
