@@ -172,6 +172,7 @@ int main(int argc, char** argv) {
 		ImGui::Text("");
 		ImGui::Text("Drive with arrow keys");
 		ImGui::Text("E = jump");
+		ImGui::Text("F = boost");
 		ImGui::Text("Spacebar = handbrake");
 		ImGui::Text("C = toggle between editor and player cam");
 		ImGui::Text("wasd + right-click/hold mouse = control editor cam");
