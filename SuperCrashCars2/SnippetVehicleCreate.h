@@ -34,6 +34,8 @@
 #include "vehicle/PxVehicleDriveTank.h"
 #include "vehicle/PxVehicleNoDrive.h"
 
+#include <vector>
+
 namespace snippetvehicle
 {
 
@@ -107,7 +109,7 @@ struct VehicleDesc
 	ShapeUserData* shapeUserDatas;
 };
 
-PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehDesc, PxPhysics* physics, PxCooking* cooking);
+PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehDesc, const std::vector<PxVec3>& vertices, PxPhysics* physics, PxCooking* cooking);
 
 PxVehicleDriveTank* createVehicleTank(const VehicleDesc& vehDesc, PxPhysics* physics, PxCooking* cooking);
 
@@ -116,6 +118,7 @@ PxVehicleNoDrive* createVehicleNoDrive(const VehicleDesc& vehDesc, PxPhysics* ph
 ////////////////////////////////////////////////
 
 PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking& cooking);
+PxConvexMesh* createChassisMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking);
 
 PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& physics, PxCooking& cooking);
 

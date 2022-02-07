@@ -117,6 +117,7 @@ private:
 
 	void initVehicleModel();
 	VehicleDesc initVehicleDesc();
+	void adjustConvexCollisionMesh(const PxVec3& translation, const PxVec3& scale);
 	void releaseAllControls();
 
 };

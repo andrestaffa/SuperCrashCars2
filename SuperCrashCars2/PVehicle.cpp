@@ -14,7 +14,12 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 
 	VehicleDesc vehicleDesc = initVehicleDesc();
 
-	gVehicle4W = createVehicle4W(vehicleDesc, pm.gPhysics, pm.gCooking);
+	std::vector<PxVec3> vertices;
+	for (const Mesh& mesh : this->m_chassis.getMeshData()) for (const Vertex& vertex : mesh.m_vertices) vertices.push_back(PxVec3(vertex.Position.x, vertex.Position.y, vertex.Position.z));
+	gVehicle4W = createVehicle4W(vehicleDesc, vertices, pm.gPhysics, pm.gCooking);
+	const PxVec3& chassis_pos = PxVec3(this->m_chassis.getPosition().x, this->m_chassis.getPosition().y, this->m_chassis.getPosition().z);
+	const PxVec3& chassis_scale = PxVec3(this->m_chassis.getScale().x, this->m_chassis.getScale().y, this->m_chassis.getScale().z);
+	this->adjustConvexCollisionMesh(chassis_pos, chassis_scale);
 
 	PxTransform startTransform(PxVec3(0 + position.x, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f) + position.y, 0 + position.z), quat);
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
@@ -28,13 +33,27 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	brake(1.0f);
 }
 
+void PVehicle::adjustConvexCollisionMesh(const PxVec3& translation, const PxVec3& scale) {
+	const int MAX_NUM_ACTOR_SHAPES = 128;
+	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
+	PxRigidActor* rigidActor = static_cast<PxRigidActor*>(gVehicle4W->getRigidDynamicActor());
+	const PxU32 nbShapes = rigidActor->getNbShapes();
+	rigidActor->getShapes(shapes, nbShapes);
+	shapes[4]->setLocalPose(PxTransform(translation, PxQuat(PxIdentity)));
+	PxConvexMeshGeometry c;
+	shapes[4]->getConvexMeshGeometry(c);
+	c.scale = scale;
+	shapes[4]->setGeometry(c);
+
+}
+
 void PVehicle::initVehicleModel() {
 	
 	switch (this->m_vehicleType) {
 		case VehicleType::eJEEP:
 		{
 			this->m_chassis = Model("models/jeep/jeep.obj");
-			this->m_chassis.translate(glm::vec3(-0.0f, -2.0f, 0.0f));
+			this->m_chassis.translate(glm::vec3(-0.0f, -1.0f, 0.0f));
 			this->m_chassis.scale(glm::vec3(1.5f, 1.5f, 1.2f));
 
 			this->m_tires = Model("models/wheel/wheel.obj");
@@ -44,7 +63,7 @@ void PVehicle::initVehicleModel() {
 		case VehicleType::eTOYOTA:
 		{
 			this->m_chassis = Model("models/toyota/toyota.obj");
-			this->m_chassis.translate(glm::vec3(-0.125f, -2.5f, 0.20f));
+			this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
 			this->m_chassis.scale(glm::vec3(1.65f, 1.5f, 1.2f));
 
 			this->m_tires = Model("models/wheel/wheel.obj");
