@@ -127,6 +127,10 @@ PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& 
 	return createConvexMesh(points,32,physics,cooking);
 }
 
+PxConvexMesh* createWheelMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking) {
+	return createConvexMesh(vertices, physics, cooking);
+}
+
 PxRigidDynamic* createVehicleActor
 (const PxVehicleChassisData& chassisData,
  PxMaterial** wheelMaterials, PxConvexMesh** wheelConvexMeshes, const PxU32 numWheels, const PxFilterData& wheelSimFilterData,

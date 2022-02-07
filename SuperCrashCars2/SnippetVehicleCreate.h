@@ -109,7 +109,7 @@ struct VehicleDesc
 	ShapeUserData* shapeUserDatas;
 };
 
-PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehDesc, const std::vector<PxVec3>& vertices, PxPhysics* physics, PxCooking* cooking);
+PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehDesc, const std::vector<PxVec3>& chassisVertices, const std::vector<PxVec3> wheelVertices, PxPhysics* physics, PxCooking* cooking);
 
 PxVehicleDriveTank* createVehicleTank(const VehicleDesc& vehDesc, PxPhysics* physics, PxCooking* cooking);
 
@@ -121,6 +121,7 @@ PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking
 PxConvexMesh* createChassisMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking);
 
 PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& physics, PxCooking& cooking);
+PxConvexMesh* createWheelMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking);
 
 ////////////////////////////////////////////////
 
