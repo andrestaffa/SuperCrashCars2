@@ -43,15 +43,17 @@ int main(int argc, char** argv) {
 
 	// Physx
 	double playerMass;
-	VehicleType playerType = VehicleType::eJEEP;
+	VehicleType playerType = VehicleType::eTOYOTA;
 
 	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
 	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
 	if (playerType == VehicleType::eSHUCKLE) playerMass = 1000.0;
 	double jumpCoefficient = playerMass * 7;
+	int boostCoefficient = playerMass / 3;
 	VehicleType enemyType = VehicleType::eTOYOTA;
 
 	float throttle = 1.0f;
+	int boost = 100;
 	PhysicsManager pm = PhysicsManager(1.0f/60.0f);
 	PVehicle player = PVehicle(pm, playerType, PxVec3(0.0f, 10.0f, 0.0f));
 	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 10.0f, 0.0f));
@@ -75,6 +77,8 @@ int main(int argc, char** argv) {
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
+	time_t boostCooldown;
+
 
 	while (!window.shouldClose()) {
 
@@ -89,6 +93,12 @@ int main(int argc, char** argv) {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
+		if (boost < 100) {
+			if (difftime(time(0), boostCooldown) > 0.2) {
+				boost++;
+			}
+		}
+
 		#pragma region inputs
 
 		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(throttle);
@@ -99,6 +109,13 @@ int main(int argc, char** argv) {
 
 		if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS) && Time::interval(2.0f)) 
 			player.getRigidDynamic()->addForce(PxVec3(0.0, 4500 + jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
+
+		if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS) && boost > 0) {
+			glm::vec3 frontVec = player.getFrontVec();
+			player.getRigidDynamic()->addForce(PxVec3(frontVec.x, frontVec.y, frontVec.z) * boostCoefficient, PxForceMode::eIMPULSE);
+			boost--;
+			boostCooldown = time(0);
+		}
 
 		if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
 			//put code for resetting the game here.
@@ -149,7 +166,9 @@ int main(int argc, char** argv) {
 
 		ImGui::Begin("Information/Controls");
 		std::string fps = ("FPS " + std::to_string((int)Time::fps));
+		std::string printBoost = ("Boost " + std::to_string(boost));
 		ImGui::Text(fps.c_str());
+		ImGui::Text(printBoost.c_str());
 		ImGui::Text("");
 		ImGui::Text("Drive with arrow keys");
 		ImGui::Text("E = jump");
