@@ -16,6 +16,8 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "InputManager.h"
+#include "InputController.h"
+
 #include "Camera.h"
 
 #include "PVehicle.h"
@@ -43,7 +45,7 @@ int main(int argc, char** argv) {
 
 	// Physx
 	double playerMass;
-	VehicleType playerType = VehicleType::eTOYOTA;
+	VehicleType playerType = VehicleType::eJEEP;
 
 	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
 	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
@@ -73,6 +75,13 @@ int main(int argc, char** argv) {
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
+	//Controller
+	InputController controller;
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+		controller = InputController(GLFW_JOYSTICK_1);
+
+	}
+
 	// Anti-Aliasing not sure if this works rn becuase doesn't work for frame buffer, but we are missing some parts of frame buffer if we use it can't tell
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
@@ -97,6 +106,12 @@ int main(int argc, char** argv) {
 			if (difftime(time(0), boostCooldown) > 0.2) {
 				boost++;
 			}
+		}
+
+		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+			//controller.PS4Input(player, throttle);
+			controller.NSInput(player, throttle);
+			//controller.testInput();
 		}
 
 		#pragma region inputs
@@ -175,6 +190,8 @@ int main(int argc, char** argv) {
 		ImGui::Text("E = jump");
 		ImGui::Text("F = boost");
 		ImGui::Text("Spacebar = handbrake");
+		ImGui::Text("R / L for controller to speed up and slow down.");
+		ImGui::Text("Use left stick to make turns");
 		ImGui::Text("C = toggle between editor and player cam");
 		ImGui::Text("wasd + right-click/hold mouse = control editor cam");
 		ImGui::End();
