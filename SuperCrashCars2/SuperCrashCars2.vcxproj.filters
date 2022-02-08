@@ -144,9 +144,6 @@
     <ClCompile Include="EventCallback.cpp">
       <Filter>Source Files\Physics\Collision Callbacks</Filter>
     </ClCompile>
-    <ClCompile Include="InputController.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -256,9 +253,6 @@
     </ClInclude>
     <ClInclude Include="EventCallback.h">
       <Filter>Header Files\Physics\Collision Callbacks</Filter>
-    </ClInclude>
-    <ClInclude Include="InputController.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
