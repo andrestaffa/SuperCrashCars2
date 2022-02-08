@@ -39,23 +39,17 @@ namespace snippetvehicle
 
 using namespace physx;
 
-PxRigidStatic* createDrivablePlane(const PxFilterData& simFilterData, PxMaterial* material, PxPhysics* physics)
+PxRigidStatic* createDrivablePlane(const PxFilterData& simFilterData, PxMaterial* material, PxPhysics* physics, PxTriangleMesh* triMesh)
 {
-	//Add a plane to the scene.
-	PxRigidStatic* groundPlane = PxCreatePlane(*physics, PxPlane(0,1,0,1), *material);
-
-	//Get the plane shape so we can set query and simulation filter data.
-	PxShape* shapes[1];
-	groundPlane->getShapes(shapes, 1);
-
-	//Set the query filter data of the ground plane so that the vehicle raycasts can hit the ground.
+	PxRigidStatic* groundPlane = physics->createRigidStatic(PxTransform(PxIdentity));
+	PxTriangleMeshGeometry triGeom;
+	triGeom.triangleMesh = triMesh;
+	PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*groundPlane, triGeom, *material);
 	PxFilterData qryFilterData;
 	setupDrivableSurface(qryFilterData);
-	shapes[0]->setQueryFilterData(qryFilterData);
-
-	//Set the simulation filter data of the ground plane so that it collides with the chassis of a vehicle but not the wheels.
-	shapes[0]->setSimulationFilterData(simFilterData);
-
+	meshShape->setQueryFilterData(qryFilterData);
+	meshShape->setSimulationFilterData(simFilterData);
+	
 	return groundPlane;
 }
 
@@ -79,6 +73,20 @@ static PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts,
 	return convexMesh;
 }
 
+static PxConvexMesh* createConvexMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking) {
+	PxConvexMeshDesc convexDesc;
+	convexDesc.points.count = vertices.size();
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = &vertices[0];
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+	PxDefaultMemoryOutputStream buf;
+	if (!cooking.cookConvexMesh(convexDesc, buf)) return NULL;
+
+	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+	return physics.createConvexMesh(input);
+}
+
 PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking& cooking)
 {
 	const PxF32 x = dims.x*0.5f;
@@ -99,6 +107,10 @@ PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking
 	return createConvexMesh(verts,8,physics,cooking);
 }
 
+PxConvexMesh* createChassisMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking) {
+	return createConvexMesh(vertices, physics, cooking);
+}
+
 PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& physics, PxCooking& cooking)
 {
 	PxVec3 points[2*16];
@@ -113,6 +125,10 @@ PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& 
 	}
 
 	return createConvexMesh(points,32,physics,cooking);
+}
+
+PxConvexMesh* createWheelMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking) {
+	return createConvexMesh(vertices, physics, cooking);
 }
 
 PxRigidDynamic* createVehicleActor

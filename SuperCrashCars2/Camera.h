@@ -23,12 +23,19 @@ public:
 	void setYaw(float yaw);
 	void setPitch(float pitch);
 
-	void render();
+	void UpdateMVP();
+	void updateShaderUniforms();
 	void resetLastPos();
+
+	void updateCamera(glm::vec3 newPosition, glm::vec3 frontVector);
+
+	glm::mat4 getViewMat();
+	glm::mat4 getPerspMat();
+
 
 private:
 	glm::mat4 P, V, M;
-	float m_cameraTranslateSens, m_cameraRotationSens;
+	float m_cameraTranslateSens, m_cameraRotationSens, cam_coeff;
 
 	glm::vec3 m_position;
 	glm::vec3 m_front;
@@ -40,11 +47,13 @@ private:
 	float m_yaw;
 	float m_pitch;
 
-	void UpdateMVP();
 
 	bool m_firstMouse;
 	float m_lastX;
 	float m_lastY;
+
+	glm::vec3 m_front_goal;
+	glm::vec3 m_position_goal;
 
 
 };

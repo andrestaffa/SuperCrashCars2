@@ -50,6 +50,13 @@ PxFilterFlags VehicleFilterShader
 		return PxFilterFlag::eSUPPRESS;
 
 	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
+
+	bool wheelFilter = filterData0.word0 == COLLISION_FLAG_WHEEL && filterData1.word0 == COLLISION_FLAG_WHEEL;
+	bool chassisFilter = filterData0.word0 == COLLISION_FLAG_CHASSIS && filterData1.word0 == COLLISION_FLAG_CHASSIS;
+
+	if (wheelFilter || chassisFilter) pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
+
+
 	pairFlags |= PxPairFlags(PxU16(filterData0.word2 | filterData1.word2));
 
 	return PxFilterFlags();

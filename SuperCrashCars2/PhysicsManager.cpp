@@ -17,6 +17,7 @@ PhysicsManager::PhysicsManager(const PxF32 timestep) : timestep(timestep) {
 	gDispatcher = PxDefaultCpuDispatcherCreate(numWorkers);
 	sceneDesc.cpuDispatcher = gDispatcher;
 	sceneDesc.filterShader = VehicleFilterShader;
+	sceneDesc.simulationEventCallback = &gEventCallback;
 
 	gScene = gPhysics->createScene(sceneDesc);
 	PxPvdSceneClient* pvdClient = gScene->getScenePvdClient();
@@ -34,8 +35,18 @@ PhysicsManager::PhysicsManager(const PxF32 timestep) : timestep(timestep) {
 	PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
 
 	//Create a plane to drive on.
+	this->m_groundModel = Model("models/ground/ground.obj");
+	std::vector<PxVec3> vertices;
+	std::vector<PxU32> indices;
+	for (const Mesh& mesh : this->m_groundModel.getMeshData()) {
+		for (const Vertex& vertex : mesh.m_vertices)
+			vertices.push_back(PxVec3(vertex.Position.x, vertex.Position.y, vertex.Position.z));
+		for (const unsigned int& index : mesh.m_indices)
+			indices.push_back(index);
+	}
+	PxTriangleMesh* triMesh = this->createTriangleMesh(vertices, indices);
 	PxFilterData groundPlaneSimFilterData(COLLISION_FLAG_GROUND, COLLISION_FLAG_GROUND_AGAINST, 0, 0);
-	gGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, gPhysics);
+	gGroundPlane = createDrivablePlane(groundPlaneSimFilterData, gMaterial, gPhysics, triMesh);
 	gScene->addActor(*gGroundPlane);
 }
 
@@ -60,22 +71,41 @@ void PhysicsManager::free() {
 	PX_RELEASE(gFoundation);
 }
 
-PxConvexMesh* PhysicsManager::createConvexMesh(const PxVec3* verts, const PxU32 numVerts) {
+void PhysicsManager::drawGround() {
+	this->m_groundModel.draw();
+}
 
+PxTriangleMesh* PhysicsManager::createTriangleMesh(const std::vector<PxVec3>& verts, const std::vector<PxU32>& indices) {
+	PxTriangleMeshDesc meshDesc;
+	meshDesc.points.count = verts.size();
+	meshDesc.points.stride = sizeof(PxVec3);
+	meshDesc.points.data = &verts[0];
+
+	meshDesc.triangles.count = indices.size() / 3;
+	meshDesc.triangles.stride = 3 * sizeof(PxU32);
+	meshDesc.triangles.data = &indices[0];
+
+	PxDefaultMemoryOutputStream writeBuffer;
+	PxTriangleMeshCookingResult::Enum result;
+	bool status = gCooking->cookTriangleMesh(meshDesc, writeBuffer, &result);
+	if (!status) return NULL;
+
+	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	return gPhysics->createTriangleMesh(readBuffer);
+}
+
+PxConvexMesh* PhysicsManager::createConvexMesh(const std::vector<PxVec3>& verts) {
 	PxConvexMeshDesc convexDesc;
-	convexDesc.points.count = numVerts;
+	convexDesc.points.count = verts.size();
 	convexDesc.points.stride = sizeof(PxVec3);
-	convexDesc.points.data = verts;
+	convexDesc.points.data = &verts[0];
 	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
 
-	PxConvexMesh* convexMesh = NULL;
 	PxDefaultMemoryOutputStream buf;
-	if (gCooking->cookConvexMesh(convexDesc, buf)) {
-		PxDefaultMemoryInputData id(buf.getData(), buf.getSize());
-		convexMesh = gPhysics->createConvexMesh(id);
-	}
+	if (!gCooking->cookConvexMesh(convexDesc, buf)) return NULL;
 
-	return convexMesh;
+	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+	return gPhysics->createConvexMesh(input);
 }
 
 PhysicsManager::~PhysicsManager() {}

@@ -16,7 +16,12 @@ using namespace snippetvehicle;
 
 enum class VehicleType {
 	eJEEP = 0,
-	eTOYOTA = 1
+	eTOYOTA = 1,
+	eSHUCKLE = 2
+};
+
+struct CarAttributes {
+	float collisionCoefficient;
 };
 
 class PVehicle {
@@ -34,15 +39,19 @@ public:
 	void handbrake();
 	void jump(PxVec3 impulse);
 	
-	const PxTransform& getTransform() const;
-	const PxVec3& getPosition() const;
+	PxTransform getTransform() const;
+	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
+	glm::vec3 getFrontVec();
+	glm::vec3 getUpVec();
 
 	void removePhysics();
 	void render();
 
 	void update();
 	void free();
+
+
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -60,10 +69,11 @@ private:
 
 	Model m_chassis;
 	Model m_tires;
-	
+
+	CarAttributes m_attr;
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
-		0.0f,		0.75f,
+		0.0f,		0.75f,		
 		5.0f,		0.75f,
 		30.0f,		0.125f,
 		120.0f,		0.1f,
@@ -112,6 +122,9 @@ private:
 
 	void initVehicleModel();
 	VehicleDesc initVehicleDesc();
+	void adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale);
 	void releaseAllControls();
+
+	void initCarAttributes();
 
 };

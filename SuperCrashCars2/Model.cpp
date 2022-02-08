@@ -78,11 +78,23 @@ void Model::rotateAround(const glm::vec3& position, float theta, float phi, floa
 	this->m_theta += theta;
 }
 
+const glm::vec3& Model::getPosition() const {
+	return this->m_position;
+}
+
+const glm::vec3& Model::getScale() const {
+	return this->m_scale;
+}
+
 void Model::reset() {
 	this->m_position = glm::vec3(0.0f);
 	this->m_angle = 0.0f;
 	this->m_TM = glm::mat4(1.0f);
 	this->m_scale = glm::vec3(1.0f);
+}
+
+const std::vector<Mesh>& Model::getMeshData() const {
+	return this->m_meshes;
 }
 
 void Model::draw(glm::mat4& TM) {

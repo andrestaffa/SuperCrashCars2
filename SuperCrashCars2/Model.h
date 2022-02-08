@@ -27,6 +27,11 @@ public:
 	void rotateAround(const glm::vec3& position, float theta, float phi, float radius);
 	void reset();
 
+	const glm::vec3& getPosition() const;
+	const glm::vec3& getScale() const;
+
+	const std::vector<Mesh>& getMeshData() const;
+
 	void draw(glm::mat4& TM);
 	void draw();
 
