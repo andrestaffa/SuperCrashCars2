@@ -16,6 +16,8 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "InputManager.h"
+#include "InputController.h"
+
 #include "Camera.h"
 
 #include "PVehicle.h"
@@ -73,12 +75,17 @@ int main(int argc, char** argv) {
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
+	//Controller
+	InputController controller;
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+		controller = InputController(GLFW_JOYSTICK_1);
+
+	}
 	// Anti-Aliasing not sure if this works rn becuase doesn't work for frame buffer, but we are missing some parts of frame buffer if we use it can't tell
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
 	time_t boostCooldown;
-
 
 	while (!window.shouldClose()) {
 
@@ -98,7 +105,11 @@ int main(int argc, char** argv) {
 				boost++;
 			}
 		}
-
+		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+			controller.PS4Input(player, throttle);
+			Log::debug("Controller in used.");
+		}
+		
 		#pragma region inputs
 
 		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(throttle);
