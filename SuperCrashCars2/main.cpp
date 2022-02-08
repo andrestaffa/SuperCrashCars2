@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 
 	// Physx
 	double playerMass;
-	VehicleType playerType = VehicleType::eTOYOTA;
+	VehicleType playerType = VehicleType::eJEEP;
 
 	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
 	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
@@ -106,8 +106,9 @@ int main(int argc, char** argv) {
 			}
 		}
 		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-			controller.PS4Input(player, throttle);
-			Log::debug("Controller in used.");
+			//controller.PS4Input(player, throttle);
+			controller.NSInput(player, throttle);
+			//controller.testInput();
 		}
 		
 		#pragma region inputs
@@ -182,11 +183,11 @@ int main(int argc, char** argv) {
 		ImGui::Text(printBoost.c_str());
 		ImGui::Text("");
 		ImGui::Text("Drive with arrow keys");
-		ImGui::Text("E = jump");
-		ImGui::Text("F = boost");
-		ImGui::Text("Spacebar = handbrake");
-		ImGui::Text("C = toggle between editor and player cam");
-		ImGui::Text("wasd + right-click/hold mouse = control editor cam");
+		ImGui::Text("E = jump	F = boost	Spacebar = handbrake");
+		ImGui::Text("R / L for controller to speed up and slow down.");
+		ImGui::Text("R / L for controller to speed up and slow down.");
+		//ImGui::Text("C = toggle between editor and player cam");
+		//ImGui::Text("wasd + right-click/hold mouse = control editor cam");
 		ImGui::End();
 
 		ImGui::Render();

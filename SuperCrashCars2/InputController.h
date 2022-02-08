@@ -16,14 +16,15 @@ public:
 	void XboxInput(PVehicle& p1, int throttle);
 	void PS4Input(PVehicle& p1, int throttle);
 	void NSInput(PVehicle& p1, int throttle);
-
+	
 private:
 	int id;
-	//int countA;
 	int axesCount;
 	const float* axes;
 	int buttonCount;
 	const unsigned char* buttons;
 	const char* name;
+
+	void readInput();
 };
 

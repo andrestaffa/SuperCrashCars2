@@ -12,7 +12,7 @@ InputController::InputController(int playerID)
 	this->axesCount = 0;
 	this->axes = glfwGetJoystickAxes(playerID, &this->axesCount);
 	this->buttonCount = 0;
-	this->buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+	this->buttons = glfwGetJoystickButtons(playerID, &buttonCount);
 }
 
 InputController::~InputController() {}
@@ -136,6 +136,7 @@ void InputController::testInput(const float* axes, const unsigned char* buttons)
 
 void InputController::XboxInput(PVehicle& p1, int throttle) {
 	//Xbox con code
+	readInput();
 	if (abs(axes[0]) > 0.15) {
 		if (axes[0] < 0) {
 			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
@@ -163,7 +164,7 @@ void InputController::XboxInput(PVehicle& p1, int throttle) {
 }
 
 void InputController::PS4Input(PVehicle& p1, int throttle) {
-
+	readInput();
 	if (abs(axes[0]) > 0.15) {
 		if (axes[0] < 0) {
 			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
@@ -189,7 +190,7 @@ void InputController::PS4Input(PVehicle& p1, int throttle) {
 }
 
 void InputController::NSInput(PVehicle& p1, int throttle) {
-
+	readInput();
 	if (abs(axes[0]) > 0.15) {
 		if (axes[0] < 0) {
 			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
@@ -214,3 +215,9 @@ void InputController::NSInput(PVehicle& p1, int throttle) {
 	//if (abs(p1.getPosition().z) >= 101.0f || abs(p1.getPosition().x) >= 101.0) p1.removePhysics();
 }
 
+void InputController::readInput() {
+	this->axesCount = 0;
+	this->axes = glfwGetJoystickAxes(this->id, &this->axesCount);
+	this->buttonCount = 0;
+	this->buttons = glfwGetJoystickButtons(this->id, &buttonCount);
+}
