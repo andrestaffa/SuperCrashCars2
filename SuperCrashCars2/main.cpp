@@ -75,6 +75,26 @@ int main(int argc, char** argv) {
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
+	//Add players
+	//************************************************************************************************//
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+		InputController(1) i;
+
+		const char* name = glfwGetJoystickName(GLFW_JOYSTICK_1);
+		int countA;
+		int axesCount;
+		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
+		int buttonCount;
+		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
+		//const char* Xname = "Xbox Controller";
+		//const char* Pname = "PS4 Controller";
+
+		//XboxInput(player, axes, buttons);
+		//PS4Input(player, axes, buttons);
+		//NSInput(player, axes, buttons);
+		//testInput(axes, buttons);
+	}
+	//************************************************************************************************//
 
 	while (!window.shouldClose()) {
 
@@ -128,8 +148,8 @@ int main(int argc, char** argv) {
 		PxVec3 pxPlayerPos = player.getPosition();
 		glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
 		playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
-		playerCamera.UpdateMVP();
-		playerCamera.updateShaderUniforms();
+		//playerCamera.UpdateMVP();
+		//playerCamera.updateShaderUniforms();
 		
 
 		pm.drawGround();
