@@ -16,6 +16,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "InputManager.h"
+#include "InputController.h"
 #include "Camera.h"
 
 #include "PVehicle.h"
@@ -76,25 +77,11 @@ int main(int argc, char** argv) {
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
 	//Add players
-	//************************************************************************************************//
+	InputController controller;
 	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-		InputController(1) i;
+		controller = InputController(GLFW_JOYSTICK_1);
 
-		const char* name = glfwGetJoystickName(GLFW_JOYSTICK_1);
-		int countA;
-		int axesCount;
-		const float* axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axesCount);
-		int buttonCount;
-		const unsigned char* buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttonCount);
-		//const char* Xname = "Xbox Controller";
-		//const char* Pname = "PS4 Controller";
-
-		//XboxInput(player, axes, buttons);
-		//PS4Input(player, axes, buttons);
-		//NSInput(player, axes, buttons);
-		//testInput(axes, buttons);
 	}
-	//************************************************************************************************//
 
 	while (!window.shouldClose()) {
 
@@ -110,7 +97,10 @@ int main(int argc, char** argv) {
 		ImGui::NewFrame();
 
 		#pragma region inputs
-
+		//XboxInput(player, axes, buttons);
+		controller.PS4Input(player, throttle);
+		//NSInput(player, axes, buttons);
+		//testInput(axes, buttons);
 		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(throttle);
 		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(throttle * 0.5f);
 		if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(throttle * 0.5f);
