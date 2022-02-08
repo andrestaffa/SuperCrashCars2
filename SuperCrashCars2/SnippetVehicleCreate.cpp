@@ -73,6 +73,20 @@ static PxConvexMesh* createConvexMesh(const PxVec3* verts, const PxU32 numVerts,
 	return convexMesh;
 }
 
+static PxConvexMesh* createConvexMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking) {
+	PxConvexMeshDesc convexDesc;
+	convexDesc.points.count = vertices.size();
+	convexDesc.points.stride = sizeof(PxVec3);
+	convexDesc.points.data = &vertices[0];
+	convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
+
+	PxDefaultMemoryOutputStream buf;
+	if (!cooking.cookConvexMesh(convexDesc, buf)) return NULL;
+
+	PxDefaultMemoryInputData input(buf.getData(), buf.getSize());
+	return physics.createConvexMesh(input);
+}
+
 PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking& cooking)
 {
 	const PxF32 x = dims.x*0.5f;
@@ -93,6 +107,10 @@ PxConvexMesh* createChassisMesh(const PxVec3 dims, PxPhysics& physics, PxCooking
 	return createConvexMesh(verts,8,physics,cooking);
 }
 
+PxConvexMesh* createChassisMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking) {
+	return createConvexMesh(vertices, physics, cooking);
+}
+
 PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& physics, PxCooking& cooking)
 {
 	PxVec3 points[2*16];
@@ -107,6 +125,10 @@ PxConvexMesh* createWheelMesh(const PxF32 width, const PxF32 radius, PxPhysics& 
 	}
 
 	return createConvexMesh(points,32,physics,cooking);
+}
+
+PxConvexMesh* createWheelMesh(const std::vector<PxVec3>& vertices, PxPhysics& physics, PxCooking& cooking) {
+	return createConvexMesh(vertices, physics, cooking);
 }
 
 PxRigidDynamic* createVehicleActor

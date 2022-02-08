@@ -35,8 +35,8 @@ public:
 	void handbrake();
 	void jump(PxVec3 impulse);
 	
-	const PxTransform& getTransform() const;
-	const PxVec3& getPosition() const;
+	PxTransform getTransform() const;
+	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
 	glm::vec3 getFrontVec();
 	glm::vec3 getUpVec();
@@ -117,6 +117,7 @@ private:
 
 	void initVehicleModel();
 	VehicleDesc initVehicleDesc();
+	void adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale);
 	void releaseAllControls();
 
 };

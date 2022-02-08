@@ -196,7 +196,7 @@ void setupWheelsSimulationData
 
 } //namespace fourwheel
 
-PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, PxPhysics* physics, PxCooking* cooking)
+PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, const std::vector<PxVec3>& chassisVertices, const std::vector<PxVec3> wheelVertices, PxPhysics* physics, PxCooking* cooking)
 {
 	const PxVec3 chassisDims = vehicle4WDesc.chassisDims;
 	const PxF32 wheelWidth = vehicle4WDesc.wheelWidth;
@@ -211,7 +211,10 @@ PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, PxPhysics* p
 	PxRigidDynamic* veh4WActor = NULL;
 	{
 		//Construct a convex mesh for a cylindrical wheel.
-		PxConvexMesh* wheelMesh = createWheelMesh(wheelWidth, wheelRadius, *physics, *cooking);
+
+		//PxConvexMesh* wheelMesh = createWheelMesh(wheelWidth, wheelRadius, *physics, *cooking);
+		PxConvexMesh* wheelMesh = createWheelMesh(wheelVertices, *physics, *cooking);
+
 		//Assume all wheels are identical for simplicity.
 		PxConvexMesh* wheelConvexMeshes[PX_MAX_NB_WHEELS];
 		PxMaterial* wheelMaterials[PX_MAX_NB_WHEELS];
@@ -230,7 +233,10 @@ PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, PxPhysics* p
 		}
 
 		//Chassis just has a single convex shape for simplicity.
-		PxConvexMesh* chassisConvexMesh = createChassisMesh(chassisDims, *physics, *cooking);
+
+		//PxConvexMesh* chassisConvexMesh = createChassisMesh(chassisDims, *physics, *cooking);
+		PxConvexMesh* chassisConvexMesh = createChassisMesh(chassisVertices, *physics, *cooking);
+
 		PxConvexMesh* chassisConvexMeshes[1] = {chassisConvexMesh};
 		PxMaterial* chassisMaterials[1] = {vehicle4WDesc.chassisMaterial};
 

@@ -6,16 +6,16 @@ PStatic::PStatic(PhysicsManager& pm, const Model& model, const PxVec3& position,
 	pm.gScene->addActor(*this->m_static);
 }
 
-const PxTransform& PStatic::getTransform() const {
+PxTransform PStatic::getTransform() const {
 	return this->m_static->getGlobalPose();
 }
 
-const PxVec3& PStatic::getPosition() const {
+PxVec3 PStatic::getPosition() const {
 	return this->m_static->getGlobalPose().p;
 }
 
-PxRigidStatic& PStatic::getRigidStatic() const {
-	return *this->m_static;
+PxRigidStatic* PStatic::getRigidStatic() const {
+	return this->m_static;
 }
 
 void PStatic::render() {
@@ -40,22 +40,24 @@ void PStatic::render() {
 
 PxRigidStatic* PStatic::createStatic(const PxVec3& position, const PxQuat& rotation) {
 	std::vector<PxVec3> vertices;
-	for (const Mesh& mesh : this->m_model.getMeshData())
+	std::vector<PxU32> indices;
+	for (const Mesh& mesh : this->m_model.getMeshData()) {
 		for (const Vertex& vertex : mesh.m_vertices)
 			vertices.push_back(PxVec3(vertex.Position.x, vertex.Position.y, vertex.Position.z));
-
-	PxConvexMesh* convexMesh = this->m_pm.createConvexMesh(vertices);
-	PxRigidStatic* meshActor = this->m_pm.gPhysics->createRigidStatic(PxTransform(position, rotation));
-	PxFilterData obstacleSimFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
-
-	if (meshActor) {
-		PxConvexMeshGeometry convexGeom = PxConvexMeshGeometry(convexMesh);
-		convexGeom.meshFlags = PxConvexMeshGeometryFlag::eTIGHT_BOUNDS;
-		PxShape* convexShape = PxRigidActorExt::createExclusiveShape(*meshActor, convexGeom, *this->m_pm.gMaterial);
-		if (convexShape) convexShape->setSimulationFilterData(obstacleSimFilterData);
-		return meshActor;
+		for (const unsigned int& index : mesh.m_indices)
+			indices.push_back(index);
 	}
 
+	PxTriangleMesh* triMesh = this->m_pm.createTriangleMesh(vertices, indices);
+	PxRigidStatic* staticActor = this->m_pm.gPhysics->createRigidStatic(PxTransform(position, rotation));
+	if (staticActor) {
+		PxFilterData obstacleSimFilterData(COLLISION_FLAG_OBSTACLE, COLLISION_FLAG_OBSTACLE_AGAINST, 0, 0);
+		PxTriangleMeshGeometry triGeom;
+		triGeom.triangleMesh = triMesh;
+		PxShape* meshShape = PxRigidActorExt::createExclusiveShape(*staticActor, triGeom, *this->m_pm.gMaterial);
+		if (meshShape) meshShape->setSimulationFilterData(obstacleSimFilterData);
+		return staticActor;
+	}
 	return nullptr;
 }
 
