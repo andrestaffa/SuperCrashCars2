@@ -109,8 +109,8 @@ int main(int argc, char** argv) {
 		}
 
 		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-			//controller.PS4Input(player, throttle);
-			controller.NSInput(player, throttle);
+			controller.PS4Input(player, throttle);
+			//controller.NSInput(player, throttle);
 			//controller.testInput();
 		}
 
