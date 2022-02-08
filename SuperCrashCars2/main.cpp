@@ -118,7 +118,7 @@ int main(int argc, char** argv) {
 		}
 
 		if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
-			//put code for resetting the game here.
+			player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 		};
 
 		#pragma endregion
@@ -163,12 +163,13 @@ int main(int argc, char** argv) {
 
 		player.render();
 
-
 		ImGui::Begin("Information/Controls");
 		std::string fps = ("FPS " + std::to_string((int)Time::fps));
 		std::string printBoost = ("Boost " + std::to_string(boost));
+		std::string velocityString = " X: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().z);
 		ImGui::Text(fps.c_str());
 		ImGui::Text(printBoost.c_str());
+		ImGui::Text(velocityString.c_str());
 		ImGui::Text("");
 		ImGui::Text("Drive with arrow keys");
 		ImGui::Text("E = jump");

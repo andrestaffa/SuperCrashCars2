@@ -43,6 +43,12 @@
     <Filter Include="Source Files\imgui">
       <UniqueIdentifier>{7b332d37-cd4e-49c4-b1ec-9727576a2e95}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Physics\Collision Callbacks">
+      <UniqueIdentifier>{e9964908-2c29-4731-9d57-dc2973270816}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics\Collision Callbacks">
+      <UniqueIdentifier>{24037fae-9c43-4367-9717-601153da4920}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -136,7 +142,7 @@
       <Filter>Source Files\imgui</Filter>
     </ClCompile>
     <ClCompile Include="EventCallback.cpp">
-      <Filter>Source Files\Physics</Filter>
+      <Filter>Source Files\Physics\Collision Callbacks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -246,7 +252,7 @@
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
     <ClInclude Include="EventCallback.h">
-      <Filter>Header Files\Physics</Filter>
+      <Filter>Header Files\Physics\Collision Callbacks</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

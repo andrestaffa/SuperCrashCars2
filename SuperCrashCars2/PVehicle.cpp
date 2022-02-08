@@ -29,12 +29,22 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	pm.gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
+	initCarAttributes();
+	gVehicle4W->getRigidDynamicActor()->userData = &this->m_attr;
+
+
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
 	gVehicle4W->setToRestState();
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eNEUTRAL);
 	gVehicle4W->mDriveDynData.setUseAutoGears(true);
 	brake(1.0f);
+}
+
+void PVehicle::initCarAttributes() {
+	this->m_attr = CarAttributes();
+	this->m_attr.collisionCoefficient = 0.f;
+
 }
 
 void PVehicle::adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale) {

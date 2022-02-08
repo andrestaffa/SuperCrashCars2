@@ -20,6 +20,10 @@ enum class VehicleType {
 	eSHUCKLE = 2
 };
 
+struct CarAttributes {
+	float collisionCoefficient;
+};
+
 class PVehicle {
 
 public:
@@ -65,7 +69,8 @@ private:
 
 	Model m_chassis;
 	Model m_tires;
-	
+
+	CarAttributes m_attr;
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,		
@@ -119,5 +124,7 @@ private:
 	VehicleDesc initVehicleDesc();
 	void adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale);
 	void releaseAllControls();
+
+	void initCarAttributes();
 
 };
