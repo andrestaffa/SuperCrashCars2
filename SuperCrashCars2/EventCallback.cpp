@@ -17,7 +17,7 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 
 	if (car0 && car1) {
 
-		CarAttributes* attr = (CarAttributes*)car1->userData;
+		VehicleCollisionAttributes* attr = (VehicleCollisionAttributes*)car1->userData;
 		car0->addForce(PxVec3(20000.0f), PxForceMode::eIMPULSE);
 	
 	}

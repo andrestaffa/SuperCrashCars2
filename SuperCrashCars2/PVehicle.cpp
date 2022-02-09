@@ -29,7 +29,7 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	pm.gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
-	initCarAttributes();
+	this->initVehicleCollisionAttributes();
 	gVehicle4W->getRigidDynamicActor()->userData = &this->m_attr;
 
 
@@ -41,8 +41,8 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	brake(1.0f);
 }
 
-void PVehicle::initCarAttributes() {
-	this->m_attr = CarAttributes();
+void PVehicle::initVehicleCollisionAttributes() {
+	this->m_attr = VehicleCollisionAttributes();
 	this->m_attr.collisionCoefficient = 0.f;
 
 }
@@ -185,7 +185,15 @@ void PVehicle::update() {
 	//Work out if the vehicle is in the air.
 	gIsVehicleInAir = gVehicle4W->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
 
+	// other updates over time
+
 	this->releaseAllControls();
+
+	// boosting
+	if (this->vehicleParams.boost < 100) if (difftime(time(0), this->vehicleParams.boostCooldown) > 0.2f) this->vehicleParams.boost++;
+
+	// jumping
+	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 2.0f) this->vehicleParams.canJump = true;
 }
 
 void PVehicle::free() {
@@ -227,8 +235,21 @@ void PVehicle::handbrake() {
 	gVehicleInputData.setAnalogHandbrake(1.0f);
 }
 
-void PVehicle::jump(PxVec3 impulse) {
-	// not implemented
+void PVehicle::boost() {
+	if (this->vehicleParams.boost > 0) {
+		glm::vec3 frontVec = this->getFrontVec();
+		this->getRigidDynamic()->addForce(PxVec3(frontVec.x, frontVec.y, frontVec.z) * this->vehicleParams.boostCoefficient, PxForceMode::eIMPULSE);
+		this->vehicleParams.boost--;
+		this->vehicleParams.boostCooldown = time(0);
+	}
+}
+
+void PVehicle::jump() {
+	if (this->vehicleParams.canJump) {
+		this->vehicleParams.canJump = false;
+		this->getRigidDynamic()->addForce(PxVec3(0.0, 4500 + this->vehicleParams.jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
+		this->vehicleParams.jumpCooldown = time(0);
+	}
 }
 
 void PVehicle::releaseAllControls() {
