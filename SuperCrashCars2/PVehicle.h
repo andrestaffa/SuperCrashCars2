@@ -20,8 +20,25 @@ enum class VehicleType {
 	eSHUCKLE = 2
 };
 
-struct CarAttributes {
+struct VehicleCollisionAttributes {
 	float collisionCoefficient;
+};
+
+struct VehicleParams {
+	
+	// keyboard throttle
+	float k_throttle = 1.0f;
+
+	// jumping
+	float jumpCoefficient;
+	time_t jumpCooldown;
+	bool canJump = true;
+
+	// boosting
+	float boostCoefficient;
+	time_t boostCooldown;
+	int boost = 100;
+
 };
 
 class PVehicle {
@@ -37,7 +54,8 @@ public:
 	void turnLeft(float throttle);
 	void turnRight(float throttle);
 	void handbrake();
-	void jump(PxVec3 impulse);
+	void boost();
+	void jump();
 	
 	PxTransform getTransform() const;
 	PxVec3 getPosition() const;
@@ -51,7 +69,7 @@ public:
 	void update();
 	void free();
 
-
+	VehicleParams vehicleParams;
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -70,7 +88,7 @@ private:
 	Model m_chassis;
 	Model m_tires;
 
-	CarAttributes m_attr;
+	VehicleCollisionAttributes m_attr;
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,		
@@ -125,6 +143,6 @@ private:
 	void adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale);
 	void releaseAllControls();
 
-	void initCarAttributes();
+	void initVehicleCollisionAttributes();
 
 };

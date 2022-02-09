@@ -44,25 +44,14 @@ int main(int argc, char** argv) {
 	playerCamera.setPitch(-30.0f);
 
 	// Physx
-	double playerMass;
-	VehicleType playerType = VehicleType::eJEEP;
-
-	if (playerType == VehicleType::eTOYOTA) playerMass = 8000.0;
-	if (playerType == VehicleType::eJEEP) playerMass = 1500.0;
-	if (playerType == VehicleType::eSHUCKLE) playerMass = 1000.0;
-	double jumpCoefficient = playerMass * 7;
-	int boostCoefficient = playerMass / 3;
-	VehicleType enemyType = VehicleType::eTOYOTA;
-
-	float throttle = 1.0f;
-	int boost = 100;
 	PhysicsManager pm = PhysicsManager(1.0f/60.0f);
-	PVehicle player = PVehicle(pm, playerType, PxVec3(0.0f, 10.0f, 0.0f));
-	PVehicle enemy = PVehicle(pm, enemyType, PxVec3(5.0f, 10.0f, 0.0f));
-
+	PVehicle player = PVehicle(pm, VehicleType::eJEEP, PxVec3(0.0f, 10.0f, 0.0f));
+	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(5.0f, 10.0f, 0.0f));
+	player.vehicleParams.jumpCoefficient = player.getRigidDynamic()->getMass() * 7;
+	player.vehicleParams.boostCoefficient = player.getRigidDynamic()->getMass() / 3;
+	
 	Model skybox = Model("models/anime/skybox.obj");
 	skybox.scale(glm::vec3(30, 30, 30));
-
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -75,19 +64,13 @@ int main(int argc, char** argv) {
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
-	//Controller
+	// Controller
 	InputController controller;
-	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-		controller = InputController(GLFW_JOYSTICK_1);
-
-	}
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
 
 	// Anti-Aliasing not sure if this works rn becuase doesn't work for frame buffer, but we are missing some parts of frame buffer if we use it can't tell
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
-
-	time_t boostCooldown;
-
 
 	while (!window.shouldClose()) {
 
@@ -102,39 +85,25 @@ int main(int argc, char** argv) {
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		if (boost < 100) {
-			if (difftime(time(0), boostCooldown) > 0.2) {
-				boost++;
-			}
-		}
+		#pragma region controller_inputs
 
 		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-			controller.PS4Input(player, throttle);
-			//controller.NSInput(player, throttle);
-			//controller.testInput();
+			//controller.PS4Input(player);
+			controller.XboxInput(player);
 		}
 
-		#pragma region inputs
+		#pragma endregion
 
-		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(throttle);
-		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(throttle * 0.5f);
-		if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(throttle * 0.5f);
-		if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(throttle * 0.5f);
+		#pragma region keyboard_inputs
+
+		if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
+		if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
+		if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(player.vehicleParams.k_throttle * 0.5f);
+		if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(player.vehicleParams.k_throttle * 0.5f);
 		if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) player.handbrake();
-
-		if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS) && Time::interval(2.0f)) 
-			player.getRigidDynamic()->addForce(PxVec3(0.0, 4500 + jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
-
-		if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS) && boost > 0) {
-			glm::vec3 frontVec = player.getFrontVec();
-			player.getRigidDynamic()->addForce(PxVec3(frontVec.x, frontVec.y, frontVec.z) * boostCoefficient, PxForceMode::eIMPULSE);
-			boost--;
-			boostCooldown = time(0);
-		}
-
-		if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
-			player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
-		};
+		if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
+		if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
+		if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 
 		#pragma endregion
 
@@ -147,14 +116,11 @@ int main(int argc, char** argv) {
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-
 		Utils::instance().shader = defualt;
 		glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
 		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
 		glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
 		Utils::instance().shader->use();
-
 
 		// update the camera based on front vec and player car position
 		PxVec3 pxPlayerPos = player.getPosition();
@@ -162,12 +128,10 @@ int main(int argc, char** argv) {
 		playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
 		playerCamera.UpdateMVP();
 		playerCamera.updateShaderUniforms();
-		
 
 		pm.drawGround();
 		enemy.render();
 		skybox.draw();
-
 
 		//Utils::instance().shader = default;
 		//glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
@@ -178,17 +142,19 @@ int main(int argc, char** argv) {
 
 		player.render();
 
-		ImGui::Begin("Information/Controls");
-		std::string fps = ("FPS " + std::to_string((int)Time::fps));
-		std::string printBoost = ("Boost " + std::to_string(boost));
-		std::string velocityString = " X: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().z);
+		ImGui::Begin("Stats:");
+		std::string fps = ("FPS: " + std::to_string((int)Time::fps));
+		std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
+		std::string printPos = "X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
 		ImGui::Text(fps.c_str());
 		ImGui::Text(printBoost.c_str());
-		ImGui::Text(velocityString.c_str());
+		ImGui::Text(printPos.c_str());
 		ImGui::Text("");
+		ImGui::Text("Controls:");
 		ImGui::Text("Drive with arrow keys");
 		ImGui::Text("E = jump");
 		ImGui::Text("F = boost");
+		ImGui::Text("R = Reset player position");
 		ImGui::Text("Spacebar = handbrake");
 		ImGui::Text("R / L for controller to speed up and slow down.");
 		ImGui::Text("Use left stick to make turns");

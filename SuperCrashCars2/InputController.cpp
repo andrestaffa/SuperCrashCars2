@@ -10,7 +10,7 @@ InputController::InputController(int playerID)
 	this->id = playerID;
 	this->name = glfwGetJoystickName(playerID);
 	this->axesCount = 0;
-	this->axes = glfwGetJoystickAxes(playerID, &this->axesCount);
+	this->axis = glfwGetJoystickAxes(playerID, &this->axesCount);
 	this->buttonCount = 0;
 	this->buttons = glfwGetJoystickButtons(playerID, &buttonCount);
 }
@@ -44,87 +44,29 @@ InputController::~InputController() {}
  * axes[0]--Left Stick X Axis, axes[1]--Left Stick Y Axis,
  * axes[2]--Right Stick X Axis, axes[3]--Left Trigger.
  */
-void InputController::testInput(const float* axes, const unsigned char* buttons) {
-	if (GLFW_PRESS == buttons[0])
-	{
-		std::cout << "0" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[1])
-	{
-		std::cout << "1" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[2])
-	{
-		std::cout << "2" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[3])
-	{
-		std::cout << "3" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[4])
-	{
-		std::cout << "4" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[5])
-	{
-		std::cout << "5" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[6])
-	{
-		std::cout << "6" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[7])
-	{
-		std::cout << "7" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[8])
-	{
-		std::cout << "8" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[9])
-	{
-		std::cout << "9" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[10])
-	{
-		std::cout << "10" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[11])
-	{
-		std::cout << "11" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[12])
-	{
-		std::cout << "12" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[13])
-	{
-		std::cout << "13" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[14])
-	{
-		std::cout << "14" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[15])
-	{
-		std::cout << "15" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[16])
-	{
-		std::cout << "16" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[17])
-	{
-		std::cout << "17" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[18])
-	{
-		std::cout << "18" << std::endl;
-	}
-	else if (GLFW_PRESS == buttons[19])
-	{
-		std::cout << "19" << std::endl;
-	}
+void InputController::testInput() {
+	readInput();
+
+	if (GLFW_PRESS == buttons[0]) std::cout << "0" << std::endl;
+	else if (GLFW_PRESS == buttons[1]) std::cout << "1" << std::endl;
+	else if (GLFW_PRESS == buttons[2]) std::cout << "2" << std::endl;
+	else if (GLFW_PRESS == buttons[3]) std::cout << "3" << std::endl;
+	else if (GLFW_PRESS == buttons[4]) std::cout << "4" << std::endl;
+	else if (GLFW_PRESS == buttons[5]) std::cout << "5" << std::endl;
+	else if (GLFW_PRESS == buttons[6]) std::cout << "6" << std::endl;
+	else if (GLFW_PRESS == buttons[7]) std::cout << "7" << std::endl;
+	else if (GLFW_PRESS == buttons[8]) std::cout << "8" << std::endl;
+	else if (GLFW_PRESS == buttons[9]) std::cout << "9" << std::endl;
+	else if (GLFW_PRESS == buttons[10]) std::cout << "10" << std::endl;
+	else if (GLFW_PRESS == buttons[11]) std::cout << "11" << std::endl;
+	else if (GLFW_PRESS == buttons[12]) std::cout << "12" << std::endl;
+	else if (GLFW_PRESS == buttons[13]) std::cout << "13" << std::endl;
+	else if (GLFW_PRESS == buttons[14]) std::cout << "14" << std::endl;
+	else if (GLFW_PRESS == buttons[15]) std::cout << "15" << std::endl;
+	else if (GLFW_PRESS == buttons[16]) std::cout << "16" << std::endl;
+	else if (GLFW_PRESS == buttons[17]) std::cout << "17" << std::endl;
+	else if (GLFW_PRESS == buttons[18]) std::cout << "18" << std::endl;
+	else if (GLFW_PRESS == buttons[19]) std::cout << "19" << std::endl;
 
 	//std::cout << "Left Stick X Axis: " << axes[0] << std::endl;
 	//std::cout << "Left Stick Y Axis: " << axes[1] << std::endl;
@@ -134,90 +76,52 @@ void InputController::testInput(const float* axes, const unsigned char* buttons)
 	//std::cout << "Left Trigger/L2: " << axes[3] << std::endl;
 }
 
-void InputController::XboxInput(PVehicle& p1, int throttle) {
-	//Xbox con code
+void InputController::XboxInput(PVehicle& p1) {
 	readInput();
-	if (abs(axes[0]) > 0.15) {
-		if (axes[0] < 0) {
-			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
-		}
-		else
-		{
-			p1.turnRight(throttle * abs(axes[0]) * 0.5);
-		}
+	if (abs(axis[0]) > 0.15) {
+		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
+		else p1.turnRight(abs(axis[0]) * 0.5);
 	}
-	if (GLFW_PRESS == buttons[0])
-	{
-		p1.handbrake();
-	}
-	if (axes[4] != -1)
-	{
-		p1.reverse(throttle * 0.5f);
-	}
-	if (axes[5] != -1)
-	{
-		p1.accelerate(throttle);
-	}
-	//if (abs(p1.getPosition().z) >= 101.0f || abs(p1.getPosition().x) >= 101.0) p1.removePhysics();
+	if (GLFW_PRESS == buttons[2]) p1.handbrake();
 
-	return;
+	if (GLFW_PRESS == buttons[0]) p1.jump();
+	if (GLFW_PRESS == buttons[3]) p1.boost();
+	if (GLFW_PRESS == buttons[6]) p1.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+
+	if (axis[4] != -1) p1.reverse((axis[4] + 1) / 2 * 0.65f);
+	if (axis[5] != -1) p1.accelerate((axis[5] + 1) / 2);
 }
 
-void InputController::PS4Input(PVehicle& p1, int throttle) {
+void InputController::PS4Input(PVehicle& p1) {
 	readInput();
-	if (abs(axes[0]) > 0.15) {
-		if (axes[0] < 0) {
-			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
-		}
-		else
-		{
-			p1.turnRight(throttle * abs(axes[0]) * 0.5);
-		}
+	if (abs(axis[0]) > 0.15) {
+		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
+		else p1.turnRight(abs(axis[0]) * 0.5f);
 	}
-	if (GLFW_PRESS == buttons[0])
-	{
-		p1.handbrake();
-	}
-	if (axes[3] != -1)
-	{
-		p1.reverse(throttle * 0.5f);
-	}
-	if (axes[4] != -1)
-	{
-		p1.accelerate(throttle);
-	}
-	//if (abs(p1.getPosition().z) >= 101.0f || abs(p1.getPosition().x) >= 101.0) p1.removePhysics();
+	if (GLFW_PRESS == buttons[0]) p1.handbrake();
+
+	if (GLFW_PRESS == buttons[1]) p1.jump();
+	if (GLFW_PRESS == buttons[3]) p1.boost();
+	if (GLFW_PRESS == buttons[8]) p1.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+
+	if (axis[3] != -1) p1.reverse((axis[3] + 1) / 2 * 0.65f);
+	if (axis[4] != -1) p1.accelerate((axis[4] + 1) / 2);
 }
 
-void InputController::NSInput(PVehicle& p1, int throttle) {
+void InputController::NSInput(PVehicle& p1) {
 	readInput();
-	if (abs(axes[0]) > 0.15) {
-		if (axes[0] < 0) {
-			p1.turnLeft(throttle * abs(axes[0]) * 0.5);
-		}
-		else
-		{
-			p1.turnRight(throttle * abs(axes[0]) * 0.5);
-		}
+	if (abs(axis[0]) > 0.15) {
+		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
+		else p1.turnRight(abs(axis[0]) * 0.5f);
 	}
-	if (GLFW_PRESS == buttons[0])
-	{
-		p1.handbrake();
-	}
-	if (GLFW_PRESS == buttons[6])
-	{
-		p1.reverse(throttle * 0.5f);
-	}
-	if (GLFW_PRESS == buttons[7])
-	{
-		p1.accelerate(throttle);
-	}
-	//if (abs(p1.getPosition().z) >= 101.0f || abs(p1.getPosition().x) >= 101.0) p1.removePhysics();
+	if (GLFW_PRESS == buttons[0]) p1.handbrake();
+	if (GLFW_PRESS == buttons[6]) p1.reverse(0.65f);
+	if (GLFW_PRESS == buttons[7]) p1.accelerate(1);
 }
 
 void InputController::readInput() {
 	this->axesCount = 0;
-	this->axes = glfwGetJoystickAxes(this->id, &this->axesCount);
+	this->axis = glfwGetJoystickAxes(this->id, &this->axesCount);
 	this->buttonCount = 0;
 	this->buttons = glfwGetJoystickButtons(this->id, &buttonCount);
 }
