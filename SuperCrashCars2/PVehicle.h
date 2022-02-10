@@ -54,20 +54,26 @@ public:
 	void turnLeft(float throttle);
 	void turnRight(float throttle);
 	void handbrake();
+	void rotateYAxis(float amount);
+	void rotateXAxis(float amount);
 	void boost();
 	void jump();
+	void reset();
 	
 	PxTransform getTransform() const;
 	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
 	glm::vec3 getFrontVec();
 	glm::vec3 getUpVec();
+	glm::vec3 getRightVec();
 
 	void removePhysics();
 	void render();
 
 	void update();
 	void free();
+
+	bool getVehicleInAir();
 
 	VehicleParams vehicleParams;
 

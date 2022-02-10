@@ -78,15 +78,30 @@ void InputController::testInput() {
 
 void InputController::XboxInput(PVehicle& p1) {
 	readInput();
-	if (abs(axis[0]) > 0.15) {
-		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
-		else p1.turnRight(abs(axis[0]) * 0.5);
+	// if vehicle is in air, rotate car using joystick, else use joystick to turn wheels
+	if (p1.getVehicleInAir()) {
+		
+		if (abs(axis[0]) > 0.1f) {
+			p1.rotateXAxis(axis[0]);
+		}
+
+		if (abs(axis[1]) > 0.1f) {
+			p1.rotateYAxis(axis[1]);
+		}
+		
 	}
+	else {
+		if (abs(axis[0]) > 0.15f) {
+			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
+			else p1.turnRight(abs(axis[0]) * 0.5f);
+		}
+	}
+	 
 	if (GLFW_PRESS == buttons[2]) p1.handbrake();
 
 	if (GLFW_PRESS == buttons[0]) p1.jump();
 	if (GLFW_PRESS == buttons[3]) p1.boost();
-	if (GLFW_PRESS == buttons[6]) p1.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+	if (GLFW_PRESS == buttons[6]) p1.reset();
 
 	if (axis[4] != -1) p1.reverse((axis[4] + 1) / 2 * 0.65f);
 	if (axis[5] != -1) p1.accelerate((axis[5] + 1) / 2);
@@ -94,15 +109,29 @@ void InputController::XboxInput(PVehicle& p1) {
 
 void InputController::PS4Input(PVehicle& p1) {
 	readInput();
-	if (abs(axis[0]) > 0.15) {
-		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
-		else p1.turnRight(abs(axis[0]) * 0.5f);
+	// if vehicle is in air, rotate car using joystick, else use joystick to turn wheels
+	if (p1.getVehicleInAir()) {
+
+		if (abs(axis[0]) > 0.1f) {
+			p1.rotateXAxis(axis[0]);
+		}
+
+		if (abs(axis[1]) > 0.1f) {
+			p1.rotateYAxis(axis[1]);
+		}
+
+	}
+	else {
+		if (abs(axis[0]) > 0.15f) {
+			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
+			else p1.turnRight(abs(axis[0]) * 0.5f);
+		}
 	}
 	if (GLFW_PRESS == buttons[0]) p1.handbrake();
 
 	if (GLFW_PRESS == buttons[1]) p1.jump();
 	if (GLFW_PRESS == buttons[3]) p1.boost();
-	if (GLFW_PRESS == buttons[8]) p1.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+	if (GLFW_PRESS == buttons[8]) p1.reset();
 
 	if (axis[3] != -1) p1.reverse((axis[3] + 1) / 2 * 0.65f);
 	if (axis[4] != -1) p1.accelerate((axis[4] + 1) / 2);

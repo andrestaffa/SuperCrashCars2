@@ -32,6 +32,8 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	this->initVehicleCollisionAttributes();
 	gVehicle4W->getRigidDynamicActor()->userData = &this->m_attr;
 
+	this->getRigidDynamic()->setMaxAngularVelocity(10.0);
+
 
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
@@ -235,6 +237,16 @@ void PVehicle::handbrake() {
 	gVehicleInputData.setAnalogHandbrake(1.0f);
 }
 
+void PVehicle::rotateYAxis(float amount) {
+	glm::vec3 rightVec = this->getRightVec();
+	this->getRigidDynamic()->addTorque(5000.f * amount * PxVec3(rightVec.x, rightVec.y, rightVec.z), PxForceMode::eFORCE);
+}
+
+void PVehicle::rotateXAxis(float amount) {
+	glm::vec3 frontVec = this->getFrontVec();
+	this->getRigidDynamic()->addTorque(5000.f * amount * PxVec3(-frontVec.x, frontVec.y, frontVec.z), PxForceMode::eFORCE);
+}
+
 void PVehicle::boost() {
 	if (this->vehicleParams.boost > 0) {
 		glm::vec3 frontVec = this->getFrontVec();
@@ -247,9 +259,15 @@ void PVehicle::boost() {
 void PVehicle::jump() {
 	if (this->vehicleParams.canJump) {
 		this->vehicleParams.canJump = false;
-		this->getRigidDynamic()->addForce(PxVec3(0.0, 4500 + this->vehicleParams.jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
+		this->getRigidDynamic()->addForce(PxVec3(0.0, 20000 + this->vehicleParams.jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
 		this->vehicleParams.jumpCooldown = time(0);
 	}
+}
+
+void PVehicle::reset(){
+	this->getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+	this->getRigidDynamic()->setLinearVelocity(PxVec3(0.f));
+	this->getRigidDynamic()->setAngularVelocity(PxVec3(0.f));
 }
 
 void PVehicle::releaseAllControls() {
@@ -279,6 +297,11 @@ glm::vec3 PVehicle::getFrontVec() {
 glm::vec3 PVehicle::getUpVec() {
 	PxMat44 transformMat = PxTransform(this->getTransform());
 	return glm::normalize(glm::vec3(transformMat[0][1], transformMat[1][1], transformMat[2][1]));
+}
+
+glm::vec3 PVehicle::getRightVec() {
+	PxMat44 transformMat = PxTransform(this->getTransform());
+	return glm::normalize(glm::vec3(-transformMat[0][0], transformMat[1][0], transformMat[2][0]));
 }
 
 void PVehicle::render() {
@@ -326,6 +349,10 @@ void PVehicle::removePhysics() {
 		this->m_isFalling = true;
 	}
 
+}
+
+bool PVehicle::getVehicleInAir() {
+	return this->gIsVehicleInAir;
 }
 
 PVehicle::~PVehicle() {}

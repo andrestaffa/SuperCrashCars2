@@ -12,7 +12,7 @@ Camera::Camera(int screenWidth, int screenHeight, const glm::vec3& position, con
 	m_firstMouse(false),
 	m_lastX(0.0f),
 	m_lastY(0.0f),
-	cam_coeff(0.07)
+	cam_coeff(0.10)
 {
 	this->m_position = position;
 	this->m_position_goal = position;
@@ -112,10 +112,14 @@ void Camera::updateShaderUniforms()
 void Camera::resetLastPos() {
 	this->m_lastX = 0.0f;
 	this->m_lastY = 0.0f;
+
 }
 
 void Camera::updateCamera(glm::vec3 newPosition, glm::vec3 frontVector){
-	this->m_position_goal = newPosition - (frontVector * 15.f) + glm::vec3(0.0f, 7.f, 0.0f);
+
+
+	this->m_position_goal = newPosition - (glm::vec3(frontVector.x, 0.0f, frontVector.z ) * 15.f) + glm::vec3(0.0f, 7.f, 0.0f);
+	
 	this->setPosition(m_position * (1.f - cam_coeff) + m_position_goal * cam_coeff);
 	 
 	this->m_front_goal =  glm::vec3(frontVector.x , -0.4f + frontVector.y * 0.3f, frontVector.z);

@@ -88,8 +88,8 @@ int main(int argc, char** argv) {
 		#pragma region controller_inputs
 
 		if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-			//controller.PS4Input(player);
-			controller.XboxInput(player);
+			controller.PS4Input(player);
+			//controller.XboxInput(player);
 		}
 
 		#pragma endregion
@@ -123,6 +123,7 @@ int main(int argc, char** argv) {
 		Utils::instance().shader->use();
 
 		// update the camera based on front vec and player car position
+	
 		PxVec3 pxPlayerPos = player.getPosition();
 		glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
 		playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
@@ -133,15 +134,9 @@ int main(int argc, char** argv) {
 		enemy.render();
 		skybox.draw();
 
-		//Utils::instance().shader = default;
-		//glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-		//glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
-		//glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
-		//Utils::instance().shader->use();
-		//playerCamera.updateShaderUniforms();
-
 		player.render();
 
+		// imGUI section
 		ImGui::Begin("Stats:");
 		std::string fps = ("FPS: " + std::to_string((int)Time::fps));
 		std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
@@ -158,8 +153,6 @@ int main(int argc, char** argv) {
 		ImGui::Text("Spacebar = handbrake");
 		ImGui::Text("R / L for controller to speed up and slow down.");
 		ImGui::Text("Use left stick to make turns");
-		ImGui::Text("C = toggle between editor and player cam");
-		ImGui::Text("wasd + right-click/hold mouse = control editor cam");
 		ImGui::End();
 
 		ImGui::Render();
