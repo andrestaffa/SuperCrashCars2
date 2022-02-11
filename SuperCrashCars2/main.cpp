@@ -252,19 +252,19 @@ int main(int argc, char** argv) {
 		ImGui::Begin("Stats:");
 		std::string fps = ("FPS: " + std::to_string((int)Time::fps));
 		std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
-		std::string printPos = "X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
+		std::string printPos = "Current Position: X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
 		ImGui::Text(fps.c_str());
 		ImGui::Text(printBoost.c_str());
 		ImGui::Text(printPos.c_str());
 		ImGui::Text("");
 		ImGui::Text("Controls:");
-		ImGui::Text("Drive with arrow keys");
-		ImGui::Text("E = jump");
-		ImGui::Text("F = boost");
-		ImGui::Text("R = Reset player position");
-		ImGui::Text("Spacebar = handbrake");
-		ImGui::Text("R / L for controller to speed up and slow down.");
-		ImGui::Text("Use left stick to make turns");
+		ImGui::Text("Controller: Use left stick for steering while on the ground, and to turn in the air");
+		ImGui::Text("Use R / L or Up/Down for to speed up and slow down.");
+		ImGui::Text("E(Kbord)/X(PS4)/A(XBOX) - jump" );
+		ImGui::Text("F(kbord)/TRIANGLE(PS4)/Y(XBOX) = jet boost");
+		ImGui::Text("R(keyboard)/SHARE(PS4)/BACK(XBOX) - Reset");
+		ImGui::Text("Spacebar(keyboard)/SQUARE(PS4)/X(XBOX) - handbrake");
+		ImGui::Text("Keyboard:Use Right/Left arrow keys to turn.");
 		ImGui::End();
 
 		ImGui::Render();
