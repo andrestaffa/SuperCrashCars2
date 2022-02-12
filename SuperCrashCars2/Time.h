@@ -1,44 +1,84 @@
 #pragma once
 
 #include <Windows.h>
+#include <chrono>
 #include "Log.h"
+
+using namespace std::chrono;
 
 class Time {
 
 public:
+	inline static microseconds totalRenderTime = microseconds(0);
+	inline static microseconds totalSimTime = microseconds(0);
+	inline static int averageRenderTime = 0;
+	inline static int averageSimTime = 0;
+	inline static int simulations = 0;
+	inline static int renders = 0;
 
-	inline static float fps = 0.0f;
-	inline static float deltaTime = 0.0f;
+	inline static microseconds deltaTime;
+	inline static microseconds renderAccum = microseconds(0);
+	inline static microseconds physicsAccum = microseconds(0);
+	inline static time_point<steady_clock> renderDelta;
+	inline static time_point<steady_clock> simulateDelta;
+	inline static bool shouldRender = false;
+	inline static bool shouldSimulate = false;
+
 
 	static void update() {
-		static float framesPerSecond = 0.0f;
-		static float lastTime = 0.0f;
-		float currentTime = GetTickCount64() * 0.001f;
-		++framesPerSecond;
-		if (currentTime - lastTime > 1.0f) {
-			lastTime = currentTime;
-			Time::fps = framesPerSecond;
-			Time::deltaTime = 1 / Time::fps;
-			framesPerSecond = 0;
+		static time_point<steady_clock> lastTime = steady_clock::now();
+		time_point<steady_clock> currentTime = steady_clock::now();
+		Time::deltaTime = duration_cast<microseconds>(currentTime - lastTime);
+		Time::renderAccum += deltaTime;
+		Time::physicsAccum += deltaTime;
+		lastTime = currentTime;
+		// 16666.. microseconds = 16.666 ms is one frame at 60fps
+		if (renderAccum > microseconds(16666)) {
+			Time::shouldRender = true;
+			Time::renderAccum = Time::renderAccum % microseconds(16666);
+		}
+		//simulate physics at 120fps
+		if (physicsAccum > microseconds(8333)) {
+			Time::shouldSimulate = true;
+			Time::physicsAccum = Time::physicsAccum % microseconds(8333);
 		}
 	}
 
-	static bool interval(float seconds) {
-		static float lastTime = 0.0f;
-		float currentTime = GetTickCount64() * 0.001f;
-		if (currentTime - lastTime > seconds) {
-			lastTime = currentTime;
-			return true;
-		}
-		return false;
+	static void renderFrame() {
+		Time::renders++;
+		Time::totalRenderTime += duration_cast<microseconds>(steady_clock::now() - Time::renderDelta);
+		//Log::info("Frame Rendered");
+		Time::shouldRender = false;
+		Time::averageRenderTime = (int)totalRenderTime.count() / Time::renders;
 	}
 
-	static void displayFPS() {
-		Log::info("{} FPS", Time::fps);
+	static void simulatePhysics() {
+		Time::simulations++;
+		Time::totalSimTime += duration_cast<microseconds>(steady_clock::now() - Time::simulateDelta);
+		//Log::info("Physics Simulated");
+		Time::shouldSimulate = false;
+		Time::averageSimTime = (int)totalSimTime.count() / Time::simulations;
+	}
+
+	static void startRenderTimer() {
+		Time::renderDelta = steady_clock::now();
+	}
+
+	static void startSimTimer() {
+		Time::simulateDelta = steady_clock::now();
 	}
 
 	static void displayDeltaTime() {
-		Log::info("{} ms", Time::deltaTime);
+		Log::info("Update took {} microseconds", Time::deltaTime.count());
+	}
+
+	static void resetStats() {
+		Time::totalRenderTime = microseconds(0);
+		Time::totalSimTime = microseconds(0);
+		Time::averageRenderTime = 0;
+		Time::averageSimTime = 0;
+		Time::simulations = 0;
+		Time::renders = 0;
 	}
 
 };
