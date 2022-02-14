@@ -280,5 +280,11 @@
     <None Include="shaders\skybox.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\test.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\test.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
