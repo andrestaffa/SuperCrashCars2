@@ -110,11 +110,6 @@ int main(int argc, char** argv) {
 
 		if (Time::shouldRender) {
 			Time::startRenderTimer();
-			glfwPollEvents();
-
-			ImGui_ImplOpenGL3_NewFrame();
-			ImGui_ImplGlfw_NewFrame();
-			ImGui::NewFrame();
 
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
@@ -124,14 +119,10 @@ int main(int argc, char** argv) {
 
 			Utils::instance().shader->use();
 			Utils::instance().shader->setVector4("lightColor", lightColor);
-			Utils::instance().shader->setVector3("lightPos", Utils::instance().physxVec3ToGlmVec3(player.getPosition()));
+			Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
 			Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
-
-			PxVec3 pxPlayerPos = player.getPosition();
-			glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
-			playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
-			playerCamera.UpdateMVP();
-			playerCamera.updateShaderUniforms();
+			
+			playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 
 			pm.drawGround();
 			enemy.render();
@@ -139,7 +130,11 @@ int main(int argc, char** argv) {
 
 			skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
+#pragma region imgui
 			// imGUI section
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
 			ImGui::Begin("Stats:");
 			std::string simTime = ("Average Simulation time: " + std::to_string(Time::averageSimTime) + " microseconds");
 			std::string renderTime = ("Average Render Time: " + std::to_string(Time::averageRenderTime) + " microseconds");
@@ -159,10 +154,11 @@ int main(int argc, char** argv) {
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
+#pragma endregion
 
 			glDisable(GL_FRAMEBUFFER_SRGB);
 			window.swapBuffers();
+
 			Time::renderFrame(); // turn off the render flag and stop timer
 		}
 	}

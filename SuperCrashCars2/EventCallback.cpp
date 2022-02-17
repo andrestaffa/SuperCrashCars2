@@ -15,11 +15,19 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 	PxRigidDynamic* car0 = reinterpret_cast<PxRigidDynamic*>(actor0);
 	PxRigidDynamic* car1 = reinterpret_cast<PxRigidDynamic*>(actor1);
 
+	// car1 hits car 0!
+
 	if (car0 && car1) {
 
+		PxVec3 car1Pos = car1->getGlobalPose().p;
+		PxVec3 car0Pos = car0->getGlobalPose().p;
+		PxVec3 launchVector = car0Pos - car1Pos;
+		launchVector = launchVector.getNormalized();
+
 		VehicleCollisionAttributes* attr = (VehicleCollisionAttributes*)car1->userData;
-		car0->addForce(PxVec3(20000.0f), PxForceMode::eIMPULSE);
-	
+		car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
+		car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
+
 	}
 
 }

@@ -14,11 +14,11 @@ public:
 	
 	std::shared_ptr<ShaderProgram> shader = nullptr;
 
-	physx::PxVec3 glmVec3ToPhysxVec3(glm::vec3 vec) {
+	physx::PxVec3 glmToPxVec3(glm::vec3 vec) {
 		return physx::PxVec3(vec.x, vec.y, vec.z);
 	}
 
-	glm::vec3 physxVec3ToGlmVec3(physx::PxVec3 vec) {
+	glm::vec3 pxToGlmVec3(physx::PxVec3 vec) {
 		return glm::vec3(vec.x, vec.y, vec.z);
 	}
 

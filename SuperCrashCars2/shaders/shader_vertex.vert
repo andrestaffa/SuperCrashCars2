@@ -8,7 +8,6 @@ out vec2 TexCoords;
 out vec3 Normal;
 out vec3 crntPos;
 
-uniform mat4 M; // obsolete
 uniform mat4 V;
 uniform mat4 P;
 
@@ -19,6 +18,6 @@ void main()
 	crntPos = vec3(TM * vec4(aPos, 1.0f));
 
 	TexCoords = aTexCoords; 
-	gl_Position = P * V * M * TM * vec4(aPos, 1.0f);
+	gl_Position = P * V * TM * vec4(aPos, 1.0f);
 	Normal = aNormal;
 }
