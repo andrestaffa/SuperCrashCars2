@@ -26,22 +26,16 @@
 #include "PDynamic.h"
 #include "PStatic.h"
 
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-unsigned int loadTexture(const char* path);
-unsigned int loadCubemap(std::vector<std::string> faces);
+#include "Skybox.h"
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
-
-#pragma region setup
 
 	// OpenGL
 	glfwInit();
 	Window window(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, "Super Crash Cars 2");
 	
-	auto defualt = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
-	auto light = std::make_shared<ShaderProgram>("shaders/light.vert", "shaders/light.frag");
+	Utils::instance().shader = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
@@ -57,9 +51,6 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(5.0f, 10.0f, 0.0f));
 	player.vehicleParams.jumpCoefficient = player.getRigidDynamic()->getMass() * 7;
 	player.vehicleParams.boostCoefficient = player.getRigidDynamic()->getMass() / 3;
-	
-	Model skybox = Model("models/anime/skybox.obj");
-	skybox.scale(glm::vec3(30, 30, 30));
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -76,113 +67,27 @@ int main(int argc, char** argv) {
 	InputController controller;
 	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
 
+	// skybox
+	Skybox skybox;
+
 	// Anti-Aliasing not sure if this works rn becuase doesn't work for frame buffer, but we are missing some parts of frame buffer if we use it can't tell
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
-
-#pragma endregion
-
-#pragma region skybox
-
-	auto skyboxShader = std::make_shared<ShaderProgram>("shaders/skybox.vert", "shaders/skybox.frag");
-	float skyboxVertices[] = {
-		// positions          
-		-1.0f,  1.0f, -1.0f,
-		-1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f, -1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-
-		-1.0f, -1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f,
-		-1.0f, -1.0f,  1.0f,
-
-		-1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f, -1.0f,
-		 1.0f,  1.0f,  1.0f,
-		 1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f,  1.0f,
-		-1.0f,  1.0f, -1.0f,
-
-		-1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f, -1.0f,
-		 1.0f, -1.0f, -1.0f,
-		-1.0f, -1.0f,  1.0f,
-		 1.0f, -1.0f,  1.0f
-	};
-	
-
-	unsigned int skyboxVAO, skyboxVBO;
-	glGenVertexArrays(1, &skyboxVAO);
-	glGenBuffers(1, &skyboxVBO);
-	glBindVertexArray(skyboxVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-
-
-	std::vector<std::string> faces
-	{
-		"skybox/right.jpg",
-		"skybox/left.jpg",
-		"skybox/top.jpg",
-		"skybox/bottom.jpg",
-		"skybox/front.jpg",
-		"skybox/back.jpg",
-	};
-	unsigned int cubemapTexture = loadCubemap(faces);
-
-
-
-	Utils::instance().shader = skyboxShader;
-	Utils::instance().shader->use();
-	glUniform1i(glGetUniformLocation(*Utils::instance().shader, "skybox"), 0);
-
-	/*skyboxShader.use();
-	skyboxShader.setInt("skybox", 0);*/
-
-#pragma endregion 
+	glEnable(GL_DEPTH_TEST);
 
 	while (!window.shouldClose()) {
 
 		glfwPollEvents();
-
 		Time::update();
 
-		// if 8333 microseconds passed, simulate
 		if (Time::shouldSimulate) {
 			Time::startSimTimer();
-			//Log::info("Starting Simulation...");
-#pragma region controller_inputs
+			#pragma region inputs
 
 			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
 				controller.PS4Input(player);
 				//controller.XboxInput(player);
 			}
-
-#pragma endregion
-
-#pragma region keyboard_inputs
 
 			if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
 			if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
@@ -197,14 +102,12 @@ int main(int argc, char** argv) {
 			if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 
 #pragma endregion
-
 			pm.simulate();
 			player.update();
 			enemy.update();
-
-			Time::simulatePhysics();  // turn off the simulation flag and stop timer
+			Time::simulatePhysics();
 		}
-		//if 16666 microseconds passed, render
+
 		if (Time::shouldRender) {
 			Time::startRenderTimer();
 			glfwPollEvents();
@@ -213,25 +116,16 @@ int main(int argc, char** argv) {
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
 
-
-
-			glEnable(GL_DEPTH_TEST);
-			glEnable(GL_CULL_FACE); // if faces are randomly missing try
-			glCullFace(GL_FRONT);	// commenting out these three lines
-			glFrontFace(GL_CW);		// 
-			glEnable(GL_MULTISAMPLE);
-			glEnable(GL_LINE_SMOOTH);
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+			glFrontFace(GL_CW);		 
 			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-			Utils::instance().shader = defualt;
 			Utils::instance().shader->use();
-			glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-			glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
-			glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
-
-
-			// update the camera based on front vec and player car position
+			Utils::instance().shader->setVector4("lightColor", lightColor);
+			Utils::instance().shader->setVector3("lightPos", Utils::instance().physxVec3ToGlmVec3(player.getPosition()));
+			Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
 
 			PxVec3 pxPlayerPos = player.getPosition();
 			glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
@@ -241,29 +135,9 @@ int main(int argc, char** argv) {
 
 			pm.drawGround();
 			enemy.render();
-			//skybox.draw();
 			player.render();
 
-
-
-			// draw skybox as last
-			glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-			Utils::instance().shader = skyboxShader;
-			Utils::instance().shader->use();
-			glm::mat4 view = glm::mat4(glm::mat3(playerCamera.getViewMat())); // remove translation from the view matrix
-			glm::mat4 projection = playerCamera.getPerspMat();
-			glUniformMatrix4fv(glGetUniformLocation(*Utils::instance().shader, "view"), 1, GL_FALSE, &view[0][0]);
-			glUniformMatrix4fv(glGetUniformLocation(*Utils::instance().shader, "projection"), 1, GL_FALSE, &projection[0][0]);
-
-			// skybox cube
-			glBindVertexArray(skyboxVAO);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-			glBindVertexArray(0);
-			glDepthFunc(GL_LESS); // set depth function back to default
-
-
+			skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
 			// imGUI section
 			ImGui::Begin("Stats:");
@@ -280,17 +154,6 @@ int main(int argc, char** argv) {
 			ImGui::Text(printPos.c_str());
 			ImGui::Text(printLinearVelocity.c_str());
 			ImGui::Text(printAngularVelocity.c_str());
-			/*
-			ImGui::Text("");
-			ImGui::Text("Controls:");
-			ImGui::Text("Controller: Use left stick for steering while on the ground, and to turn in the air");
-			ImGui::Text("Use R / L or Up/Down for to speed up and slow down.");
-			ImGui::Text("E(Kbord)/X(PS4)/A(XBOX) - jump");
-			ImGui::Text("F(kbord)/TRIANGLE(PS4)/Y(XBOX) = jet boost");
-			ImGui::Text("R(keyboard)/SHARE(PS4)/BACK(XBOX) - Reset");
-			ImGui::Text("Spacebar(keyboard)/SQUARE(PS4)/X(XBOX) - handbrake");
-			ImGui::Text("Keyboard:Use Right/Left arrow keys to turn.");
-			*/
 
 			ImGui::End();
 
@@ -304,9 +167,6 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	glDeleteVertexArrays(1, &skyboxVAO);
-	glDeleteBuffers(1, &skyboxVAO);
-
 	player.free();
 	enemy.free();
 	pm.free();
@@ -318,92 +178,4 @@ int main(int argc, char** argv) {
 
 	glfwTerminate();
 	return 0;
-}
-
-
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
-
-
-unsigned int loadTexture(char const* path)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format{};
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
-}
-
-// loads a cubemap texture from 6 individual texture faces
-// order:
-// +X (right)
-// -X (left)
-// +Y (top)
-// -Y (bottom)
-// +Z (front) 
-// -Z (back)
-// -------------------------------------------------------
-unsigned int loadCubemap(std::vector<std::string> faces)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	int width, height, nrComponents;
-	for (unsigned int i = 0; i < faces.size(); i++)
-	{
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrComponents, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
-		}
-		else
-		{
-			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
 }

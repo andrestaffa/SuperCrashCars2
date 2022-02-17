@@ -128,7 +128,7 @@ void Camera::updateCamera(glm::vec3 newPosition, glm::vec3 frontVector){
 }
 
 glm::mat4 Camera::getViewMat() {
-	return M;
+	return V;
 }
 
 glm::mat4 Camera::getPerspMat() {
