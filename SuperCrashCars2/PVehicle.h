@@ -69,7 +69,6 @@ public:
 	glm::vec3 getUpVec();
 	glm::vec3 getRightVec();
 
-	void removePhysics();
 	void render();
 
 	void update();
