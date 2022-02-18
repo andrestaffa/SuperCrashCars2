@@ -17,14 +17,9 @@ Camera::Camera(int screenWidth, int screenHeight, const glm::vec3& position, con
 	this->m_position = position;
 	this->m_position_goal = position;
 	this->m_up = up;
-	this->UpdateMVP();
+	this->UpdateVP();
 }
 
-void Camera::UpdateMVP() {
-	this->M = glm::mat4(1.0f);
-	this->P = glm::perspective(glm::radians(this->m_fov), this->m_aspectRatio, 0.1f, 1000.0f);
-	this->V = glm::lookAt(this->m_position, this->m_position + this->m_front, this->m_up);
-}
 
 void Camera::handleTranslation(int key) {
 	if (key == GLFW_KEY_W) this->m_position += this->m_cameraTranslateSens * this->m_front;
@@ -95,35 +90,29 @@ void Camera::setPitch(float pitch) {
 	this->m_front = glm::normalize(front);
 }
 
+void Camera::updateCamera(glm::vec3 newPosition, glm::vec3 frontVector) {
+	this->m_position_goal = newPosition - (glm::vec3(frontVector.x, 0.0f, frontVector.z) * 15.f) + glm::vec3(0.0f, 7.f, 0.0f);
+	this->setPosition(m_position * (1.f - cam_coeff) + m_position_goal * cam_coeff);
+	this->m_front_goal = glm::vec3(frontVector.x, -0.4f + frontVector.y * 0.3f, frontVector.z);
+	this->m_front = (m_front * (1.f - cam_coeff * 1.5f) + m_front_goal * cam_coeff * 1.5f);
 
-void Camera::updateShaderUniforms()
-{
-	GLint modelLoc = glGetUniformLocation(*Utils::instance().shader, "M");
+	this->UpdateVP(); // 
+
 	GLint viewLoc = glGetUniformLocation(*Utils::instance().shader, "V");
 	GLint projectionLoc = glGetUniformLocation(*Utils::instance().shader, "P");
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, &this->M[0][0]);
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &this->V[0][0]);
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &this->P[0][0]);
 }
 
-
+void Camera::UpdateVP() {
+	this->P = glm::perspective(glm::radians(this->m_fov), this->m_aspectRatio, 0.1f, 1000.0f);
+	this->V = glm::lookAt(this->m_position, this->m_position + this->m_front, this->m_up);
+}
 
 
 void Camera::resetLastPos() {
 	this->m_lastX = 0.0f;
 	this->m_lastY = 0.0f;
-
-}
-
-void Camera::updateCamera(glm::vec3 newPosition, glm::vec3 frontVector){
-
-
-	this->m_position_goal = newPosition - (glm::vec3(frontVector.x, 0.0f, frontVector.z ) * 15.f) + glm::vec3(0.0f, 7.f, 0.0f);
-	
-	this->setPosition(m_position * (1.f - cam_coeff) + m_position_goal * cam_coeff);
-	 
-	this->m_front_goal =  glm::vec3(frontVector.x , -0.4f + frontVector.y * 0.3f, frontVector.z);
-	this->m_front = (m_front * (1.f - cam_coeff*1.5f) + m_front_goal * cam_coeff*1.5f);
 
 }
 
