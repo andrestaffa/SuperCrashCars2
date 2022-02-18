@@ -101,6 +101,14 @@ int main(int argc, char** argv) {
 			if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
 			if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 
+
+			VehicleCollisionAttributes *x = (VehicleCollisionAttributes*)player.getRigidDynamic()->userData;
+			if (x && x->collided)
+			{
+				player.getRigidDynamic()->addForce(-(x->forceToAdd), PxForceMode::eIMPULSE);
+				x->collided = false;
+			}
+
 #pragma endregion
 			pm.simulate();
 			player.update();
@@ -175,3 +183,4 @@ int main(int argc, char** argv) {
 	glfwTerminate();
 	return 0;
 }
+
