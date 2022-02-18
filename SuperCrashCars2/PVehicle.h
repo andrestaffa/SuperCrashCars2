@@ -22,8 +22,6 @@ enum class VehicleType {
 
 struct VehicleCollisionAttributes {
 	float collisionCoefficient;
-	bool collided;
-	PxVec3 forceToAdd;
 };
 
 struct VehicleParams {

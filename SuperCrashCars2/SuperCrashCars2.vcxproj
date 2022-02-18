@@ -202,7 +202,6 @@
     <ClInclude Include="PVehicle.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
-    <ClInclude Include="Skybox.h" />
     <ClInclude Include="SnippetVehicleConcurrency.h" />
     <ClInclude Include="SnippetVehicleCreate.h" />
     <ClInclude Include="SnippetVehicleFilterShader.h" />
