@@ -9,7 +9,6 @@
 #include "imgui_impl_opengl3.h"
 
 #include "Geometry.h"
-#include "Texture.h"
 #include "GLDebug.h"
 #include "Log.h"
 #include "Window.h"
@@ -46,9 +45,6 @@ int main(int argc, char** argv) {
 
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
-
-	// State
-	int state = 0; //Menu state = 0, Game state = 1
 
 	// Camera
 	bool cameraToggle = false;
@@ -165,203 +161,146 @@ int main(int argc, char** argv) {
 	/*skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);*/
 
-	// MAIN MENU
-	CPU_Geometry cpuGeom;
-	GPU_Geometry gpuGeom;
-	auto menuShader = std::make_shared<ShaderProgram>("shaders/test.vert", "shaders/test.frag");
-
-	//SINGLE PLAYER BUTTON
-	cpuGeom.verts.push_back(glm::vec3(-0.3f, 0.9f, 0.f)); //topleft
-	cpuGeom.verts.push_back(glm::vec3(0.3f, 0.9f, 0.f)); //topright
-	cpuGeom.verts.push_back(glm::vec3(0.3f, 0.4f, 0.f)); //bottomright
-	cpuGeom.verts.push_back(glm::vec3(0.3f, 0.4f, 0.f)); //bottomright
-	cpuGeom.verts.push_back(glm::vec3(-0.3f, 0.4f, 0.f)); //bottomleft
-	cpuGeom.verts.push_back(glm::vec3(-0.3f, 0.9f, 0.f)); //topleft
-
-	cpuGeom.texCoords.push_back(glm::vec2(0.f, 1.f)); //topleft
-	cpuGeom.texCoords.push_back(glm::vec2(1.f, 1.f)); //topright
-	cpuGeom.texCoords.push_back(glm::vec2(1.f, 0.f)); //bottomright
-	cpuGeom.texCoords.push_back(glm::vec2(1.f, 0.f)); //bottomright
-	cpuGeom.texCoords.push_back(glm::vec2(0.f, 0.f)); //bottomleft
-	cpuGeom.texCoords.push_back(glm::vec2(0.f, 1.f)); //topleft
-
-	Texture texture("menu/singleplayer/singleplayer.png", GL_LINEAR);
-	Texture background("menu/singleplayer/singleplayer.png", GL_LINEAR);
-
-	gpuGeom.setVerts(cpuGeom.verts);
-	gpuGeom.setTexCoords(cpuGeom.texCoords);
-
 #pragma endregion 
 
 	while (!window.shouldClose()) {
-		//MAIN MENU STATE
-		if (state == 0) {
-			glfwPollEvents();
-			Utils::instance().shader = menuShader;
-			Utils::instance().shader->use();
-			gpuGeom.bind();
-			texture.bind();
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-			glEnable(GL_FRAMEBUFFER_SRGB);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			texture.unbind();
+		glfwPollEvents();
 
-			if (inputManager->onMouseButtonAction(GLFW_MOUSE_BUTTON_1, GLFW_PRESS)) {
-				glm::vec2 mousePos = inputManager->getMousePosition();
-				if (mousePos.x >= -0.3 && mousePos.x <= 0.3 && mousePos.y >= 0.4 && mousePos.y <= 0.9) {
-					state = 1;
-				}
-				std::cout << "Xpos: " << mousePos.x << "Ypos: " << mousePos.y << std::endl;
-			}
+		Time::update();
 
-			glDisable(GL_FRAMEBUFFER_SRGB);
-			window.swapBuffers();
-		}
-		//GAME STATE
-		else if (state == 1) {
-
-			glfwPollEvents();
-
-			Time::update();
-
-			// if 8333 microseconds passed, simulate
-			if (Time::shouldSimulate) {
-				Time::startSimTimer();
-				//Log::info("Starting Simulation...");
+		// if 8333 microseconds passed, simulate
+		if (Time::shouldSimulate) {
+			Time::startSimTimer();
+			//Log::info("Starting Simulation...");
 #pragma region controller_inputs
 
-				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-					controller.PS4Input(player);
-					//controller.XboxInput(player);
-				}
+			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+				controller.PS4Input(player);
+				//controller.XboxInput(player);
+			}
 
 #pragma endregion
 
 #pragma region keyboard_inputs
 
-				if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
-				if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
-				if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(player.vehicleParams.k_throttle * 0.5f);
-				if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(player.vehicleParams.k_throttle * 0.5f);
-				if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) {
-					player.handbrake();
-					Time::resetStats();
-				}
-				if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
-				if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
-				if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+			if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
+			if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
+			if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(player.vehicleParams.k_throttle * 0.5f);
+			if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(player.vehicleParams.k_throttle * 0.5f);
+			if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) {
+				player.handbrake();
+				Time::resetStats();
+			}
+			if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
+			if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
+			if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 
 #pragma endregion
 
-				pm.simulate();
-				player.update();
-				enemy.update();
+			pm.simulate();
+			player.update();
+			enemy.update();
 
-				Time::simulatePhysics();  // turn off the simulation flag and stop timer
-			}
-			//if 16666 microseconds passed, render
-			if (Time::shouldRender) {
-				Time::startRenderTimer();
-				glfwPollEvents();
+			Time::simulatePhysics();  // turn off the simulation flag and stop timer
+		}
+		//if 16666 microseconds passed, render
+		if (Time::shouldRender) {
+			Time::startRenderTimer();
+			glfwPollEvents();
 
-				ImGui_ImplOpenGL3_NewFrame();
-				ImGui_ImplGlfw_NewFrame();
-				ImGui::NewFrame();
-
-
-
-				glEnable(GL_DEPTH_TEST);
-				glEnable(GL_CULL_FACE); // if faces are randomly missing try
-				glCullFace(GL_FRONT);	// commenting out these three lines
-				glFrontFace(GL_CW);		// 
-				glEnable(GL_MULTISAMPLE);
-				glEnable(GL_LINE_SMOOTH);
-				glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-				Utils::instance().shader = defualt;
-				Utils::instance().shader->use();
-				glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-				glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
-				glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
-
-
-				// update the camera based on front vec and player car position
-
-				PxVec3 pxPlayerPos = player.getPosition();
-				glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
-				playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
-				playerCamera.UpdateMVP();
-				playerCamera.updateShaderUniforms();
-
-				pm.drawGround();
-				enemy.render();
-				//skybox.draw();
-				player.render();
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
 
 
 
-				// draw skybox as last
-				glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
-				Utils::instance().shader = skyboxShader;
-				Utils::instance().shader->use();
-				glm::mat4 view = glm::mat4(glm::mat3(playerCamera.getViewMat())); // remove translation from the view matrix
-				glm::mat4 projection = playerCamera.getPerspMat();
-				glUniformMatrix4fv(glGetUniformLocation(*Utils::instance().shader, "view"), 1, GL_FALSE, &view[0][0]);
-				glUniformMatrix4fv(glGetUniformLocation(*Utils::instance().shader, "projection"), 1, GL_FALSE, &projection[0][0]);
+			glEnable(GL_DEPTH_TEST);
+			glEnable(GL_CULL_FACE); // if faces are randomly missing try
+			glCullFace(GL_FRONT);	// commenting out these three lines
+			glFrontFace(GL_CW);		// 
+			glEnable(GL_MULTISAMPLE);
+			glEnable(GL_LINE_SMOOTH);
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				// skybox cube
-				glBindVertexArray(skyboxVAO);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-				glDrawArrays(GL_TRIANGLES, 0, 36);
-				glBindVertexArray(0);
-				glDepthFunc(GL_LESS); // set depth function back to default
+			Utils::instance().shader = defualt;
+			Utils::instance().shader->use();
+			glUniform4f(glGetUniformLocation(*Utils::instance().shader, "lightColor"), lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+			glUniform3f(glGetUniformLocation(*Utils::instance().shader, "lightPos"), player.getPosition().x, player.getPosition().y, player.getPosition().z);
+			glUniform3f(glGetUniformLocation(*Utils::instance().shader, "camPos"), playerCamera.getPosition().x, playerCamera.getPosition().y, playerCamera.getPosition().z);
 
 
+			// update the camera based on front vec and player car position
 
-				// imGUI section
-				ImGui::Begin("Stats:");
-				std::string simTime = ("Average Simulation time: " + std::to_string(Time::averageSimTime) + " microseconds");
-				std::string renderTime = ("Average Render Time: " + std::to_string(Time::averageRenderTime) + " microseconds");
-				std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
-				std::string printPos = "Current Position: X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
-				std::string printLinearVelocity = "Current Linear Velocity: X: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().z);
-				std::string printAngularVelocity = "Current Angular Velocity: X: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().z);
+			PxVec3 pxPlayerPos = player.getPosition();
+			glm::vec3 glmPlayerPos = glm::vec3(pxPlayerPos.x, pxPlayerPos.y, pxPlayerPos.z);
+			playerCamera.updateCamera(glmPlayerPos, player.getFrontVec());
+			playerCamera.UpdateMVP();
+			playerCamera.updateShaderUniforms();
 
-				ImGui::Text(simTime.c_str());
-				ImGui::Text(renderTime.c_str());
-				ImGui::Text(printBoost.c_str());
-				ImGui::Text(printPos.c_str());
-				ImGui::Text(printLinearVelocity.c_str());
-				ImGui::Text(printAngularVelocity.c_str());
-				/*
-				ImGui::Text("");
-				ImGui::Text("Controls:");
-				ImGui::Text("Controller: Use left stick for steering while on the ground, and to turn in the air");
-				ImGui::Text("Use R / L or Up/Down for to speed up and slow down.");
-				ImGui::Text("E(Kbord)/X(PS4)/A(XBOX) - jump");
-				ImGui::Text("F(kbord)/TRIANGLE(PS4)/Y(XBOX) = jet boost");
-				ImGui::Text("R(keyboard)/SHARE(PS4)/BACK(XBOX) - Reset");
-				ImGui::Text("Spacebar(keyboard)/SQUARE(PS4)/X(XBOX) - handbrake");
-				ImGui::Text("Keyboard:Use Right/Left arrow keys to turn.");
-				*/
-
-				ImGui::End();
-
-				ImGui::Render();
-				ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+			pm.drawGround();
+			enemy.render();
+			//skybox.draw();
+			player.render();
 
 
-				glDisable(GL_FRAMEBUFFER_SRGB);
-				window.swapBuffers();
-				Time::renderFrame(); // turn off the render flag and stop timer
-			}
+
+			// draw skybox as last
+			glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
+			Utils::instance().shader = skyboxShader;
+			Utils::instance().shader->use();
+			glm::mat4 view = glm::mat4(glm::mat3(playerCamera.getViewMat())); // remove translation from the view matrix
+			glm::mat4 projection = playerCamera.getPerspMat();
+			glUniformMatrix4fv(glGetUniformLocation(*Utils::instance().shader, "view"), 1, GL_FALSE, &view[0][0]);
+			glUniformMatrix4fv(glGetUniformLocation(*Utils::instance().shader, "projection"), 1, GL_FALSE, &projection[0][0]);
+
+			// skybox cube
+			glBindVertexArray(skyboxVAO);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
+			glDepthFunc(GL_LESS); // set depth function back to default
+
+
+
+			// imGUI section
+			ImGui::Begin("Stats:");
+			std::string simTime = ("Average Simulation time: " + std::to_string(Time::averageSimTime) + " microseconds");
+			std::string renderTime = ("Average Render Time: " + std::to_string(Time::averageRenderTime) + " microseconds");
+			std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
+			std::string printPos = "Current Position: X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
+			std::string printLinearVelocity = "Current Linear Velocity: X: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().z);
+			std::string printAngularVelocity = "Current Angular Velocity: X: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().z);
+
+			ImGui::Text(simTime.c_str());
+			ImGui::Text(renderTime.c_str());
+			ImGui::Text(printBoost.c_str());
+			ImGui::Text(printPos.c_str());
+			ImGui::Text(printLinearVelocity.c_str());
+			ImGui::Text(printAngularVelocity.c_str());
+			/*
+			ImGui::Text("");
+			ImGui::Text("Controls:");
+			ImGui::Text("Controller: Use left stick for steering while on the ground, and to turn in the air");
+			ImGui::Text("Use R / L or Up/Down for to speed up and slow down.");
+			ImGui::Text("E(Kbord)/X(PS4)/A(XBOX) - jump");
+			ImGui::Text("F(kbord)/TRIANGLE(PS4)/Y(XBOX) = jet boost");
+			ImGui::Text("R(keyboard)/SHARE(PS4)/BACK(XBOX) - Reset");
+			ImGui::Text("Spacebar(keyboard)/SQUARE(PS4)/X(XBOX) - handbrake");
+			ImGui::Text("Keyboard:Use Right/Left arrow keys to turn.");
+			*/
+
+			ImGui::End();
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+			glDisable(GL_FRAMEBUFFER_SRGB);
+			window.swapBuffers();
+			Time::renderFrame(); // turn off the render flag and stop timer
 		}
 	}
 
