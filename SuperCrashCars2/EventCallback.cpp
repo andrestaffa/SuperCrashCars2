@@ -25,9 +25,15 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		launchVector = launchVector.getNormalized();
 
 		VehicleCollisionAttributes* attr = (VehicleCollisionAttributes*)car1->userData;
-		car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
-		car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
+		attr->collided = true;
+
+		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
+		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
+		attr->forceToAdd = PxVec3(launchVector * 30000 * attr->collisionCoefficient);
+		
+		
+		attr->collisionCoefficient = attr->collisionCoefficient + 0.5f;
+		Log::debug("Damage car1 {}", attr->collisionCoefficient);
 
 	}
-
 }
