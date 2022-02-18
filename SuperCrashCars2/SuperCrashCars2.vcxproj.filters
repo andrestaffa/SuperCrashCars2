@@ -260,6 +260,9 @@
     <ClInclude Include="InputController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files\Mesh &amp; Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader_fragment.frag">

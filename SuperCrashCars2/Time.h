@@ -79,6 +79,10 @@ public:
 		Time::averageSimTime = 0;
 		Time::simulations = 0;
 		Time::renders = 0;
+	} 
+
+	static time_point<steady_clock> getTime() {
+		return steady_clock::now();
 	}
 
 };

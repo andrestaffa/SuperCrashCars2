@@ -45,8 +45,9 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 
 void PVehicle::initVehicleCollisionAttributes() {
 	this->m_attr = VehicleCollisionAttributes();
-	this->m_attr.collisionCoefficient = 0.f;
-
+	this->m_attr.collisionCoefficient = 1.0f;
+	this->m_attr.collided = false;
+	this->m_attr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
 }
 
 void PVehicle::adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale) {

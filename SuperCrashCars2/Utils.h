@@ -1,8 +1,8 @@
 #pragma once
 
+#include "PxPhysicsAPI.h"
 #include <memory>
 #include "ShaderProgram.h"
-
 
 class Utils {
 
@@ -13,6 +13,15 @@ public:
 	const int SCREEN_HEIGHT = 720;
 	
 	std::shared_ptr<ShaderProgram> shader = nullptr;
+
+	physx::PxVec3 glmToPxVec3(glm::vec3 vec) {
+		return physx::PxVec3(vec.x, vec.y, vec.z);
+	}
+
+	glm::vec3 pxToGlmVec3(physx::PxVec3 vec) {
+		return glm::vec3(vec.x, vec.y, vec.z);
+	}
+
 
 private:
 	Utils() {};

@@ -27,22 +27,16 @@
 #include "PDynamic.h"
 #include "PStatic.h"
 
-
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-unsigned int loadTexture(const char* path);
-unsigned int loadCubemap(std::vector<std::string> faces);
+#include "Skybox.h"
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
-#pragma region setup
-
 	// OpenGL
 	glfwInit();
 	Window window(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, "Super Crash Cars 2");
-	
-	auto defualt = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
-	auto light = std::make_shared<ShaderProgram>("shaders/light.vert", "shaders/light.frag");
+
+	Utils::instance().shader = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
@@ -61,9 +55,6 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(5.0f, 10.0f, 0.0f));
 	player.vehicleParams.jumpCoefficient = player.getRigidDynamic()->getMass() * 7;
 	player.vehicleParams.boostCoefficient = player.getRigidDynamic()->getMass() / 3;
-	
-	Model skybox = Model("models/anime/skybox.obj");
-	skybox.scale(glm::vec3(30, 30, 30));
 
 	// ImGui
 	IMGUI_CHECKVERSION();
@@ -80,9 +71,13 @@ int main(int argc, char** argv) {
 	InputController controller;
 	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
 
+	// skybox
+	Skybox skybox;
+
 	// Anti-Aliasing not sure if this works rn becuase doesn't work for frame buffer, but we are missing some parts of frame buffer if we use it can't tell
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
+	glEnable(GL_DEPTH_TEST);
 
 #pragma endregion
 
@@ -90,7 +85,7 @@ int main(int argc, char** argv) {
 
 	auto skyboxShader = std::make_shared<ShaderProgram>("shaders/skybox.vert", "shaders/skybox.frag");
 	float skyboxVertices[] = {
-		// positions          
+		// positions
 		-1.0f,  1.0f, -1.0f,
 		-1.0f, -1.0f, -1.0f,
 		 1.0f, -1.0f, -1.0f,
@@ -133,7 +128,7 @@ int main(int argc, char** argv) {
 		-1.0f, -1.0f,  1.0f,
 		 1.0f, -1.0f,  1.0f
 	};
-	
+
 
 	unsigned int skyboxVAO, skyboxVBO;
 	glGenVertexArrays(1, &skyboxVAO);
@@ -178,6 +173,25 @@ int main(int argc, char** argv) {
 	cpuGeom.verts.push_back(glm::vec3(-0.3f, 0.4f, 0.f)); //bottomleft
 	cpuGeom.verts.push_back(glm::vec3(-0.3f, 0.9f, 0.f)); //topleft
 
+		glfwPollEvents();
+		Time::update();
+
+		if (Time::shouldSimulate) {
+			Time::startSimTimer();
+			#pragma region inputs
+
+			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+				controller.PS4Input(player);
+				//controller.XboxInput(player);
+			}
+
+			if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
+			if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
+			if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(player.vehicleParams.k_throttle * 0.5f);
+			if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(player.vehicleParams.k_throttle * 0.5f);
+			if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) {
+				player.handbrake();
+				Time::resetStats();
 	cpuGeom.texCoords.push_back(glm::vec2(0.f, 1.f)); //topleft
 	cpuGeom.texCoords.push_back(glm::vec2(1.f, 1.f)); //topright
 	cpuGeom.texCoords.push_back(glm::vec2(1.f, 0.f)); //bottomright
@@ -191,7 +205,7 @@ int main(int argc, char** argv) {
 	gpuGeom.setVerts(cpuGeom.verts);
 	gpuGeom.setTexCoords(cpuGeom.texCoords);
 
-#pragma endregion 
+#pragma endregion
 
 	while (!window.shouldClose()) {
 		//MAIN MENU STATE
@@ -219,6 +233,73 @@ int main(int argc, char** argv) {
 				std::cout << "Xpos: " << mousePos.x << "Ypos: " << mousePos.y << std::endl;
 			}
 
+
+			VehicleCollisionAttributes *x = (VehicleCollisionAttributes*)player.getRigidDynamic()->userData;
+			if (x && x->collided)
+			{
+				player.getRigidDynamic()->addForce(-(x->forceToAdd), PxForceMode::eIMPULSE);
+				x->collided = false;
+			}
+
+#pragma endregion
+			pm.simulate();
+			player.update();
+			enemy.update();
+			Time::simulatePhysics();
+		}
+
+		if (Time::shouldRender) {
+			Time::startRenderTimer();
+
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+			glFrontFace(GL_CW);
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			Utils::instance().shader->use();
+			Utils::instance().shader->setVector4("lightColor", lightColor);
+			Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
+			Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+
+			playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+
+			pm.drawGround();
+			enemy.render();
+			player.render();
+
+			skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
+
+#pragma region imgui
+			// imGUI section
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+			ImGui::Begin("Stats:");
+			std::string simTime = ("Average Simulation time: " + std::to_string(Time::averageSimTime) + " microseconds");
+			std::string renderTime = ("Average Render Time: " + std::to_string(Time::averageRenderTime) + " microseconds");
+			std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
+			std::string printPos = "Current Position: X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
+			std::string printLinearVelocity = "Current Linear Velocity: X: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().z);
+			std::string printAngularVelocity = "Current Angular Velocity: X: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().z);
+
+			ImGui::Text(simTime.c_str());
+			ImGui::Text(renderTime.c_str());
+			ImGui::Text(printBoost.c_str());
+			ImGui::Text(printPos.c_str());
+			ImGui::Text(printLinearVelocity.c_str());
+			ImGui::Text(printAngularVelocity.c_str());
+
+			ImGui::End();
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+#pragma endregion
+
+			glDisable(GL_FRAMEBUFFER_SRGB);
+			window.swapBuffers();
+
+			Time::renderFrame(); // turn off the render flag and stop timer
 			glDisable(GL_FRAMEBUFFER_SRGB);
 			window.swapBuffers();
 		}
@@ -278,7 +359,7 @@ int main(int argc, char** argv) {
 				glEnable(GL_DEPTH_TEST);
 				glEnable(GL_CULL_FACE); // if faces are randomly missing try
 				glCullFace(GL_FRONT);	// commenting out these three lines
-				glFrontFace(GL_CW);		// 
+				glFrontFace(GL_CW);		//
 				glEnable(GL_MULTISAMPLE);
 				glEnable(GL_LINE_SMOOTH);
 				glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -365,9 +446,6 @@ int main(int argc, char** argv) {
 		}
 	}
 
-	glDeleteVertexArrays(1, &skyboxVAO);
-	glDeleteBuffers(1, &skyboxVAO);
-
 	player.free();
 	enemy.free();
 	pm.free();
@@ -379,92 +457,4 @@ int main(int argc, char** argv) {
 
 	glfwTerminate();
 	return 0;
-}
-
-
-
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-	// make sure the viewport matches the new window dimensions; note that width and 
-	// height will be significantly larger than specified on retina displays.
-	glViewport(0, 0, width, height);
-}
-
-
-unsigned int loadTexture(char const* path)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format{};
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		std::cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
-}
-
-// loads a cubemap texture from 6 individual texture faces
-// order:
-// +X (right)
-// -X (left)
-// +Y (top)
-// -Y (bottom)
-// +Z (front) 
-// -Z (back)
-// -------------------------------------------------------
-unsigned int loadCubemap(std::vector<std::string> faces)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-
-	int width, height, nrComponents;
-	for (unsigned int i = 0; i < faces.size(); i++)
-	{
-		unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrComponents, 0);
-		if (data)
-		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			stbi_image_free(data);
-		}
-		else
-		{
-			std::cout << "Cubemap texture failed to load at path: " << faces[i] << std::endl;
-			stbi_image_free(data);
-		}
-	}
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-
-	return textureID;
 }
