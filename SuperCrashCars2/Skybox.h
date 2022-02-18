@@ -77,12 +77,12 @@ public:
 
         std::vector<std::string> faces
         {
-            "skybox/nx.jpeg",
-            "skybox/px.jpeg",
-            "skybox/py.jpeg",
-            "skybox/ny.jpeg",
-            "skybox/nz.jpeg",
-            "skybox/pz.jpeg",
+            "skybox/right.jpg",
+            "skybox/left.jpg",
+            "skybox/top.jpg",
+            "skybox/bottom.jpg",
+            "skybox/front.jpg",
+            "skybox/back.jpg",
         };
 
         unsigned int textureID;
