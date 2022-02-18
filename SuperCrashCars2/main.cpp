@@ -175,6 +175,19 @@ int main(int argc, char** argv) {
 
 			ImGui::End();
 
+			//bool checkBox = false;
+			float mass = player.getRigidDynamic()->getMass();
+			ImGui::Begin("Sliders:");
+			
+			//ImGui::Checkbox("Example Checkbox", &checkBox);
+			ImGui::SliderFloat("Player Mass", &mass, 100.0f, 10000.0f);
+			player.getRigidDynamic()->setMass(mass);
+			
+			ImGui::End();
+
+			Log::debug("mass {}", player.getRigidDynamic()->getMass());
+
+
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 #pragma endregion
