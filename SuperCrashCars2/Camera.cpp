@@ -117,7 +117,7 @@ void Camera::resetLastPos() {
 }
 
 glm::mat4 Camera::getViewMat() {
-	return M;
+	return V;
 }
 
 glm::mat4 Camera::getPerspMat() {
