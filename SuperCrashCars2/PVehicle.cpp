@@ -23,6 +23,7 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	const PxVec3& chassis_scale = PxVec3(this->m_chassis.getScale().x, this->m_chassis.getScale().y, this->m_chassis.getScale().z);
 	const PxVec3& wheel_pos = PxVec3(this->m_tires.getPosition().x, this->m_tires.getPosition().y, this->m_tires.getPosition().z);
 	const PxVec3& wheel_scale = PxVec3(this->m_tires.getScale().x, this->m_tires.getScale().y, this->m_tires.getScale().z);
+	this->m_startingPosition = position;
 	this->adjustConvexCollisionMesh(chassis_pos, chassis_scale, wheel_pos, wheel_scale);
 
 	PxTransform startTransform(PxVec3(0 + position.x, (vehicleDesc.chassisDims.y * 0.5f + vehicleDesc.wheelRadius + 1.0f) + position.y, 0 + position.z), quat);
@@ -32,7 +33,7 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	this->initVehicleCollisionAttributes();
 	gVehicle4W->getRigidDynamicActor()->userData = &this->m_attr;
 
-	this->getRigidDynamic()->setMaxAngularVelocity(10.0);
+	this->getRigidDynamic()->setMaxAngularVelocity(4.0f);
 
 
 	//Set the vehicle to rest in neutral.
@@ -43,33 +44,13 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	brake(1.0f);
 }
 
+// the inits
 void PVehicle::initVehicleCollisionAttributes() {
 	this->m_attr = VehicleCollisionAttributes();
 	this->m_attr.collisionCoefficient = 1.0f;
 	this->m_attr.collided = false;
 	this->m_attr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
 }
-
-void PVehicle::adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale) {
-	const int MAX_NUM_ACTOR_SHAPES = 128;
-	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
-	PxRigidActor* rigidActor = static_cast<PxRigidActor*>(gVehicle4W->getRigidDynamicActor());
-	const PxU32 nbShapes = rigidActor->getNbShapes();
-	rigidActor->getShapes(shapes, nbShapes);
-	shapes[4]->setLocalPose(PxTransform(chassis_tran, PxQuat(PxIdentity)));
-	PxConvexMeshGeometry c;
-	shapes[4]->getConvexMeshGeometry(c);
-	c.scale.scale = chassis_scale;
-	shapes[4]->setGeometry(c);
-	for (int i = 0; i < 4; i++) {
-		shapes[i]->setLocalPose(PxTransform(wheel_tran, PxQuat(PxIdentity)));
-		PxConvexMeshGeometry x;
-		shapes[i]->getConvexMeshGeometry(x);
-		x.scale.scale = wheel_scale;
-		shapes[i]->setGeometry(x);
-	}
-}
-
 void PVehicle::initVehicleModel() {
 	
 	switch (this->m_vehicleType) {
@@ -110,7 +91,6 @@ void PVehicle::initVehicleModel() {
 	}
 
 }
-
 VehicleDesc PVehicle::initVehicleDesc() {
 	//Set up the chassis mass, dimensions, moment of inertia, and center of mass offset.
 	//The moment of inertia is just the moment of inertia of a cuboid but modified for easier steering.
@@ -126,7 +106,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 		chassisMass = 8000.0f;
 		chassisDims = PxVec3(3.0f, 2.0f, 7.5f);
 	} else if (this->m_vehicleType == VehicleType::eSHUCKLE) {
-		chassisMass = 800.0f;
+		chassisMass = 2000.0f;
 		chassisDims = PxVec3(2.0f, -5.0f, 3.5f);
 	}
 
@@ -134,7 +114,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	((chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.z * chassisDims.z) * 0.8f * chassisMass / 12.0f,
 		(chassisDims.x * chassisDims.x + chassisDims.y * chassisDims.y) * chassisMass / 12.0f);
-	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.65f, 0.25f);
+	const PxVec3 chassisCMOffset(0.0f, -chassisDims.y * 0.5f + 0.65f, 0.15f);
 
 	//Set up the wheel mass, radius, width, moment of inertia, and number of wheels.
 	//Moment of inertia is just the moment of inertia of a cylinder.
@@ -170,6 +150,26 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	return vehicleDesc;
 }
 
+void PVehicle::adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale) {
+	const int MAX_NUM_ACTOR_SHAPES = 128;
+	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
+	PxRigidActor* rigidActor = static_cast<PxRigidActor*>(gVehicle4W->getRigidDynamicActor());
+	const PxU32 nbShapes = rigidActor->getNbShapes();
+	rigidActor->getShapes(shapes, nbShapes);
+	shapes[4]->setLocalPose(PxTransform(chassis_tran, PxQuat(PxIdentity)));
+	PxConvexMeshGeometry c;
+	shapes[4]->getConvexMeshGeometry(c);
+	c.scale.scale = chassis_scale;
+	shapes[4]->setGeometry(c);
+	for (int i = 0; i < 4; i++) {
+		shapes[i]->setLocalPose(PxTransform(wheel_tran, PxQuat(PxIdentity)));
+		PxConvexMeshGeometry x;
+		shapes[i]->getConvexMeshGeometry(x);
+		x.scale.scale = wheel_scale;
+		shapes[i]->setGeometry(x);
+	}
+}
+
 void PVehicle::update() {
 	PxVehicleDrive4WSmoothAnalogRawInputsAndSetAnalogInputs(gPadSmoothingData, gSteerVsForwardSpeedTable, gVehicleInputData, this->m_pm.timestep, gIsVehicleInAir, *gVehicle4W);
 
@@ -193,10 +193,8 @@ void PVehicle::update() {
 	this->releaseAllControls();
 
 	// boosting
-	if (this->vehicleParams.boost < 100) if (difftime(time(0), this->vehicleParams.boostCooldown) > 0.2f) this->vehicleParams.boost++;
-
-	// jumping
-	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 2.0f) this->vehicleParams.canJump = true;
+	this->regainBoost();
+	this->regainJump();
 }
 
 void PVehicle::free() {
@@ -208,67 +206,77 @@ void PVehicle::free() {
 	gVehicle4W->free();
 }
 
+
 void PVehicle::accelerate(float throttle) {
 	this->m_isReversing = false;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
-
 void PVehicle::reverse(float throttle) {
 	this->m_isReversing = true;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
-
 void PVehicle::brake(float throttle) {
 	PxVec3 velocity = this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity();
 	if (velocity.magnitude() <= 0.05f || this->m_isReversing) reverse(throttle);
 	else gVehicleInputData.setAnalogBrake(throttle);
 }
-
 void PVehicle::turnLeft(float throttle) {
 	gVehicleInputData.setAnalogSteer(throttle);
 }
-
 void PVehicle::turnRight(float throttle) {
 	gVehicleInputData.setAnalogSteer(-throttle);
 }
-
 void PVehicle::handbrake() {
 	gVehicleInputData.setAnalogHandbrake(1.0f);
 }
 
 void PVehicle::rotateYAxis(float amount) {
 	glm::vec3 rightVec = this->getRightVec();
-	this->getRigidDynamic()->addTorque(5000.f * amount * PxVec3(rightVec.x, rightVec.y, rightVec.z), PxForceMode::eFORCE);
+	//this->getRigidDynamic()->addForce(0.5 * PxVec3(rightVec.x, rightVec.y, rightVec.z), PxForceMode::eVELOCITY_CHANGE);
+	this->getRigidDynamic()->addTorque(0.05f * amount * PxVec3(-rightVec.x, rightVec.y, rightVec.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
 void PVehicle::rotateXAxis(float amount) {
-	glm::vec3 frontVec = this->getFrontVec();
-	this->getRigidDynamic()->addTorque(5000.f * amount * PxVec3(-frontVec.x, frontVec.y, frontVec.z), PxForceMode::eFORCE);
+	// TODO: make a started rotating bool and fix the vector after rotation has started
+	// so that the car does not wobble
+	glm::vec3 upVec = this->getUpVec();
+	//this->getRigidDynamic()->addForce(0.5 * PxVec3(-upVec.x, upVec.y, upVec.z), PxForceMode::eVELOCITY_CHANGE);
+	this->getRigidDynamic()->addTorque(-0.05f * amount * PxVec3(upVec.x, upVec.y, upVec.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
 void PVehicle::boost() {
 	if (this->vehicleParams.boost > 0) {
 		glm::vec3 frontVec = this->getFrontVec();
-		this->getRigidDynamic()->addForce(PxVec3(frontVec.x, frontVec.y, frontVec.z) * this->vehicleParams.boostCoefficient, PxForceMode::eIMPULSE);
+		this->getRigidDynamic()->addForce(PxVec3(frontVec.x, frontVec.y, frontVec.z) * 0.5f, PxForceMode::eVELOCITY_CHANGE);
 		this->vehicleParams.boost--;
 		this->vehicleParams.boostCooldown = time(0);
 	}
 }
 
+void PVehicle::regainBoost() {
+	if (this->vehicleParams.boost < 100) if (difftime(time(0), this->vehicleParams.boostCooldown) > 0.2f) this->vehicleParams.boost++;
+}
+
+
 void PVehicle::jump() {
 	if (this->vehicleParams.canJump) {
 		this->vehicleParams.canJump = false;
-		this->getRigidDynamic()->addForce(PxVec3(0.0, 20000 + this->vehicleParams.jumpCoefficient, 0.0), PxForceMode::eIMPULSE);
+		this->getRigidDynamic()->addForce(PxVec3(0.0, 16.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
 		this->vehicleParams.jumpCooldown = time(0);
 	}
 }
 
+void PVehicle::regainJump() {
+	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 2.0f) this->vehicleParams.canJump = true;
+}
+
 void PVehicle::reset(){
-	this->getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+	this->getRigidDynamic()->setGlobalPose(PxTransform(this->m_startingPosition, PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 	this->getRigidDynamic()->setLinearVelocity(PxVec3(0.f));
 	this->getRigidDynamic()->setAngularVelocity(PxVec3(0.f));
+	this->vehicleParams.boost = 200;
 }
 
 void PVehicle::releaseAllControls() {
@@ -297,12 +305,12 @@ glm::vec3 PVehicle::getFrontVec() {
 
 glm::vec3 PVehicle::getUpVec() {
 	PxMat44 transformMat = PxTransform(this->getTransform());
-	return glm::normalize(glm::vec3(transformMat[0][1], transformMat[1][1], transformMat[2][1]));
+	return glm::normalize(glm::vec3(-transformMat[0][1], transformMat[1][1], transformMat[2][1]));
 }
 
 glm::vec3 PVehicle::getRightVec() {
 	PxMat44 transformMat = PxTransform(this->getTransform());
-	return glm::normalize(glm::vec3(-transformMat[0][0], transformMat[1][0], transformMat[2][0]));
+	return glm::normalize(glm::vec3(transformMat[0][0], transformMat[1][0], transformMat[2][0]));
 }
 
 void PVehicle::render() {

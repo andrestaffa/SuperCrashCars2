@@ -47,7 +47,13 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 
 		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
 		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
-		victimAttr->forceToAdd = PxVec3(launchVector * 500000 * victimAttr->collisionCoefficient);
+		float attackerMag = attacker->getLinearVelocity().magnitude();
+		Log::debug("Attacker magnitude: {}", attackerMag);
+		victimAttr->forceToAdd = PxVec3(0.0f);
+		// launch formula: base 100k + 20k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
+		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
+
+		victimAttr->forceToAdd = PxVec3(launchVector * (100000.f  + 20000 * victimAttr->collisionCoefficient * (1.f + 3.f * attackerMag / 70.f) ));
 		
 		
 		victimAttr->collisionCoefficient = victimAttr->collisionCoefficient + 0.5f;

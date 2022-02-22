@@ -58,8 +58,8 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
-	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(5.0f, 10.0f, 0.0f));
-	PVehicle player = PVehicle(pm, VehicleType::eJEEP, PxVec3(0.0f, 10.0f, 0.0f));
+	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
+	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
 	
 	player.vehicleParams.jumpCoefficient = player.getRigidDynamic()->getMass() * 7;
 	player.vehicleParams.boostCoefficient = player.getRigidDynamic()->getMass() / 3;
@@ -109,7 +109,10 @@ int main(int argc, char** argv) {
 			}
 			if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
 			if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
-			if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
+			if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
+				player.reset();
+				enemy.reset();
+			}
 
 #pragma endregion
 
@@ -176,16 +179,23 @@ int main(int argc, char** argv) {
 			ImGui::End();
 
 			//bool checkBox = false;
-			float mass = player.getRigidDynamic()->getMass();
+
 			ImGui::Begin("Sliders:");
 			
 			//ImGui::Checkbox("Example Checkbox", &checkBox);
-			ImGui::SliderFloat("Player Mass", &mass, 100.0f, 10000.0f);
-			player.getRigidDynamic()->setMass(mass);
+			// 
+			// slider for player mass
+			float pmass = player.getRigidDynamic()->getMass();
+			ImGui::SliderFloat("Player Mass", &pmass, 100.0f, 10000.0f);
+			player.getRigidDynamic()->setMass(pmass);
 			
+			// slider for enemy mass
+			float emass = enemy.getRigidDynamic()->getMass();
+			ImGui::SliderFloat("Enemy  Mass", &emass, 100.0f, 10000.0f);
+			enemy.getRigidDynamic()->setMass(emass);
+
 			ImGui::End();
 
-			Log::debug("mass {}", player.getRigidDynamic()->getMass());
 
 
 			ImGui::Render();

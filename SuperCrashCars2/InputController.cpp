@@ -81,11 +81,11 @@ void InputController::XboxInput(PVehicle& p1) {
 	// if vehicle is in air, rotate car using joystick, else use joystick to turn wheels
 	if (p1.getVehicleInAir()) {
 		
-		if (abs(axis[0]) > 0.1f) {
+		if (abs(axis[0]) > 0.2f) {
 			p1.rotateXAxis(axis[0]);
 		}
 
-		if (abs(axis[1]) > 0.1f) {
+		if (abs(axis[1]) > 0.2f) {
 			p1.rotateYAxis(axis[1]);
 		}
 		
@@ -112,11 +112,11 @@ void InputController::PS4Input(PVehicle& p1) {
 	// if vehicle is in air, rotate car using joystick, else use joystick to turn wheels
 	if (p1.getVehicleInAir()) {
 
-		if (abs(axis[0]) > 0.1f) {
+		if (abs(axis[0]) > 0.2f) {
 			p1.rotateXAxis(axis[0]);
 		}
 
-		if (abs(axis[1]) > 0.1f) {
+		if (abs(axis[1]) > 0.2f) {
 			p1.rotateYAxis(axis[1]);
 		}
 

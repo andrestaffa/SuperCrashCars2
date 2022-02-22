@@ -59,7 +59,9 @@ public:
 	void rotateYAxis(float amount);
 	void rotateXAxis(float amount);
 	void boost();
+	void regainBoost();
 	void jump();
+	void regainJump();
 	void reset();
 	
 	PxTransform getTransform() const;
@@ -91,6 +93,8 @@ private:
 	bool m_isReversing = false;
 
 	VehicleType m_vehicleType;
+
+	PxVec3 m_startingPosition;
 
 	Model m_chassis;
 	Model m_tires;
