@@ -61,9 +61,6 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
 	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
 	
-	player.vehicleParams.jumpCoefficient = player.getRigidDynamic()->getMass() * 7;
-	player.vehicleParams.boostCoefficient = player.getRigidDynamic()->getMass() / 3;
-
 	// Controller
 	InputController controller;
 	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
@@ -155,6 +152,7 @@ int main(int argc, char** argv) {
 			player.render();
 
 			skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
+			Log::debug("FrontVecz: {}, {}, {}", player.getFrontVec().x, player.getFrontVec().y, player.getFrontVec().z);
 
 #pragma region imgui
 			// imGUI section

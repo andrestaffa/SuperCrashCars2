@@ -34,7 +34,8 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	gVehicle4W->getRigidDynamicActor()->userData = &this->m_attr;
 
 	this->getRigidDynamic()->setMaxAngularVelocity(4.0f);
-
+	this->getRigidDynamic()->setAngularDamping(0.1f);
+	
 
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
@@ -234,7 +235,6 @@ void PVehicle::handbrake() {
 
 void PVehicle::rotateYAxis(float amount) {
 	glm::vec3 rightVec = this->getRightVec();
-	//this->getRigidDynamic()->addForce(0.5 * PxVec3(rightVec.x, rightVec.y, rightVec.z), PxForceMode::eVELOCITY_CHANGE);
 	this->getRigidDynamic()->addTorque(0.05f * amount * PxVec3(-rightVec.x, rightVec.y, rightVec.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
@@ -243,11 +243,26 @@ void PVehicle::rotateXAxis(float amount) {
 	// so that the car does not wobble
 	glm::vec3 upVec = this->getUpVec();
 	//this->getRigidDynamic()->addForce(0.5 * PxVec3(-upVec.x, upVec.y, upVec.z), PxForceMode::eVELOCITY_CHANGE);
-	this->getRigidDynamic()->addTorque(-0.05f * amount * PxVec3(upVec.x, upVec.y, upVec.z), PxForceMode::eVELOCITY_CHANGE);
+	this->getRigidDynamic()->addTorque(-0.04f * amount * PxVec3(upVec.x, upVec.y, upVec.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
 void PVehicle::boost() {
 	if (this->vehicleParams.boost > 0) {
+		// stuff to do if vehicle just started boosting
+		if (!this->vehicleParams.boosting) {
+			// if the vehicle just started boosting and not already boosting
+			// we will get magnitude of current velocity and reapply it in the direction of the car's front vector
+			PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+			float mag = vel.magnitude();
+			PxMat44 transformMat = PxTransform(this->getTransform());
+			this->getRigidDynamic()->setLinearVelocity(PxVec3(-transformMat[0][2], transformMat[1][2], transformMat[2][2]) * mag * 1.0f + vel * 0.0f);
+			Log::debug("Front: {}, {}, {}, oldv: {}, {}, {}, newVel: {}, {}, {}, mag: {}", 
+				-transformMat[0][2], transformMat[1][2], transformMat[2][2], 
+				vel.x, vel.y, vel.z, 
+				this->getRigidDynamic()->getLinearVelocity().x, this->getRigidDynamic()->getLinearVelocity().y, this->getRigidDynamic()->getLinearVelocity().z, mag);
+			// then, dampen rotation on start of boost
+			this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 0.7f);
+		}
 		glm::vec3 frontVec = this->getFrontVec();
 		this->getRigidDynamic()->addForce(PxVec3(frontVec.x, frontVec.y, frontVec.z) * 0.5f, PxForceMode::eVELOCITY_CHANGE);
 		this->vehicleParams.boost--;

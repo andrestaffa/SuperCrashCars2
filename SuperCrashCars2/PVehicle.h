@@ -8,6 +8,7 @@
 
 #include "Model.h"
 #include "Log.h"
+#include "Utils.h"
 
 using namespace physx;
 using namespace snippetvehicle;
@@ -32,12 +33,11 @@ struct VehicleParams {
 	float k_throttle = 1.0f;
 
 	// jumping
-	float jumpCoefficient;
 	time_t jumpCooldown;
 	bool canJump = true;
 
 	// boosting
-	float boostCoefficient;
+	bool boosting = false;
 	time_t boostCooldown;
 	int boost = 100;
 

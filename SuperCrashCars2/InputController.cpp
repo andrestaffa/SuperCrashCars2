@@ -130,7 +130,14 @@ void InputController::PS4Input(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[0]) p1.handbrake();
 
 	if (GLFW_PRESS == buttons[1]) p1.jump();
-	if (GLFW_PRESS == buttons[3]) p1.boost();
+	if (GLFW_PRESS == buttons[3]) {
+		// the first time boost trigger is registered is different from the rest
+		p1.boost();
+		if (!p1.vehicleParams.boosting) p1.vehicleParams.boosting = true;
+
+	} 
+	else if (p1.vehicleParams.boosting) p1.vehicleParams.boosting = false;
+
 	if (GLFW_PRESS == buttons[8]) p1.reset();
 
 	if (axis[3] != -1) p1.reverse((axis[3] + 1) / 2 * 0.65f);
