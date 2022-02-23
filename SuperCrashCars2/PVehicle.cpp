@@ -340,21 +340,36 @@ void PVehicle::render() {
 		// 3 -> back-left tire
 		// 4 -> body
 
-		if (i < 4) {
-			this->m_tires.draw(TM);
-		} else {
-			PxTransform rotTransform = PxShapeExt::getGlobalPose(*shapes[i], *rigidActor);
-			float bodyAngle = PxPi - rotTransform.q.getAngle();
-			glm::vec3 front = glm::vec3(sin(bodyAngle), 0.0f, -cos(bodyAngle));
-			front = glm::normalize(front);
-			this->m_chassis.draw(TM);
-		}
+		if (i < 4) this->m_tires.draw(TM);
+		else  this->m_chassis.draw(TM);
 
 	}
 }
 
 bool PVehicle::getVehicleInAir() {
 	return this->gIsVehicleInAir;
+}
+
+// AI
+
+void PVehicle::chaseVehicle(PVehicle& vehicle) {
+	
+	PxVec2 p = PxVec2(vehicle.getPosition().x, vehicle.getPosition().z) - PxVec2(this->getPosition().x, this->getPosition().z);
+	glm::vec2 relativeVec = glm::vec2(p.x, p.y);
+
+	float angle = glm::orientedAngle(glm::normalize(glm::vec2(this->getFrontVec().x, this->getFrontVec().z)), glm::normalize(relativeVec));
+	float degrees = angle * 180.0f / PxPi;
+	
+	if (degrees < 5.0f && degrees > -5.0f) {
+		this->accelerate(1.0f);
+	} else if (degrees < 0) {
+		this->turnLeft(1.0f);
+		this->accelerate(0.7f);
+	} else if (degrees > 0) {
+		this->turnRight(1.0f);
+		this->accelerate(0.7f);
+	} 
+
 }
 
 PVehicle::~PVehicle() {}
