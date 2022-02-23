@@ -152,7 +152,6 @@ int main(int argc, char** argv) {
 			player.render();
 
 			skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
-			Log::debug("FrontVecz: {}, {}, {}", player.getFrontVec().x, player.getFrontVec().y, player.getFrontVec().z);
 
 #pragma region imgui
 			// imGUI section

@@ -64,7 +64,7 @@ public:
 	void regainJump();
 	void reset();
 	
-	PxTransform getTransform() const;
+	PxMat44 getTransform() const;
 	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
 	glm::vec3 getFrontVec();

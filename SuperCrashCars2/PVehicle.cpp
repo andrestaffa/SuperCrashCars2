@@ -235,14 +235,11 @@ void PVehicle::handbrake() {
 
 void PVehicle::rotateYAxis(float amount) {
 	glm::vec3 rightVec = this->getRightVec();
-	this->getRigidDynamic()->addTorque(0.05f * amount * PxVec3(-rightVec.x, rightVec.y, rightVec.z), PxForceMode::eVELOCITY_CHANGE);
+	this->getRigidDynamic()->addTorque(-0.05f * amount * PxVec3(rightVec.x, rightVec.y, rightVec.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
 void PVehicle::rotateXAxis(float amount) {
-	// TODO: make a started rotating bool and fix the vector after rotation has started
-	// so that the car does not wobble
 	glm::vec3 upVec = this->getUpVec();
-	//this->getRigidDynamic()->addForce(0.5 * PxVec3(-upVec.x, upVec.y, upVec.z), PxForceMode::eVELOCITY_CHANGE);
 	this->getRigidDynamic()->addTorque(-0.04f * amount * PxVec3(upVec.x, upVec.y, upVec.z), PxForceMode::eVELOCITY_CHANGE);
 }
 
@@ -254,12 +251,8 @@ void PVehicle::boost() {
 			// we will get magnitude of current velocity and reapply it in the direction of the car's front vector
 			PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
 			float mag = vel.magnitude();
-			PxMat44 transformMat = PxTransform(this->getTransform());
-			this->getRigidDynamic()->setLinearVelocity(PxVec3(-transformMat[0][2], transformMat[1][2], transformMat[2][2]) * mag * 1.0f + vel * 0.0f);
-			Log::debug("Front: {}, {}, {}, oldv: {}, {}, {}, newVel: {}, {}, {}, mag: {}", 
-				-transformMat[0][2], transformMat[1][2], transformMat[2][2], 
-				vel.x, vel.y, vel.z, 
-				this->getRigidDynamic()->getLinearVelocity().x, this->getRigidDynamic()->getLinearVelocity().y, this->getRigidDynamic()->getLinearVelocity().z, mag);
+			PxVec3 front = Utils::instance().glmToPxVec3(this->getFrontVec());
+			this->getRigidDynamic()->setLinearVelocity(front * mag * 0.75f + vel * 0.25f);
 			// then, dampen rotation on start of boost
 			this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 0.7f);
 		}
@@ -273,8 +266,6 @@ void PVehicle::boost() {
 void PVehicle::regainBoost() {
 	if (this->vehicleParams.boost < 100) if (difftime(time(0), this->vehicleParams.boostCooldown) > 0.2f) this->vehicleParams.boost++;
 }
-
-
 void PVehicle::jump() {
 	if (this->vehicleParams.canJump) {
 		this->vehicleParams.canJump = false;
@@ -282,18 +273,15 @@ void PVehicle::jump() {
 		this->vehicleParams.jumpCooldown = time(0);
 	}
 }
-
 void PVehicle::regainJump() {
 	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 2.0f) this->vehicleParams.canJump = true;
 }
-
 void PVehicle::reset(){
 	this->getRigidDynamic()->setGlobalPose(PxTransform(this->m_startingPosition, PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 	this->getRigidDynamic()->setLinearVelocity(PxVec3(0.f));
 	this->getRigidDynamic()->setAngularVelocity(PxVec3(0.f));
 	this->vehicleParams.boost = 200;
 }
-
 void PVehicle::releaseAllControls() {
 	gVehicleInputData.setAnalogAccel(0.0f);
 	gVehicleInputData.setAnalogSteer(0.0f);
@@ -301,8 +289,9 @@ void PVehicle::releaseAllControls() {
 	gVehicleInputData.setAnalogHandbrake(0.0f);
 }
 
-PxTransform PVehicle::getTransform() const {
-	return this->gVehicle4W->getRigidDynamicActor()->getGlobalPose();
+PxMat44 PVehicle::getTransform() const {
+	PxMat44 mat = this->gVehicle4W->getRigidDynamicActor()->getGlobalPose();
+	return mat.getTranspose();
 }
 
 PxVec3 PVehicle::getPosition() const {
@@ -315,12 +304,12 @@ PxRigidDynamic* PVehicle::getRigidDynamic() const {
 
 glm::vec3 PVehicle::getFrontVec() {
 	PxMat44 transformMat = PxTransform(this->getTransform());
-	return glm::normalize(glm::vec3(-transformMat[0][2], transformMat[1][2], transformMat[2][2]));
+	return glm::normalize(glm::vec3(transformMat[0][2], transformMat[1][2], transformMat[2][2]));
 }
 
 glm::vec3 PVehicle::getUpVec() {
 	PxMat44 transformMat = PxTransform(this->getTransform());
-	return glm::normalize(glm::vec3(-transformMat[0][1], transformMat[1][1], transformMat[2][1]));
+	return glm::normalize(glm::vec3(transformMat[0][1], transformMat[1][1], transformMat[2][1]));
 }
 
 glm::vec3 PVehicle::getRightVec() {
