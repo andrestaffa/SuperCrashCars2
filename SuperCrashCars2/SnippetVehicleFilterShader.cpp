@@ -51,15 +51,10 @@ PxFilterFlags VehicleFilterShader
 
 	pairFlags = PxPairFlag::eCONTACT_DEFAULT;
 
-	bool wheelFilter = filterData0.word0 == COLLISION_FLAG_WHEEL && filterData1.word0 == COLLISION_FLAG_WHEEL;
-	bool chassisFilter = filterData0.word0 == COLLISION_FLAG_CHASSIS && filterData1.word0 == COLLISION_FLAG_CHASSIS;
+	if ((filterData0.word0 & filterData1.word1) && (filterData1.word0 & filterData0.word1))
+		pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
 
-	if (wheelFilter || chassisFilter) pairFlags |= PxPairFlag::eNOTIFY_TOUCH_FOUND;
-
-
-	pairFlags |= PxPairFlags(PxU16(filterData0.word2 | filterData1.word2));
-
-	return PxFilterFlags();
+	return PxFilterFlag::eDEFAULT;
 }
 
 } // namespace snippetvehicle

@@ -25,6 +25,7 @@
 #include "PVehicle.h"
 #include "PDynamic.h"
 #include "PStatic.h"
+#include "PowerUp.h"
 
 #include "Skybox.h"
 
@@ -60,7 +61,10 @@ int main(int argc, char** argv) {
 	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
 	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
 	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
-	
+
+	PowerUp powerUp1 = PowerUp(pm, Model("models/star_powerup/star_powerup.obj"), PowerUpType::eBOOST, PxVec3(-20.0f, 20.0f, -30.0f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/star_powerup/star_powerup.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
+
 	// Controller
 	InputController controller;
 	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
@@ -72,15 +76,6 @@ int main(int argc, char** argv) {
 	ImGui::StyleColorsDark();
 	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
 	ImGui_ImplOpenGL3_Init("#version 330");
-
-	std::vector<PVehicle> vehicleList;
-	vehicleList.push_back(player);
-	vehicleList.push_back(enemy);
-
-
-
-
-
 
 	while (!window.shouldClose()) {
 
@@ -112,22 +107,10 @@ int main(int argc, char** argv) {
 			}
 
 #pragma endregion
-
-			// applying collisions in main thread instead of collision thread
-			for (PVehicle car : vehicleList) {
-				VehicleCollisionAttributes* x = (VehicleCollisionAttributes*)car.getRigidDynamic()->userData;
-				if (x && x->collided) {
-					car.getRigidDynamic()->addForce((x->forceToAdd), PxForceMode::eIMPULSE);
-					x->collided = false;
-					
-					Log::debug("Player coeff: {}", ((VehicleCollisionAttributes*)player.getRigidDynamic()->userData)->collisionCoefficient);
-					Log::debug("Enemy coeff: {}", ((VehicleCollisionAttributes*)enemy.getRigidDynamic()->userData)->collisionCoefficient);
-				}
-			}
-
 			pm.simulate();
 			player.update();
 			enemy.update();
+
 			Time::simulatePhysics();
 		}
 
@@ -150,6 +133,9 @@ int main(int argc, char** argv) {
 			pm.drawGround();
 			enemy.render();
 			player.render();
+
+			powerUp1.render();
+			powerUp2.render();
 
 			skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
@@ -208,7 +194,10 @@ int main(int argc, char** argv) {
 
 	player.free();
 	enemy.free();
+	powerUp1.free();
+	powerUp2.free();
 	pm.free();
+
 
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();

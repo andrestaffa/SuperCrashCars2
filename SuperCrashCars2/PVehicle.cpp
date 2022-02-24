@@ -30,8 +30,7 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	gVehicle4W->getRigidDynamicActor()->setGlobalPose(startTransform);
 	pm.gScene->addActor(*gVehicle4W->getRigidDynamicActor());
 
-	this->initVehicleCollisionAttributes();
-	gVehicle4W->getRigidDynamicActor()->userData = &this->m_attr;
+	gVehicle4W->getRigidDynamicActor()->userData = this;
 
 	this->getRigidDynamic()->setMaxAngularVelocity(4.0f);
 	this->getRigidDynamic()->setAngularDamping(0.1f);
@@ -45,13 +44,6 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 	brake(1.0f);
 }
 
-// the inits
-void PVehicle::initVehicleCollisionAttributes() {
-	this->m_attr = VehicleCollisionAttributes();
-	this->m_attr.collisionCoefficient = 1.0f;
-	this->m_attr.collided = false;
-	this->m_attr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
-}
 void PVehicle::initVehicleModel() {
 	
 	switch (this->m_vehicleType) {

@@ -24,9 +24,7 @@ enum class VehicleType {
 };
 
 struct VehicleCollisionAttributes {
-	float collisionCoefficient;
-	bool collided;
-	PxVec3 forceToAdd;
+	float collisionCoefficient = 1.0f;
 };
 
 struct VehicleParams {
@@ -80,12 +78,12 @@ public:
 
 	bool getVehicleInAir();
 
+	VehicleCollisionAttributes vehicleAttr;
 	VehicleParams vehicleParams;
 
 	// AI
 
 	void chaseVehicle(PVehicle& vehicle);
-	bool turningLeft = false;
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -105,8 +103,6 @@ private:
 
 	Model m_chassis;
 	Model m_tires;
-
-	VehicleCollisionAttributes m_attr;
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,
@@ -160,7 +156,5 @@ private:
 	VehicleDesc initVehicleDesc();
 	void adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale);
 	void releaseAllControls();
-
-	void initVehicleCollisionAttributes();
 
 };
