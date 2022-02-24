@@ -8,6 +8,7 @@
 
 #include "Model.h"
 #include "Log.h"
+#include "Utils.h"
 
 using namespace physx;
 using namespace snippetvehicle;
@@ -32,12 +33,11 @@ struct VehicleParams {
 	float k_throttle = 1.0f;
 
 	// jumping
-	float jumpCoefficient;
 	time_t jumpCooldown;
 	bool canJump = true;
 
 	// boosting
-	float boostCoefficient;
+	bool boosting = false;
 	time_t boostCooldown;
 	int boost = 100;
 
@@ -59,17 +59,18 @@ public:
 	void rotateYAxis(float amount);
 	void rotateXAxis(float amount);
 	void boost();
+	void regainBoost();
 	void jump();
+	void regainJump();
 	void reset();
 	
-	PxTransform getTransform() const;
+	PxMat44 getTransform() const;
 	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
 	glm::vec3 getFrontVec();
 	glm::vec3 getUpVec();
 	glm::vec3 getRightVec();
 
-	void removePhysics();
 	void render();
 
 	void update();
@@ -92,6 +93,8 @@ private:
 	bool m_isReversing = false;
 
 	VehicleType m_vehicleType;
+
+	PxVec3 m_startingPosition;
 
 	Model m_chassis;
 	Model m_tires;

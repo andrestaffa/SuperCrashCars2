@@ -40,32 +40,8 @@ int main(int argc, char** argv) {
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
 
-	// Camera
-	bool cameraToggle = false;
-	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	playerCamera.setPitch(-30.0f);
-
-	// Physx
-	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
-	PVehicle player = PVehicle(pm, VehicleType::eJEEP, PxVec3(0.0f, 10.0f, 0.0f));
-	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(5.0f, 10.0f, 0.0f));
-	player.vehicleParams.jumpCoefficient = player.getRigidDynamic()->getMass() * 7;
-	player.vehicleParams.boostCoefficient = player.getRigidDynamic()->getMass() / 3;
-
-	// ImGui
-	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
-	ImGuiIO& io = ImGui::GetIO(); (void)io;
-	ImGui::StyleColorsDark();
-	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
-	ImGui_ImplOpenGL3_Init("#version 330");
-
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// Controller
-	InputController controller;
-	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
 
 	// skybox
 	Skybox skybox;
@@ -75,6 +51,37 @@ int main(int argc, char** argv) {
 	glfwWindowHint(GLFW_SAMPLES, samples);
 	glEnable(GL_DEPTH_TEST);
 
+	// Camera
+	bool cameraToggle = false;
+	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	playerCamera.setPitch(-30.0f);
+
+	// Physx
+	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
+	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
+	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
+	
+	// Controller
+	InputController controller;
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
+
+	// ImGui
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window.getWindow(), true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+
+	std::vector<PVehicle> vehicleList;
+	vehicleList.push_back(player);
+	vehicleList.push_back(enemy);
+
+
+
+
+
+
 	while (!window.shouldClose()) {
 
 		glfwPollEvents();
@@ -82,7 +89,7 @@ int main(int argc, char** argv) {
 
 		if (Time::shouldSimulate) {
 			Time::startSimTimer();
-			#pragma region inputs
+#pragma region inputs
 
 			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
 				controller.PS4Input(player);
@@ -99,17 +106,25 @@ int main(int argc, char** argv) {
 			}
 			if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
 			if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
-			if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) player.getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(0.0f, 10.0f, 0.0f), PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
-
-
-			VehicleCollisionAttributes *x = (VehicleCollisionAttributes*)player.getRigidDynamic()->userData;
-			if (x && x->collided)
-			{
-				player.getRigidDynamic()->addForce(-(x->forceToAdd), PxForceMode::eIMPULSE);
-				x->collided = false;
+			if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
+				player.reset();
+				enemy.reset();
 			}
 
 #pragma endregion
+
+			// applying collisions in main thread instead of collision thread
+			for (PVehicle car : vehicleList) {
+				VehicleCollisionAttributes* x = (VehicleCollisionAttributes*)car.getRigidDynamic()->userData;
+				if (x && x->collided) {
+					car.getRigidDynamic()->addForce((x->forceToAdd), PxForceMode::eIMPULSE);
+					x->collided = false;
+					
+					Log::debug("Player coeff: {}", ((VehicleCollisionAttributes*)player.getRigidDynamic()->userData)->collisionCoefficient);
+					Log::debug("Enemy coeff: {}", ((VehicleCollisionAttributes*)enemy.getRigidDynamic()->userData)->collisionCoefficient);
+				}
+			}
+
 			pm.simulate();
 			player.update();
 			enemy.update();
@@ -159,6 +174,26 @@ int main(int argc, char** argv) {
 			ImGui::Text(printAngularVelocity.c_str());
 
 			ImGui::End();
+
+			//bool checkBox = false;
+
+			ImGui::Begin("Sliders:");
+			
+			//ImGui::Checkbox("Example Checkbox", &checkBox);
+			// 
+			// slider for player mass
+			float pmass = player.getRigidDynamic()->getMass();
+			ImGui::SliderFloat("Player Mass", &pmass, 100.0f, 10000.0f);
+			player.getRigidDynamic()->setMass(pmass);
+			
+			// slider for enemy mass
+			float emass = enemy.getRigidDynamic()->getMass();
+			ImGui::SliderFloat("Enemy  Mass", &emass, 100.0f, 10000.0f);
+			enemy.getRigidDynamic()->setMass(emass);
+
+			ImGui::End();
+
+
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

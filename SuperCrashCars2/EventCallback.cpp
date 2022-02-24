@@ -19,21 +19,45 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 
 	if (car0 && car1) {
 
-		PxVec3 car1Pos = car1->getGlobalPose().p;
-		PxVec3 car0Pos = car0->getGlobalPose().p;
-		PxVec3 launchVector = car0Pos - car1Pos;
+		// figure out who hit who
+		float car0Mag = car0->getLinearVelocity().magnitudeSquared();
+		float car1Mag = car1->getLinearVelocity().magnitudeSquared();
+
+		// the faster car is the attacker, the slower car is the victim
+		PxRigidDynamic* attacker;
+		PxRigidDynamic* victim;
+
+		if (car0Mag > car1Mag) {
+			attacker = car0;
+			victim = car1;
+		} 
+		else {
+			attacker = car1;
+			victim = car0;
+		}
+		
+		// getting naive launch vector
+		PxVec3 attackerPos = attacker->getGlobalPose().p;
+		PxVec3 victimPos = victim->getGlobalPose().p;
+		PxVec3 launchVector = victimPos - attackerPos;
 		launchVector = launchVector.getNormalized();
 
-		VehicleCollisionAttributes* attr = (VehicleCollisionAttributes*)car1->userData;
-		attr->collided = true;
+		VehicleCollisionAttributes* victimAttr = (VehicleCollisionAttributes*)victim->userData;
+		victimAttr->collided = true;
 
 		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
 		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
-		attr->forceToAdd = PxVec3(launchVector * 30000 * attr->collisionCoefficient);
+		float attackerMag = attacker->getLinearVelocity().magnitude();
+		Log::debug("Attacker magnitude: {}", attackerMag);
+		victimAttr->forceToAdd = PxVec3(0.0f);
+		// launch formula: base 100k + 20k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
+		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
+
+		victimAttr->forceToAdd = PxVec3(launchVector * (100000.f  + 20000 * victimAttr->collisionCoefficient * (1.f + 3.f * attackerMag / 70.f) ));
 		
 		
-		attr->collisionCoefficient = attr->collisionCoefficient + 0.5f;
-		Log::debug("Damage car1 {}", attr->collisionCoefficient);
+		victimAttr->collisionCoefficient = victimAttr->collisionCoefficient + 0.5f;
+
 
 	}
 }
