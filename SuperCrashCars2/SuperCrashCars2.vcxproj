@@ -194,6 +194,7 @@
     <ClInclude Include="InputController.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Log.h" />
+    <ClInclude Include="Menu.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
     <ClInclude Include="PDynamic.h" />
@@ -219,6 +220,8 @@
   <ItemGroup>
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
+    <None Include="shaders\menu.frag" />
+    <None Include="shaders\menu.vert" />
     <None Include="shaders\shader_fragment.frag" />
     <None Include="shaders\shader_vertex.vert" />
     <None Include="shaders\skybox.frag" />
