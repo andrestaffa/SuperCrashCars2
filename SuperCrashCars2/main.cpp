@@ -80,8 +80,10 @@ int main(int argc, char** argv) {
 			if (Time::shouldSimulate) {
 				Time::startSimTimer();
 				// read inputs
-				controller.PS4InputInMenu();
-				//controller.XboxInputInMenu();
+				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+					controller.PS4InputInGame(player);
+					//controller.XboxInputInGame(player);
+				}
 				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
 			}
 			if (Time::shouldRender) { // render at 60fps even in menu
@@ -117,8 +119,10 @@ int main(int argc, char** argv) {
 			// simulate when unpaused, otherwise just grab the inputs.
 			if (Time::shouldSimulate) {
 				if (Menu::paused) { // paused, read the inputs using the menu function
-					controller.PS4InputInMenu();
-					//controller.XboxInputInMenu();
+					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
+						controller.PS4InputInGame(player);
+						//controller.XboxInputInGame(player);
+					}
 				} 
 				else {
 					Time::startSimTimer();
