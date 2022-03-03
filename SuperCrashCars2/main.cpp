@@ -81,8 +81,8 @@ int main(int argc, char** argv) {
 				Time::startSimTimer();
 				// read inputs
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-					controller.PS4InputInGame(player);
-					//controller.XboxInputInGame(player);
+					controller.PS4InputInMenu();
+					//controller.XboxInputInMenu();
 				}
 				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
 			}
