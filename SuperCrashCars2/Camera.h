@@ -34,6 +34,7 @@ public:
 
 	void updateCamera(glm::vec3 newPosition, glm::vec3 frontVector);
 
+	void sendMatricesToShader();
 
 
 

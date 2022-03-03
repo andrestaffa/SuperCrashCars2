@@ -147,6 +147,9 @@
     <ClCompile Include="InputController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ImguiManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -266,6 +269,9 @@
     <ClInclude Include="Menu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ImguiManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader_fragment.frag">
@@ -284,12 +290,6 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\skybox.vert">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\menu.frag">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="shaders\menu.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

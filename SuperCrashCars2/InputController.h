@@ -6,6 +6,15 @@
 #include "PVehicle.h"
 #include <iostream>
 
+// TO DO :
+// Make a unified function for both controllers, pass which controller is used instaed of separate functions for each controller
+// automatic controller type detection
+
+enum Controller {
+	PS4,
+	XBOX
+};
+
 class InputController
 {
 public:
@@ -15,11 +24,16 @@ public:
 
 	void testInput();
 
-	void XboxInput(PVehicle& p1);
-	void PS4Input(PVehicle& p1);
+	void XboxInputInGame(PVehicle& p1);
+	void PS4InputInGame(PVehicle& p1);
+	void XboxInputInMenu();
+	void PS4InputInMenu();
 	void NSInput(PVehicle& p1);
 
 private:
+
+	bool selHeld, startHeld, xHeld, upHeld, downHeld = 0;
+
 	int id;
 	int axesCount;
 	const float* axis;
@@ -28,5 +42,6 @@ private:
 	const char* name;
 
 	void readInput();
+
 };
 
