@@ -108,19 +108,11 @@ void Camera::updateTheta() {
 
 	// set delta
 	if (diff > (M_PI)) {
-		//Log::debug("Delta if");
 		delta = (2.f * (M_PI) - diff ) / m_rot_coeff;
 	}
 	else {
-		//Log::debug("Delta else");
 		delta = diff / m_rot_coeff;
 	}
-	//Log::debug("Going to: {},Current: {}, Delta: {}", m_camThetaGoal, m_camTheta, delta);
-
-  /*[DEBUG]: Going to: 6.267416,     Current: 6.233614,  Delta: 0.0033802032
-	[DEBUG]: Going to: 0.0038909912, Current: 6.2369943, Delta: 1.2516289
-	[DEBUG]: Going to: 0.024864674,  Current: 1.2054377, Delta: 0.118057296 */
-	
 
 	if (diff < M_PI && m_camThetaGoal > m_camTheta) {
 		m_camTheta = m_camTheta + delta;
@@ -138,44 +130,31 @@ void Camera::updateTheta() {
 		m_camTheta = m_camTheta - delta;
 		// Log::debug(">=, <=");
 	}
-	
-
 }
 
 void Camera::updateCamera(glm::vec3 carPosition, glm::vec3 frontVector) {
 	// calculate the new angle
 	m_camThetaGoal = (float)(M_PI)+glm::orientedAngle(glm::normalize(glm::vec2(frontVector.x, frontVector.z)), glm::vec2(1.0f, 0.0f)); 
-
 	// recalculate the rotation coeff every frame based on the Y value of front vec
 	// we want the camera to rotate slower when the player is flipping int he Y direction
 	m_rot_coeff = 15.f + (35.f * abs(frontVector.y));
-	//Log::debug("Rotation coeff: {}", m_rot_coeff);
-
 	// do the magic 
 	this->updateTheta();
-
-
 	// calculate the camera vector from angle. this is like frontVec, but without the y component.
 	// we calculate it from angle instead of just using frontVector to dampen rotations around a circle as opposed to cutting through it.
 	glm::vec2 cameraVec2 = glm::rotate(glm::vec2(1.0f, 0.0f), m_camTheta);
 	glm::vec3 cameraVec = glm::vec3(-cameraVec2.x, 0.0f, cameraVec2.y);
-	
 	// set new posiiton and angle
-
 	this->setPosition(carPosition - (cameraVec * 15.f) + glm::vec3(0.0f, 7.f, 0.0f));
 	this->m_front = glm::vec3(cameraVec.x, -0.4f + frontVector.y * 0.2f, cameraVec.z);
 
-
-	//this->m_position_goal = carPosition - (glm::vec3(frontVector.x, 0.0f, frontVector.z) * 15.f) + glm::vec3(0.0f, 7.f, 0.0f);
-	//this->setPosition(m_position * (1.f - m_pos_coeff) + m_position_goal * m_pos_coeff);
-	//this->m_front_goal = glm::vec3(frontVector.x, -0.4f + frontVector.y * 0.3f, frontVector.z);
-	//this->m_front = (m_front * (1.f - m_rot_coeff) + m_front_goal * m_rot_coeff);
-
-
-
-
 	this->UpdateVP(); // update the view and persp of camera
+
 	// upload the new camera matrices to the shader
+	this->sendMatricesToShader();
+}
+
+void Camera::sendMatricesToShader() {
 	GLint viewLoc = glGetUniformLocation(*Utils::instance().shader, "V");
 	GLint projectionLoc = glGetUniformLocation(*Utils::instance().shader, "P");
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &this->V[0][0]);

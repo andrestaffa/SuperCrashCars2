@@ -176,6 +176,7 @@
     <ClCompile Include="VertexArray.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
+    <ClCompile Include="ImguiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -217,6 +218,8 @@
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />
+    <ClInclude Include="Menu.h" />
+    <ClInclude Include="ImguiManager.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\light.frag" />
