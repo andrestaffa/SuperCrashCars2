@@ -29,22 +29,25 @@ int main(int argc, char** argv) {
 	// OpenGL
 	glfwInit();
 	Window window(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, "Super Crash Cars 2");
-	
-	Utils::instance().shader = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
-
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
 
+	// Shaders
+	auto defaultShader = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
+	auto depthShader = std::make_shared<ShaderProgram>("shaders/simpleDepth.vert", "shaders/simpleDepth.frag");
+	Utils::instance().shader = defaultShader;
+
+
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	glm::vec3 lightPos = glm::vec3(600.0f, 300.0f, 0.0f);
 
-	// skybox
+	// Skybox
 	Skybox skybox;
 
-	// Anti-Aliasing not sure if this works rn becuase doesn't work for frame buffer, but we are missing some parts of frame buffer if we use it can't tell
+	// Anti-Aliasing (Not working)
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
-	glEnable(GL_DEPTH_TEST);
 
 	// Camera
 	bool cameraToggle = false;
@@ -68,11 +71,36 @@ int main(int argc, char** argv) {
 	// ImGui 
 	ImguiManager imgui(window);
 
+
+	// Shadows
+	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+	unsigned int depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+	// create depth texture
+	unsigned int depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0, 1.0, 1.0, 1.0 };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+	// attach depth texture as FBO's depth buffer
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
 	while (!window.shouldClose() && !Menu::quitGame) {
 		
 		// always update the time and poll events
 		Time::update();
 		glfwPollEvents();
+		glEnable(GL_DEPTH_TEST);
 
 		// main switch to decide what screen to display
 		switch (Menu::screen){
@@ -94,8 +122,9 @@ int main(int argc, char** argv) {
 
 				Utils::instance().shader->use();
 				Utils::instance().shader->setVector4("lightColor", lightColor);
-				Utils::instance().shader->setVector3("lightPos", menuCamera.getPosition()); // later we will change this to the actual light position, leave as this for now
+				Utils::instance().shader->setVector3("lightPos", lightPos); // later we will change this to the actual light position, leave as this for now
 				Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
+
 
 				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
@@ -122,6 +151,7 @@ int main(int argc, char** argv) {
 				} 
 				else {
 					Time::startSimTimer();
+
 #pragma region inputs
 
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
@@ -174,13 +204,69 @@ int main(int argc, char** argv) {
 					glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+
+
+					#pragma region Shadow map
+
+					// 1. render depth of scene to texture (from light's perspective)
+					// --------------------------------------------------------------
+					glm::mat4 lightProjection, lightView;
+					glm::mat4 lightSpaceMatrix;
+					float near_plane = 1.0f, far_plane = 7.5f;
+					//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+					lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.1f, 1000.0f);
+					lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+					lightSpaceMatrix = lightProjection * lightView;
+					// render scene from light's point of view
+					
+
+					Utils::instance().shader = depthShader;
 					Utils::instance().shader->use();
+					Utils::instance().shader->setInt("shadowMap", 1);
+					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 					Utils::instance().shader->setVector4("lightColor", lightColor);
-					Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
+					//Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
+					Utils::instance().shader->setVector3("lightPos", lightPos);
 					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
 
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 
+					glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+					glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+					glClear(GL_DEPTH_BUFFER_BIT);
+					glActiveTexture(GL_TEXTURE0);
+	
+					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+					pm.drawGround();
+					enemy.render();
+					player.render();
+					//skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
+
+					glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+					// reset viewport
+					glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+					#pragma endregion 
+
+
+					Utils::instance().shader = defaultShader;
+					Utils::instance().shader->use();
+					Utils::instance().shader->setInt("shadowMap", 1);
+					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+					Utils::instance().shader->setVector4("lightColor", lightColor);
+					//Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
+					Utils::instance().shader->setVector3("lightPos", lightPos);
+					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+
+
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, depthMap);
+
+
+					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 					pm.drawGround();
 					enemy.render();
 					player.render();
@@ -221,3 +307,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
+void Render() 
+{
+
+}
