@@ -8,6 +8,10 @@ enum class PowerUpType {
 	eDAMAGE = 2
 };
 
+struct PowerUpTriggerEvent {
+	bool triggered = false;
+};
+
 class PowerUp : public PStatic {
 
 public:
@@ -18,6 +22,8 @@ public:
 
 	void destroy();
 	PowerUpType getType();
+
+	PowerUpTriggerEvent m_triggerEvent;
 
 private:
 	PowerUpType m_powerUpType;

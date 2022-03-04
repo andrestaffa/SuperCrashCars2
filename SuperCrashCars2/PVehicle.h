@@ -24,7 +24,9 @@ enum class VehicleType {
 };
 
 struct VehicleCollisionAttributes {
-	float collisionCoefficient = 1.0f;
+	float collisionCoefficient;
+	bool collided;
+	PxVec3 forceToAdd;
 };
 
 struct VehicleParams {
@@ -156,5 +158,7 @@ private:
 	VehicleDesc initVehicleDesc();
 	void adjustConvexCollisionMesh(const PxVec3& chassis_tran, const PxVec3& chassis_scale, const PxVec3& wheel_tran, const PxVec3& wheel_scale);
 	void releaseAllControls();
+
+	void initVehicleCollisionAttributes();
 
 };

@@ -39,17 +39,18 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		launchVector = launchVector.getNormalized();
 
 		PVehicle* victimVehicle = (PVehicle*)victim->userData;
+		victimVehicle->vehicleAttr.collided = true;
 
 		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
 		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
 		float attackerMag = attacker->getLinearVelocity().magnitude();
 		Log::debug("Attacker magnitude: {}", attackerMag);
+		victimVehicle->vehicleAttr.forceToAdd = PxVec3(0.0f);
 		// launch formula: base 100k + 20k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
 		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
-		
-		victimVehicle->getRigidDynamic()->addForce(PxVec3(launchVector * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * (1.f + 3.f * attackerMag / 70.f))), PxForceMode::eIMPULSE);
-		victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
 
+		victimVehicle->vehicleAttr.forceToAdd = PxVec3(launchVector * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * (1.f + 3.f * attackerMag / 70.f)));
+		victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
 	}
 }
 
@@ -75,7 +76,6 @@ void EventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count) {
 			break;
 		}
 	}
-
-	powerUp->destroy();
+	powerUp->m_triggerEvent.triggered = true;
 
 }
