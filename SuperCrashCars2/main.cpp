@@ -20,6 +20,7 @@
 #include "PVehicle.h"
 #include "PDynamic.h"
 #include "PStatic.h"
+#include "PowerUp.h"
 
 #include "ImguiManager.h"
 
@@ -60,9 +61,15 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
 	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
 
+	PowerUp powerUp1 = PowerUp(pm, Model("models/star_powerup/star_powerup.obj"), PowerUpType::eBOOST, PxVec3(-20.0f, 20.0f, -30.0f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/star_powerup/star_powerup.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
+
 	std::vector<PVehicle> vehicleList;
+	std::vector<PowerUp> powerUps;
 	vehicleList.push_back(player);
 	vehicleList.push_back(enemy);
+	powerUps.push_back(powerUp1);
+	powerUps.push_back(powerUp2);
 	
 	// Controller
 	InputController controller;
@@ -149,8 +156,8 @@ int main(int argc, char** argv) {
 			if (Time::shouldSimulate) {
 				if (Menu::paused) { // paused, read the inputs using the menu function
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-						controller.PS4InputInGame(player);
-						//controller.XboxInputInGame(player);
+						//controller.PS4InputInGame(player);
+						controller.XboxInputInGame(player);
 					}
 				} 
 				else {
@@ -182,14 +189,22 @@ int main(int argc, char** argv) {
 #pragma endregion
 
 					// applying collisions in main thread instead of collision thread
-					for (PVehicle car : vehicleList) {
-						VehicleCollisionAttributes* x = (VehicleCollisionAttributes*)car.getRigidDynamic()->userData;
-						if (x && x->collided) {
-							car.getRigidDynamic()->addForce((x->forceToAdd), PxForceMode::eIMPULSE);
-							x->collided = false;
+					for (const PVehicle& car : vehicleList) {
+						PVehicle* x = (PVehicle*)car.getRigidDynamic()->userData;
+						if (x && x->vehicleAttr.collided) {
+							car.getRigidDynamic()->addForce((x->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
+							x->vehicleAttr.collided = false;
+							Log::debug("Player coeff: {}", ((PVehicle*)player.getRigidDynamic()->userData)->vehicleAttr.collisionCoefficient);
+							Log::debug("Enemy coeff: {}", ((PVehicle*)enemy.getRigidDynamic()->userData)->vehicleAttr.collisionCoefficient);
+						}
+					}
 
-							Log::debug("Player coeff: {}", ((VehicleCollisionAttributes*)player.getRigidDynamic()->userData)->collisionCoefficient);
-							Log::debug("Enemy coeff: {}", ((VehicleCollisionAttributes*)enemy.getRigidDynamic()->userData)->collisionCoefficient);
+					// handling triggers of powerUps in the main thrad instead of the collision thread
+					for (const PowerUp& powerUp : powerUps) {
+						PowerUp* x = (PowerUp*)powerUp.getRigidStatic()->userData;
+						if (x && x->m_triggerEvent.triggered) {
+							x->m_triggerEvent.triggered = false;
+							x->destroy();
 						}
 					}
 					
@@ -275,6 +290,9 @@ int main(int argc, char** argv) {
 					pm.drawGround();
 					enemy.render();
 					player.render();
+
+					powerUp1.render();
+					powerUp2.render();
 
 					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 

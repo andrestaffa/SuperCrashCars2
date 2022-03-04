@@ -17,7 +17,7 @@ public:
 	void render();
 	void free();
 
-private:
+protected:
 	PhysicsManager& m_pm;
 	PxRigidStatic* m_static = NULL;
 	Model m_model;
