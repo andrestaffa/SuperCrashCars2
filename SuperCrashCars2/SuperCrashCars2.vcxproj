@@ -79,7 +79,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(MSBuildProjectDirectory)\include;$(VC_IncludePath);$(WindowsSDK_IncludePath)</IncludePath>
-    <LibraryPath>$(MSBuildProjectDirectory)\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <LibraryPath>C:\Users\rolom\Documents\SuperCrashCars2\SuperCrashCars2\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -149,6 +149,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AudioManager.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="EventCallback.cpp" />
     <ClCompile Include="Geometry.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="ImguiManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="EventCallback.h" />
     <ClInclude Include="Geometry.h" />
@@ -234,8 +236,8 @@
     <ClInclude Include="ImguiManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="lib\fmod.dll" />
-    <None Include="lib\fmodL.dll" />
+    <None Include="fmod.dll" />
+    <None Include="fmodL.dll" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
     <None Include="shaders\shader_fragment.frag" />
@@ -244,8 +246,8 @@
     <None Include="shaders\skybox.vert" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lib\fmodL_vc.lib" />
-    <Library Include="lib\fmod_vc.lib" />
+    <Library Include="fmodL_vc.lib" />
+    <Library Include="fmod_vc.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

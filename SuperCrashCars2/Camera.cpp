@@ -70,6 +70,10 @@ const glm::mat4 Camera::getViewMat() {
 const glm::mat4 Camera::getPerspMat() {
 	return P;
 }
+const glm::vec3 Camera::getFront() {
+	return this->m_front;
+}
+
 void Camera::setPosition(const glm::vec3& position) {
 	this->m_position = position;
 }

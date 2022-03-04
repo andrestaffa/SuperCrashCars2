@@ -196,7 +196,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[10]) { // "up" in menus
 		if (!upHeld) {
 			upHeld = true;
-			Menu::changeSelection(1);
+			Menu::changeSelection(-1);
 		}
 	}
 	else if (upHeld) upHeld = false;
@@ -204,7 +204,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[12]) { // "down" in menus
 		if (!downHeld) {
 			downHeld = true;
-			Menu::changeSelection(-1);
+			Menu::changeSelection(1);
 		}
 	}
 	else if (downHeld) downHeld = false;
@@ -240,7 +240,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[14]) { // "up" in menus
 		if (!upHeld) {
 			upHeld = true;
-			Menu::changeSelection(1);
+			Menu::changeSelection(-1);
 		}
 	}
 	else if (upHeld) upHeld = false;
@@ -248,7 +248,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[16]) { // "down" in menus
 		if (!downHeld) {
 			downHeld = true;
-			Menu::changeSelection(-1);
+			Menu::changeSelection(1);
 		}
 	}
 	else if (downHeld) downHeld = false;

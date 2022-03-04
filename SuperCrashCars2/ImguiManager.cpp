@@ -38,12 +38,9 @@ void ImguiManager::renderStats(const PVehicle& player) {
 	ImGui::End();
 };
 void ImguiManager::renderSliders(const PVehicle& player, const PVehicle& enemy) {
-	//bool checkBox = false;
 
 	ImGui::Begin("Sliders:");
 
-	//ImGui::Checkbox("Example Checkbox", &checkBox);
-	// 
 	// slider for player mass
 	float pmass = player.getRigidDynamic()->getMass();
 	ImGui::SliderFloat("Player Mass", &pmass, 100.0f, 10000.0f);
@@ -59,18 +56,12 @@ void ImguiManager::renderSliders(const PVehicle& player, const PVehicle& enemy) 
 void ImguiManager::renderMenu() {
 	ImGui::Begin("MENU:");
 	std::string menuDisplay = Menu::printMenu();
-	//std::string menuButton	= ("Main Menu Button: " + std::to_string((int)Menu::menuButton));
-	//std::string pauseIndicator;
-	//if (Menu::paused) {
-	//	pauseIndicator = ("PAUSED");
-	//}
-	//else {
-	//	std::string pauseIndicator = (" ");
-	//}
 
 	ImGui::Text(menuDisplay.c_str());
-	//ImGui::Text(menuButton.c_str());
-	//ImGui::Text(pauseIndicator.c_str());
+	bool checkBox = AudioManager::get().getMuteStatus();
+	ImGui::Checkbox("Mute Audio", &checkBox);
+	if (checkBox != AudioManager::get().getMuteStatus()) AudioManager::get().muteToggle();
+	
 
 	ImGui::End();
 };

@@ -22,7 +22,8 @@
 #include "PStatic.h"
 
 #include "ImguiManager.h"
-
+#include "AudioManager.h"
+// $(MSBuildProjectDirectory)\lib
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
@@ -68,6 +69,8 @@ int main(int argc, char** argv) {
 	// ImGui 
 	ImguiManager imgui(window);
 
+	AudioManager::get().init();
+
 	while (!window.shouldClose() && !Menu::quitGame) {
 		
 		// always update the time and poll events
@@ -81,8 +84,8 @@ int main(int argc, char** argv) {
 				Time::startSimTimer();
 				// read inputs
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-					controller.PS4InputInGame(player);
-					//controller.XboxInputInGame(player);
+					controller.PS4InputInMenu();
+					//controller.XboxInputInMenu();
 				}
 				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
 			}
@@ -120,8 +123,8 @@ int main(int argc, char** argv) {
 			if (Time::shouldSimulate) {
 				if (Menu::paused) { // paused, read the inputs using the menu function
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-						controller.PS4InputInGame(player);
-						//controller.XboxInputInGame(player);
+						controller.PS4InputInMenu();
+						//controller.XboxInputInMenu();
 					}
 				} 
 				else {
@@ -148,8 +151,14 @@ int main(int argc, char** argv) {
 						enemy.reset();
 						Menu::startFlag = false;
 					}
+					if (inputManager->onKeyAction(GLFW_KEY_M, GLFW_PRESS)) {
+						AudioManager::get().muteToggle();
+					}
 
 #pragma endregion
+
+					
+					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
 					// applying collisions in main thread instead of collision thread
 					for (PVehicle car : vehicleList) {
@@ -158,6 +167,8 @@ int main(int argc, char** argv) {
 							car.getRigidDynamic()->addForce((x->forceToAdd), PxForceMode::eIMPULSE);
 							x->collided = false;
 
+							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(player.getPosition()), 0.1f);
+							 
 							Log::debug("Player coeff: {}", ((VehicleCollisionAttributes*)player.getRigidDynamic()->userData)->collisionCoefficient);
 							Log::debug("Enemy coeff: {}", ((VehicleCollisionAttributes*)enemy.getRigidDynamic()->userData)->collisionCoefficient);
 						}

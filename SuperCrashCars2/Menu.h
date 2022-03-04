@@ -1,4 +1,5 @@
 #pragma once
+#include "AudioManager.h"
 
 // the major states game could be in anytime
 enum class Screen {
@@ -45,6 +46,9 @@ public:
 	// depending on 'plus', menu button selected is incremented or decremented
 	// this function switches buttons in menus when the user presses up or down on the dpad
 	static void changeSelection(int plus) {
+
+		if (Menu::screen != Screen::eLOADING) AudioManager::get().playSound(SFX_MENUBUTTON, 0.3f);
+
 		switch (Menu::screen)
 		{
 		case Screen::eMAINMENU:
@@ -82,7 +86,7 @@ public:
 	// this function "clicks" on the current button
 	static void select() {
 
-		// if (Menu::screen != Screen::eLOADING)  playSound();
+		if (Menu::screen != Screen::eLOADING) AudioManager::get().playSound(SFX_MENUBUTTON, 0.3f);
 		// we will play a sound here after the sound system is implemented
 
 		switch (Menu::screen) {
@@ -153,6 +157,7 @@ public:
 
 	// function to return us to init menu config, when game is quit for example.
 	static void initMenu() {
+		AudioManager::get().setListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		Menu::screen = Screen::eMAINMENU;
 		Menu::menuButton = MainMenuButton::eSTART;
 		Menu::mainMenuScreen = MainMenuScreen::eMAIN_SCREEN;
@@ -171,7 +176,8 @@ public:
 	////////////////////// display functions
 
 	static std::string printMenu() {
-		std::string str = "Current Screen: \n";
+		std::string str = "Current State:\n";
+		
 		switch (Menu::screen)
 		{
 		case Screen::eMAINMENU:

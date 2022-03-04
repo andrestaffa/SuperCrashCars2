@@ -150,6 +150,9 @@
     <ClCompile Include="ImguiManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AudioManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -296,6 +299,9 @@
     <ClInclude Include="include\fmod_errors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AudioManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader_fragment.frag">
@@ -316,11 +322,11 @@
     <None Include="shaders\skybox.vert">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="lib\fmod.dll" />
-    <None Include="lib\fmodL.dll" />
+    <None Include="fmod.dll" />
+    <None Include="fmodL.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lib\fmod_vc.lib" />
-    <Library Include="lib\fmodL_vc.lib" />
+    <Library Include="fmod_vc.lib" />
+    <Library Include="fmodL_vc.lib" />
   </ItemGroup>
 </Project>
