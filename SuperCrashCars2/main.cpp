@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 
 
 	// Shadows
-	const unsigned int SHADOW_WIDTH = 2048, SHADOW_HEIGHT = 2048;
+	const unsigned int SHADOW_WIDTH = 2048 * 4, SHADOW_HEIGHT = 2048 * 4;
 	unsigned int depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);
 	// create depth texture
@@ -203,15 +203,15 @@ int main(int argc, char** argv) {
 					Time::startRenderTimer();
 
 					glEnable(GL_CULL_FACE);
-					glCullFace(GL_FRONT);
-					glFrontFace(GL_CW);
+					glCullFace(GL_BACK);
+					glFrontFace(GL_CCW);
 					glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-
-
 					#pragma region Shadow map
+
+					glCullFace(GL_FRONT);
+					glFrontFace(GL_CCW);
 
 					// 1. render depth of scene to texture (from light's perspective)
 					// --------------------------------------------------------------
@@ -219,7 +219,7 @@ int main(int argc, char** argv) {
 					glm::mat4 lightSpaceMatrix;
 					float near_plane = 1.0f, far_plane = 7.5f;
 					//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-					lightProjection = glm::ortho(-50.0f, 50.0f, -50.0f, 50.0f, 0.1f, 1000.0f);
+					lightProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.1f, 1000.0f);
 					lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 					lightSpaceMatrix = lightProjection * lightView;
 					// render scene from light's point of view
@@ -252,7 +252,8 @@ int main(int argc, char** argv) {
 					glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
+					glCullFace(GL_BACK);
+					glFrontFace(GL_CCW);
 					#pragma endregion 
 
 
