@@ -292,5 +292,11 @@
     <None Include="shaders\skybox.vert">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\simpleDepth.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\simpleDepth.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

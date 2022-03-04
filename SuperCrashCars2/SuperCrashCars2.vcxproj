@@ -224,6 +224,8 @@
     <None Include="shaders\light.vert" />
     <None Include="shaders\shader_fragment.frag" />
     <None Include="shaders\shader_vertex.vert" />
+    <None Include="shaders\simpleDepth.frag" />
+    <None Include="shaders\simpleDepth.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
   </ItemGroup>
