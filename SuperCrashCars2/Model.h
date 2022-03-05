@@ -29,6 +29,7 @@ public:
 
 	const glm::vec3& getPosition() const;
 	const glm::vec3& getScale() const;
+	float getAngle() const;
 
 	const std::vector<Mesh>& getMeshData() const;
 

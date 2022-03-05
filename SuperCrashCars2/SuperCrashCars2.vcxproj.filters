@@ -152,6 +152,8 @@
     </ClCompile>
     <ClCompile Include="AudioManager.cpp">
       <Filter>Source Files</Filter>
+    <ClCompile Include="PowerUp.cpp">
+      <Filter>Source Files\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -301,6 +303,8 @@
     </ClInclude>
     <ClInclude Include="AudioManager.h">
       <Filter>Header Files</Filter>
+    <ClInclude Include="PowerUp.h">
+      <Filter>Header Files\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -328,5 +332,11 @@
   <ItemGroup>
     <Library Include="fmod_vc.lib" />
     <Library Include="fmodL_vc.lib" />
+    <None Include="shaders\simpleDepth.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\simpleDepth.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

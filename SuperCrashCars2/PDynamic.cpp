@@ -22,10 +22,11 @@ PxRigidDynamic* PDyanmic::getRigidDynamic() const {
 
 void PDyanmic::render() {
 	
+	PxRigidActor* rigidActor = static_cast<PxRigidActor*>(this->m_dynamic);
+	if (!rigidActor) return;
+
 	const int MAX_NUM_ACTOR_SHAPES = 128;
 	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
-
-	PxRigidActor* rigidActor = static_cast<PxRigidActor*>(this->m_dynamic);
 
 	const PxU32 nbShapes = rigidActor->getNbShapes();
 
@@ -63,6 +64,7 @@ PxRigidDynamic* PDyanmic::createDynamic(const PxVec3& position, const PxQuat& ro
 }
 
 void PDyanmic::free() {
+	if (!this->m_dynamic) return;
 	this->m_dynamic->release();
 	this->m_dynamic = NULL;
 }

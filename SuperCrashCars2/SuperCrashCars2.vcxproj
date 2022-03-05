@@ -169,6 +169,7 @@
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PDynamic.cpp" />
     <ClCompile Include="PhysicsManager.cpp" />
+    <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="PStatic.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
@@ -215,6 +216,7 @@
     <ClInclude Include="Model.h" />
     <ClInclude Include="PDynamic.h" />
     <ClInclude Include="PhysicsManager.h" />
+    <ClInclude Include="PowerUp.h" />
     <ClInclude Include="PStatic.h" />
     <ClInclude Include="PVehicle.h" />
     <ClInclude Include="Shader.h" />
@@ -242,6 +244,8 @@
     <None Include="shaders\light.vert" />
     <None Include="shaders\shader_fragment.frag" />
     <None Include="shaders\shader_vertex.vert" />
+    <None Include="shaders\simpleDepth.frag" />
+    <None Include="shaders\simpleDepth.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
   </ItemGroup>

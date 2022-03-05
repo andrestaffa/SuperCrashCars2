@@ -86,6 +86,10 @@ const glm::vec3& Model::getScale() const {
 	return this->m_scale;
 }
 
+float Model::getAngle() const {
+	return this->m_angle;
+}
+
 void Model::reset() {
 	this->m_position = glm::vec3(0.0f);
 	this->m_angle = 0.0f;
