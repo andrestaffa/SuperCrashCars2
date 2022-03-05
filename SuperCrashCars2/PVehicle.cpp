@@ -264,7 +264,7 @@ void PVehicle::boost() {
 }
 
 void PVehicle::regainBoost() {
-	if (this->vehicleParams.boost < 100) if (difftime(time(0), this->vehicleParams.boostCooldown) > 0.2f) this->vehicleParams.boost++;
+	if (this->vehicleParams.boost < 100 && difftime(time(0), this->vehicleParams.boostCooldown) > 0.2f && !this->getVehicleInAir()) this->vehicleParams.boost++;
 }
 void PVehicle::jump() {
 	if (this->vehicleParams.canJump) {
@@ -274,7 +274,7 @@ void PVehicle::jump() {
 	}
 }
 void PVehicle::regainJump() {
-	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 2.0f) this->vehicleParams.canJump = true;
+	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 1.0f && !this->getVehicleInAir()) this->vehicleParams.canJump = true;
 }
 void PVehicle::reset(){
 	this->getRigidDynamic()->setGlobalPose(PxTransform(this->m_startingPosition, PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));

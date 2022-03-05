@@ -204,7 +204,7 @@ int main(int argc, char** argv) {
 						if (x && x->vehicleAttr.collided) {
 							car.getRigidDynamic()->addForce((x->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
 							x->vehicleAttr.collided = false;
-							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(player.getPosition()), 0.1f);
+							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(car.getPosition()), 0.5f);
 							Log::debug("Player coeff: {}", ((PVehicle*)player.getRigidDynamic()->userData)->vehicleAttr.collisionCoefficient);
 							Log::debug("Enemy coeff: {}", ((PVehicle*)enemy.getRigidDynamic()->userData)->vehicleAttr.collisionCoefficient);
 						}
