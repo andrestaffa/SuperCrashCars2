@@ -73,9 +73,12 @@ int main(int argc, char** argv) {
 	powerUps.push_back(powerUp2);
 	
 	// Controller
-	InputController controller;
-	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
-
+	InputController controller1, controller2, controller3, controller4;
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1 = InputController(GLFW_JOYSTICK_1);
+	if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
+		Log::info("Controller 2 connected");
+		controller2 = InputController(GLFW_JOYSTICK_2);
+	}
 	// ImGui 
 	ImguiManager imgui(window);
 
@@ -116,9 +119,15 @@ int main(int argc, char** argv) {
 		case Screen::eMAINMENU:
 			if (Time::shouldSimulate) {
 				Time::startSimTimer();
-				// read inputs
+
+				// read inputs assume first controller is PS4
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-					controller.PS4InputInMenu();
+					controller1.PS4InputInMenu();
+					//controller.XboxInputInMenu();
+				}
+				//Second controller is ns
+				if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
+					controller2.NSInputInMenu();
 					//controller.XboxInputInMenu();
 				}
 				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
@@ -158,7 +167,7 @@ int main(int argc, char** argv) {
 			if (Time::shouldSimulate) {
 				if (Menu::paused) { // paused, read the inputs using the menu function
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-						controller.PS4InputInMenu();
+						controller1.PS4InputInMenu();
 						//controller.XboxInputInMenu();
 
 					}
@@ -169,7 +178,7 @@ int main(int argc, char** argv) {
 #pragma region inputs
 
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-						controller.PS4InputInGame(player);
+						controller1.PS4InputInGame(player);
 						//controller.XboxInputInGame(player);
 					}
 
@@ -266,7 +275,7 @@ int main(int argc, char** argv) {
 					glClear(GL_DEPTH_BUFFER_BIT);
 					glActiveTexture(GL_TEXTURE0);
 	
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+					//playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 					pm.drawGround();
 					enemy.render();
 					player.render();

@@ -28,7 +28,8 @@ public:
 	void PS4InputInGame(PVehicle& p1);
 	void XboxInputInMenu();
 	void PS4InputInMenu();
-	void NSInput(PVehicle& p1);
+	void NSInputInGame(PVehicle& p1);
+	void NSInputInMenu();
 
 private:
 

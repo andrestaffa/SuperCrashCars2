@@ -253,7 +253,8 @@ void InputController::PS4InputInMenu() {
 	}
 	else if (downHeld) downHeld = false;
 }
-void InputController::NSInput(PVehicle& p1) {
+
+void InputController::NSInputInGame(PVehicle& p1) {
 	readInput();
 	if (abs(axis[0]) > 0.15) {
 		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
@@ -263,6 +264,51 @@ void InputController::NSInput(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[6]) p1.reverse(0.65f);
 	if (GLFW_PRESS == buttons[7]) p1.accelerate(1);
 }
+
+void InputController::NSInputInMenu() {
+	readInput();
+
+	if (GLFW_PRESS == buttons[1]) { // "confirm"
+		if (!xHeld) {
+			xHeld = true;
+			Menu::select();
+		}
+	}
+	else if (xHeld) xHeld = false;
+
+	if (GLFW_PRESS == buttons[12]) { // reset to the init menu - NS HOME button
+		if (!selHeld) {
+			selHeld = true;
+			Menu::initMenu();
+		}
+	}
+	else if (selHeld) selHeld = false;
+
+	if (GLFW_PRESS == buttons[12]) { // pause - PS4 OPT button (start)
+		if (!startHeld) {
+			startHeld = true;
+			Menu::togglePause();
+		}
+	}
+	else if (startHeld) startHeld = false;
+
+	if (GLFW_PRESS == buttons[16]) { // "up" in menus
+		if (!upHeld) {
+			upHeld = true;
+			Menu::changeSelection(-1);
+		}
+	}
+	else if (upHeld) upHeld = false;
+
+	if (GLFW_PRESS == buttons[18]) { // "down" in menus
+		if (!downHeld) {
+			downHeld = true;
+			Menu::changeSelection(1);
+		}
+	}
+	else if (downHeld) downHeld = false;
+}
+
 void InputController::readInput() {
 	this->axesCount = 0;
 	this->axis = glfwGetJoystickAxes(this->id, &this->axesCount);
