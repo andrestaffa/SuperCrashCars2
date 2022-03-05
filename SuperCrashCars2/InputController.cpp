@@ -18,6 +18,17 @@ InputController::InputController(int playerID)
 
 InputController::~InputController() {}
 
+
+const char* InputController::getName() {
+	return this->name;
+}
+int InputController::getButtonCount() {
+	return this->buttonCount;
+}
+int InputController::getAxesCount() {
+	return this->axesCount;
+}
+
 /* This is the test code for input controller mapping
  *
  * Xbox:
@@ -346,7 +357,10 @@ void InputController::NSInputInMenu() {
 void InputController::readInput() {
 	this->axesCount = 0;
 	this->axis = glfwGetJoystickAxes(this->id, &this->axesCount);
+	//std::cout << this->name << axesCount << std::endl;
+	
 	this->buttonCount = 0;
 	this->buttons = glfwGetJoystickButtons(this->id, &buttonCount);
+	//std::cout << this->name << buttonCount << std::endl;
 }
 

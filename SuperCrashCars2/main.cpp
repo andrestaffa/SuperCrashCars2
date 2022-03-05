@@ -25,6 +25,8 @@
 #include "ImguiManager.h"
 #include "AudioManager.h"
 
+void uniController(InputController& controller, bool isInGame, PVehicle& player);
+
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
@@ -123,6 +125,8 @@ int main(int argc, char** argv) {
 				// read inputs assume first controller is PS4
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
 					controller1.PS4InputInMenu();
+					//uniController(controller1, false, player);
+					//controller1.NSInputInMenu();
 					//controller.XboxInputInMenu();
 				}
 				//Second controller is ns
@@ -180,12 +184,9 @@ int main(int argc, char** argv) {
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
 						controller1.PS4InputInGame(player);
 						//controller.XboxInputInGame(player);
+						//uniController(controller2, true, player);
+						//controller1.NSInputInGame(player);
 					}
-
-					//if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
-					//	controller2.NSInputInGame(enemy);
-					//	//controller.XboxInputInGame(player);
-					//}
 
 					if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
 					if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
@@ -358,4 +359,34 @@ int main(int argc, char** argv) {
 void Render() 
 {
 
+}
+
+void uniController(InputController& controller, bool isInGame, PVehicle& player) {
+	if (!isInGame) {
+		//PS4 controller
+		if (controller.getButtonCount() == 18) {
+			Log::info("PS4");
+			controller.PS4InputInMenu();
+		}
+		else if (controller.getButtonCount() == 15) {
+			Log::info("Xbox");
+			controller.XboxInputInMenu();
+		}
+		else if (controller.getAxesCount() == 4) {
+			controller.NSInputInMenu();
+			Log::info("NS");
+		}
+	}
+	else {
+		if (controller.getButtonCount() == 18) {
+			controller.PS4InputInGame(player);
+		}
+		else if (controller.getButtonCount() == 15) {
+			controller.XboxInputInGame(player);
+		}
+		else if (controller.getAxesCount() == 4) {
+			controller.NSInputInGame(player);
+		}
+	}
+	
 }

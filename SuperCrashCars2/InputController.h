@@ -22,6 +22,9 @@ public:
 	InputController();
 	~InputController();
 
+	const char* getName();
+	int getButtonCount();
+	int getAxesCount();
 	void testInput();
 
 	void XboxInputInGame(PVehicle& p1);
