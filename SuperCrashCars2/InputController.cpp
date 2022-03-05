@@ -256,13 +256,47 @@ void InputController::PS4InputInMenu() {
 
 void InputController::NSInputInGame(PVehicle& p1) {
 	readInput();
-	if (abs(axis[0]) > 0.15) {
-		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
-		else p1.turnRight(abs(axis[0]) * 0.5f);
+	// if vehicle is in air, rotate car using joystick, else use joystick to turn wheels
+	if (p1.getVehicleInAir()) {
+
+		if (abs(axis[0]) > 0.25f) {
+			p1.rotateXAxis(axis[0]);
+		}
+
+		if (abs(axis[1]) > 0.25f) {
+			p1.rotateYAxis(axis[1]);
+		}
+
 	}
-	if (GLFW_PRESS == buttons[0]) p1.handbrake();
-	if (GLFW_PRESS == buttons[6]) p1.reverse(0.65f);
-	if (GLFW_PRESS == buttons[7]) p1.accelerate(1);
+	else {
+		if (abs(axis[0]) > 0.15f) {
+			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
+			else p1.turnRight(abs(axis[0]) * 0.5f);
+		}
+	}
+	if (GLFW_PRESS == buttons[2]) p1.handbrake();
+
+	if (GLFW_PRESS == buttons[0]) p1.jump();
+	if (GLFW_PRESS == buttons[3]) {
+		// the first time boost trigger is registered is different from the rest
+		p1.boost();
+		if (!p1.vehicleParams.boosting) p1.vehicleParams.boosting = true;
+	}
+	else if (p1.vehicleParams.boosting) p1.vehicleParams.boosting = false;
+
+	if (GLFW_PRESS == buttons[8]) p1.reset();
+
+	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
+		if (!startHeld) {
+			startHeld = true;
+			Menu::togglePause();
+		}
+	}
+	else if (startHeld) startHeld = false;
+
+	if (axis[3] != -1) p1.reverse((axis[3] + 1) / 2 * 0.65f);
+	if (axis[4] != -1) p1.accelerate((axis[4] + 1) / 2);
+
 }
 
 void InputController::NSInputInMenu() {

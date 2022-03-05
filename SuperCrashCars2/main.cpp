@@ -182,6 +182,11 @@ int main(int argc, char** argv) {
 						//controller.XboxInputInGame(player);
 					}
 
+					//if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
+					//	controller2.NSInputInGame(enemy);
+					//	//controller.XboxInputInGame(player);
+					//}
+
 					if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
 					if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
 					if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(player.vehicleParams.k_throttle * 0.5f);
