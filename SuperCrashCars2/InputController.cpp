@@ -364,3 +364,24 @@ void InputController::readInput() {
 	//std::cout << this->name << buttonCount << std::endl;
 }
 
+void InputController::uniController(bool isInGame, PVehicle& player) {
+
+	if (!isInGame) {
+		//PS4 controller
+		if (this->getButtonCount() == 18) this->PS4InputInMenu();
+		else if (this->getButtonCount() == 14) {
+			this->XboxInputInMenu();
+			//Log::info("XBOX");
+		}
+		else if (this->getAxesCount() == 4) this->NSInputInMenu();
+
+	}
+	else {
+		if (this->getButtonCount() == 18) this->PS4InputInGame(player);		
+		else if (this->getButtonCount() == 14) {
+			this->XboxInputInGame(player);
+			//Log::info("XBOX");
+		}
+		else if (this->getAxesCount() == 4) this->NSInputInGame(player);
+	}
+}

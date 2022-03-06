@@ -12,7 +12,8 @@
 
 enum Controller {
 	PS4,
-	XBOX
+	XBOX,
+	NS
 };
 
 class InputController
@@ -33,7 +34,7 @@ public:
 	void PS4InputInMenu();
 	void NSInputInGame(PVehicle& p1);
 	void NSInputInMenu();
-
+	void uniController(bool isInGame, PVehicle& player);
 private:
 
 	bool selHeld, startHeld, xHeld, upHeld, downHeld = 0;
