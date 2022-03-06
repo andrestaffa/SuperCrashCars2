@@ -73,9 +73,12 @@ int main(int argc, char** argv) {
 	powerUps.push_back(powerUp2);
 	
 	// Controller
-	InputController controller;
-	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller = InputController(GLFW_JOYSTICK_1);
-
+	InputController controller1, controller2, controller3, controller4;
+	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1 = InputController(GLFW_JOYSTICK_1);
+	if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
+		Log::info("Controller 2 connected");
+		controller2 = InputController(GLFW_JOYSTICK_2);
+	}
 	// ImGui 
 	ImguiManager imgui(window);
 
@@ -116,11 +119,10 @@ int main(int argc, char** argv) {
 		case Screen::eMAINMENU:
 			if (Time::shouldSimulate) {
 				Time::startSimTimer();
-				// read inputs
-				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-					controller.PS4InputInMenu();
-					//controller.XboxInputInMenu();
-				}
+
+				// read inputs 
+				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
+				
 				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
 			}
 			if (Time::shouldRender) { // render at 60fps even in menu
@@ -157,21 +159,14 @@ int main(int argc, char** argv) {
 			// simulate when unpaused, otherwise just grab the inputs.
 			if (Time::shouldSimulate) {
 				if (Menu::paused) { // paused, read the inputs using the menu function
-					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-						controller.PS4InputInMenu();
-						//controller.XboxInputInMenu();
-
-					}
+					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
 				} 
 				else {
 					Time::startSimTimer();
 
 #pragma region inputs
 
-					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-						controller.PS4InputInGame(player);
-						//controller.XboxInputInGame(player);
-					}
+					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(true, player);
 
 					if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
 					if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
@@ -266,7 +261,7 @@ int main(int argc, char** argv) {
 					glClear(GL_DEPTH_BUFFER_BIT);
 					glActiveTexture(GL_TEXTURE0);
 	
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+					//playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 					pm.drawGround();
 					enemy.render();
 					player.render();
