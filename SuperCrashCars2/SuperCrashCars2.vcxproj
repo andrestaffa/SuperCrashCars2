@@ -165,6 +165,7 @@
     <ClCompile Include="InputController.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="GameManager.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
     <ClCompile Include="PDynamic.cpp" />
@@ -234,7 +235,7 @@
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Window.h" />
-    <ClInclude Include="Menu.h" />
+    <ClInclude Include="GameManager.h" />
     <ClInclude Include="ImguiManager.h" />
   </ItemGroup>
   <ItemGroup>

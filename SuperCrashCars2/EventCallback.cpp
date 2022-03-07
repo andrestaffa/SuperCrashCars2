@@ -49,7 +49,9 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		// launch formula: base 100k + 20k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
 		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
 
-		victimVehicle->vehicleAttr.forceToAdd = PxVec3(launchVector * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * (1.f + 3.f * attackerMag / 70.f)));
+		float magMult = (1.f + 2.f * attackerMag / 70.f);
+
+		victimVehicle->vehicleAttr.forceToAdd = PxVec3((launchVector + PxVec3(0.0f, 0.0f * (magMult - 1.f), 0.0f)) * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
 		victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
 	}
 }
@@ -61,21 +63,8 @@ void EventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count) {
 
 	if (!(powerUp->getRigidStatic() && vehicle->getRigidDynamic())) return;
 
-	switch (powerUp->getType()) {
-		case PowerUpType::eBOOST:
-		{
-			vehicle->vehicleParams.boost *= 1.25;
-			break;
-		}
-		case PowerUpType::eDAMAGE:
-		{
-			break;
-		}
-		case PowerUpType::eHEALTH:
-		{
-			break;
-		}
-	}
-	powerUp->m_triggerEvent.triggered = true;
+	vehicle->pickUpPowerUp(powerUp);
+
+	powerUp->triggered = true;
 
 }

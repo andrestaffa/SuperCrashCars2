@@ -15,29 +15,24 @@ void AudioManager::init() {
 		Log::error("Failed to initialize FMOD system");
 	}
 
-	this->volume = 0.6f;
+	this->BGMVolume = BGM_VOL_INIT * 1.f;
+	this->SFXVolume = 1.0f;
+	this->masterVolume = 0.6f;
 	this->muted = false;
+	this->mutedBGM = false;
+	this->mutedSFX = false;
 
 	loadBackgroundSound(BGM_CLOUDS);
 
 	loadSound(SFX_MENUBUTTON);
 	loadSound(SFX_CAR_HIT);
+	loadSound(SFX_ITEM_COLLECT);
+	loadSound(SFX_JUMP_NORMAL);
+	loadSound(SFX_JUMP_MEGA);
+	loadSound(SFX_DEATH);
 
 
 	setListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-	//loadSound(SOUND_WOOF);
-	//loadSound(SOUND_STEP);
-	//loadSound(SOUND_PEW);
-	//loadSound(SOUND_DEATH);
-	//loadSound(SOUND_RIFLE);
-	//loadSound(SOUND_SHOTGUN);
-	//loadSound(SOUND_FLASHBANG);
-	//loadSound(SOUND_FREEZE);
-	//loadSound(SOUND_EASY_GAME);
-	//loadSound(SOUND_DAB);
-	//loadSound(SOUND_FOG);
-	//loadSound(SOUND_FLAG_CAPTURE);
 
 	playBackgroundMusic(BGM_CLOUDS);
 }
@@ -49,14 +44,14 @@ void AudioManager::playBackgroundMusic(std::string filePath)
 
 	// 3rd parameter is true to pause sound on load.
 	FMOD_RESULT result = system->playSound(sound, nullptr, true, &backgroundChannel);
-	result = backgroundChannel->setVolume(this->volume / 5.0f);
+	result = backgroundChannel->setVolume(this->masterVolume * BGMVolume * (float)(!mutedBGM));
 	result = backgroundChannel->setPaused(false);
 }
 
-void AudioManager::updateBackgroundChannelVolume()
+void AudioManager::refreshBGMVolume()
 {
 	backgroundChannel->setPaused(true);
-	backgroundChannel->setVolume(this->volume / 5.0f);
+	backgroundChannel->setVolume(this->masterVolume * BGMVolume * (float)(!mutedBGM));
 	backgroundChannel->setPaused(false);
 }
 
@@ -100,7 +95,7 @@ void AudioManager::playSound(std::string soundName, float soundVolume) {
 
 	// 3rd parameter is true to pause sound on load.
 	FMOD_RESULT result = system->playSound(sound, nullptr, true, &channel);
-	result = channel->setVolume(this->volume * soundVolume);
+	result = channel->setVolume(this->masterVolume * SFXVolume * (float)(!mutedSFX) * soundVolume);
 	result = channel->setPaused(false);
 }
 
@@ -121,39 +116,11 @@ void AudioManager::playSound(std::string soundName, glm::vec3 position, float so
 
 	channel->set3DAttributes(&fmodPos, nullptr);
 
-	result = channel->setVolume(this->volume * soundVolume);
+	result = channel->setVolume(this->masterVolume * SFXVolume * (float)(!mutedSFX) * soundVolume);
 	result = channel->setPaused(false);
 }
 
-
-void AudioManager::adjustVolume(float dVolume) {
-	// Change volume variable
-	this->volume += dVolume;
-
-	// Clamp
-	if (this->volume > 1.0f)
-		this->volume = 1.0f;
-	else if (this->volume < 0.0f)
-		this->volume = 0.0f;
-
-	updateBackgroundChannelVolume();
-}
-
-void AudioManager::setVolume(float newVolume) {
-	// Change volume variable
-	this->volume = newVolume;
-
-	// Clamp
-	if (this->volume > 1.0f)
-		this->volume = 1.0f;
-	else if (this->volume < 0.0f)
-		this->volume = 0.0f;
-
-	updateBackgroundChannelVolume();
-}
-
-void AudioManager::setListenerPosition(glm::vec3 position, glm::vec3 forward, glm::vec3 up)
-{
+void AudioManager::setListenerPosition(glm::vec3 position, glm::vec3 forward, glm::vec3 up) {
 	FMOD_VECTOR fmodPos = {
 		position.x,
 		position.y,
@@ -175,20 +142,44 @@ void AudioManager::setListenerPosition(glm::vec3 position, glm::vec3 forward, gl
 	system->set3DListenerAttributes(0, &fmodPos, nullptr, &fmodForward, &fmodUp);
 }
 
-void AudioManager::muteToggle() {
-	if (muted) {
-		setVolume(unmutedVolume);
-		muted = false;
-	} 
-	else {
-		unmutedVolume = this->volume;
-		setVolume(0.0f);
-		muted = true;
-
-	}
+void AudioManager::setMasterVolume(float newVolume) {
+	this->masterVolume = newVolume;
+	this->masterVolume = clampVol(this->masterVolume);
+	refreshBGMVolume();
 }
 
-bool AudioManager::getMuteStatus()
-{
-	return muted;
+void AudioManager::setBGMVolume(float newVolume) {
+	this->BGMVolume = newVolume;
+	this->BGMVolume = clampVol(this->BGMVolume);
+	refreshBGMVolume();
+}
+void AudioManager::setSFXVolume(float newVolume) {
+	this->SFXVolume = newVolume;
+	this->SFXVolume = clampVol(this->SFXVolume);
+}
+
+void AudioManager::toggleBGMMute() {
+	if (mutedBGM) mutedBGM = false;
+	else mutedBGM = true;
+	refreshBGMVolume();
+}
+
+void AudioManager::toggleSFXMute() {
+	if (mutedSFX) mutedSFX = false;
+	else mutedSFX = true;
+}
+
+bool AudioManager::getBGMMute(){
+	return this->mutedBGM;
+}
+bool AudioManager::getSFXMute(){
+	return this->mutedSFX;
+}
+
+float AudioManager::clampVol(float vol) {
+	if (vol > 1.0f)
+		vol = 1.0f;
+	else if (vol < 0.0f)
+		vol = 0.0f;
+	return vol;
 }

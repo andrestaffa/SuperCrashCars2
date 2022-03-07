@@ -3,14 +3,15 @@
 #include "PStatic.h"
 
 enum class PowerUpType {
+	eEMPTY = -1, // for when a car is holding no powerup
 	eBOOST = 0,
 	eHEALTH = 1,
-	eDAMAGE = 2
+	eDAMAGE = 2, // ??
+	eSHIELD = 3,
+	eJUMP = 4
 };
 
-struct PowerUpTriggerEvent {
-	bool triggered = false;
-};
+
 
 class PowerUp : public PStatic {
 
@@ -23,7 +24,7 @@ public:
 	void destroy();
 	PowerUpType getType();
 
-	PowerUpTriggerEvent m_triggerEvent;
+	bool triggered = false;
 
 private:
 	PowerUpType m_powerUpType;

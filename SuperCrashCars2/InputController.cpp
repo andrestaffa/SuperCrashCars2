@@ -1,5 +1,5 @@
 #include "InputController.h"
-#include "Menu.h"
+#include "GameManager.h"
 
 InputController::InputController()
 {
@@ -101,6 +101,7 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[2]) p1.handbrake();
 
 	if (GLFW_PRESS == buttons[0]) p1.jump();
+	if (GLFW_PRESS == buttons[1]) p1.usePowerUp();
 	if (GLFW_PRESS == buttons[3]) {
 		// the first time boost trigger is registered is different from the rest
 		p1.boost();
@@ -113,7 +114,7 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[7]) { // pause - XBOX START button
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -145,6 +146,7 @@ void InputController::PS4InputInGame(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[0]) p1.handbrake();
 
 	if (GLFW_PRESS == buttons[1]) p1.jump();
+	if (GLFW_PRESS == buttons[2]) p1.usePowerUp();
 	if (GLFW_PRESS == buttons[3]) {
 		// the first time boost trigger is registered is different from the rest
 		p1.boost();
@@ -157,7 +159,7 @@ void InputController::PS4InputInGame(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -172,7 +174,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[0]) { // "confirm"
 		if (!xHeld) {
 			xHeld = true;
-			Menu::select();
+			GameManager::get().select();
 		}
 	}
 	else if (xHeld) xHeld = false;
@@ -180,7 +182,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[6]) { // reset to the init menu - XBOX select button (back)
 		if (!selHeld) {
 			selHeld = true;
-			Menu::initMenu();
+			GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
@@ -188,7 +190,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[7]) { // pause - XBOX START button
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -196,7 +198,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[10]) { // "up" in menus
 		if (!upHeld) {
 			upHeld = true;
-			Menu::changeSelection(-1);
+			GameManager::get().changeSelection(-1);
 		}
 	}
 	else if (upHeld) upHeld = false;
@@ -204,7 +206,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[12]) { // "down" in menus
 		if (!downHeld) {
 			downHeld = true;
-			Menu::changeSelection(1);
+			GameManager::get().changeSelection(1);
 		}
 	}
 	else if (downHeld) downHeld = false;
@@ -216,7 +218,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[1]) { // "confirm"
 		if (!xHeld) {
 			xHeld = true;
-			Menu::select();
+			GameManager::get().select();
 		}
 	}
 	else if (xHeld) xHeld = false;
@@ -224,7 +226,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[8]) { // reset to the init menu - PS4 SHARE button (select)
 		if (!selHeld) {
 			selHeld = true;
-			Menu::initMenu();
+			GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
@@ -232,7 +234,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -240,7 +242,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[14]) { // "up" in menus
 		if (!upHeld) {
 			upHeld = true;
-			Menu::changeSelection(-1);
+			GameManager::get().changeSelection(-1);
 		}
 	}
 	else if (upHeld) upHeld = false;
@@ -248,7 +250,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[16]) { // "down" in menus
 		if (!downHeld) {
 			downHeld = true;
-			Menu::changeSelection(1);
+			GameManager::get().changeSelection(1);
 		}
 	}
 	else if (downHeld) downHeld = false;

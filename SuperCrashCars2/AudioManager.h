@@ -7,8 +7,6 @@
 
 #include "Log.h"
 
-//#define SOUND_WOOF "./res/sounds/environmentSounds/woof.ogg"
-
 // music
 #define BGM_CLOUDS "audio/bgm/clouds.wav"
 
@@ -20,6 +18,10 @@
 #define	SFX_CARWINDDOWN "audio/carsounds/car_long/winddown.wav"
 
 #define SFX_CAR_HIT "audio/sfx/hit.wav"
+#define	SFX_ITEM_COLLECT "audio/sfx/item.wav"
+#define SFX_DEATH "audio/sfx/death.wav"
+#define SFX_JUMP_NORMAL "audio/sfx/jump.wav"
+#define	SFX_JUMP_MEGA "audio/sfx/megajump.wav"
 
 
 class AudioManager
@@ -39,23 +41,25 @@ public:
 
 	void init();
 	void playBackgroundMusic(std::string filePath);
-	void updateBackgroundChannelVolume();
+	void refreshBGMVolume();
 	void loadBackgroundSound(std::string filePath);
 	void playSound(std::string soundName, float soundVolume);
 	void playSound(std::string soundName, glm::vec3 position, float soundVolume);
-	void adjustVolume(float dVolume);
-	void setVolume(float newVolume);
-	void muteToggle();
+	void setMasterVolume(float newVolume);
+	void setBGMVolume(float newVolume);
+	void setSFXVolume(float newVolume);
+	void toggleBGMMute();
+	void toggleSFXMute();
 
-	bool getMuteStatus();
+	bool getBGMMute();
+	bool getSFXMute();
 
 	void setListenerPosition(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
 
 	FMOD::System* system;
 	
 	// The master volume
-	float volume, unmutedVolume;
-
+	float masterVolume, BGMVolume, SFXVolume, unmutedVolume;
 
 private:
 	AudioManager() {}
@@ -65,7 +69,10 @@ private:
 	FMOD::Channel* backgroundChannel;
 
 	void loadSound(std::string filePath);
-	bool muted;
+	float clampVol(float vol);
+
+	bool muted, mutedSFX, mutedBGM;
+	const float BGM_VOL_INIT = 0.2f;
 	
 };
 

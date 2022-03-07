@@ -62,15 +62,17 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
 	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
 
-	PowerUp powerUp1 = PowerUp(pm, Model("models/star_powerup/star_powerup.obj"), PowerUpType::eBOOST, PxVec3(-20.0f, 20.0f, -30.0f));
-	PowerUp powerUp2 = PowerUp(pm, Model("models/star_powerup/star_powerup.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
-
-	std::vector<PVehicle> vehicleList;
-	std::vector<PowerUp> powerUps;
-	vehicleList.push_back(player);
-	vehicleList.push_back(enemy);
-	powerUps.push_back(powerUp1);
-	powerUps.push_back(powerUp2);
+	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-20.0f, 20.0f, -30.0f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-20.0f, 20.0f, -50.0f));
+	
+	std::vector<PVehicle*> vehicleList;
+	std::vector<PowerUp*> powerUps;
+	vehicleList.push_back(&player);
+	vehicleList.push_back(&enemy);
+	powerUps.push_back(&powerUp1);
+	powerUps.push_back(&powerUp2);
+	powerUps.push_back(&powerUp3);
 	
 	// Controller
 	InputController controller;
@@ -104,7 +106,7 @@ int main(int argc, char** argv) {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-	while (!window.shouldClose() && !Menu::quitGame) {
+	while (!window.shouldClose() && !GameManager::get().quitGame) {
 		
 		// always update the time and poll events
 		Time::update();
@@ -112,7 +114,7 @@ int main(int argc, char** argv) {
 		glEnable(GL_DEPTH_TEST);
 
 		// main switch to decide what screen to display
-		switch (Menu::screen){
+		switch (GameManager::get().screen){
 		case Screen::eMAINMENU:
 			if (Time::shouldSimulate) {
 				Time::startSimTimer();
@@ -156,7 +158,7 @@ int main(int argc, char** argv) {
 		case Screen::ePLAYING:
 			// simulate when unpaused, otherwise just grab the inputs.
 			if (Time::shouldSimulate) {
-				if (Menu::paused) { // paused, read the inputs using the menu function
+				if (GameManager::get().paused) { // paused, read the inputs using the menu function
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
 						controller.PS4InputInMenu();
 						//controller.XboxInputInMenu();
@@ -183,45 +185,47 @@ int main(int argc, char** argv) {
 					}
 					if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
 					if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
-					if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS) || Menu::startFlag == true) {
+					if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS) || GameManager::get().startFlag == true) {
 						player.reset();
 						enemy.reset();
-						Menu::startFlag = false;
-					}
-					if (inputManager->onKeyAction(GLFW_KEY_M, GLFW_PRESS)) {
-						AudioManager::get().muteToggle();
+						Time::resetStats();
+						GameManager::get().startFlag = false;
 					}
 
 #pragma endregion
 
-					
 					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
 					// applying collisions in main thread instead of collision thread
 
-					for (const PVehicle& car : vehicleList) {
-						PVehicle* x = (PVehicle*)car.getRigidDynamic()->userData;
-						if (x && x->vehicleAttr.collided) {
-							car.getRigidDynamic()->addForce((x->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
-							x->vehicleAttr.collided = false;
-							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(car.getPosition()), 0.5f);
-							Log::debug("Player coeff: {}", ((PVehicle*)player.getRigidDynamic()->userData)->vehicleAttr.collisionCoefficient);
-							Log::debug("Enemy coeff: {}", ((PVehicle*)enemy.getRigidDynamic()->userData)->vehicleAttr.collisionCoefficient);
+					for (PVehicle* carPtr : vehicleList) {
+						if (carPtr->vehicleAttr.collided) {
+							carPtr->getRigidDynamic()->addForce((carPtr->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
+							carPtr->vehicleAttr.collided = false;
+							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->getPosition()), 0.5f);
+							Log::debug("Player coeff: {}", player.vehicleAttr.collisionCoefficient);
+							Log::debug("Enemy coeff: {}", enemy.vehicleAttr.collisionCoefficient);
 						}
+						
+						// update car state
+						carPtr->updateState();
+
 					}
 
+
 					// handling triggers of powerUps in the main thrad instead of the collision thread
-					for (const PowerUp& powerUp : powerUps) {
-						PowerUp* x = (PowerUp*)powerUp.getRigidStatic()->userData;
-						if (x && x->m_triggerEvent.triggered) {
-							x->m_triggerEvent.triggered = false;
-							x->destroy();
+					for (PowerUp* powerUpPtr : powerUps) {
+						//PowerUp* x = (PowerUp*)powerUp.getRigidStatic()->userData;
+						if (powerUpPtr->triggered) {
+							powerUpPtr->triggered = false;
+							AudioManager::get().playSound(SFX_ITEM_COLLECT, Utils::instance().pxToGlmVec3(powerUpPtr->getPosition()), 0.65f);
+							powerUpPtr->destroy();
 						}
 					}
 					
 					pm.simulate();
-					player.update();
-					enemy.update();
+					player.updatePhysics();
+					enemy.updatePhysics();
 					Time::simulatePhysics();
 				}
 			}
@@ -272,6 +276,12 @@ int main(int argc, char** argv) {
 					player.render();
 					//skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
+
+					powerUp1.render();
+					powerUp2.render();
+					powerUp3.render();
+
+
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 					// reset viewport
@@ -304,10 +314,11 @@ int main(int argc, char** argv) {
 
 					powerUp1.render();
 					powerUp2.render();
+					powerUp3.render();
 
 					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
-					if (Menu::paused) {
+					if (GameManager::get().paused) {
 						// if game is paused, we will render an overlay.
 						// render the PAUSE MENU HERE
 					}
@@ -315,8 +326,10 @@ int main(int argc, char** argv) {
 					// imgui
 					imgui.initFrame();
 					imgui.renderStats(player);
-					imgui.renderSliders(player, enemy);
+					//imgui.renderSliders(player, enemy);
 					imgui.renderMenu();
+					imgui.renderDamageHUD(vehicleList);
+					imgui.renderPlayerHUD(player);
 					imgui.endFrame();
 
 					glDisable(GL_FRAMEBUFFER_SRGB);

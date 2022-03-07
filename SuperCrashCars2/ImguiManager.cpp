@@ -1,4 +1,5 @@
 #include "ImguiManager.h"
+#include "fmt/core.h"
 
 ImguiManager::ImguiManager(Window& window) {
 	IMGUI_CHECKVERSION();
@@ -22,7 +23,6 @@ void ImguiManager::renderStats(const PVehicle& player) {
 	ImGui::Begin("Stats:");
 	std::string simTime = ("Average Simulation time: " + std::to_string(Time::averageSimTime) + " microseconds");
 	std::string renderTime = ("Average Render Time: " + std::to_string(Time::averageRenderTime) + " microseconds");
-	std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
 	std::string printPos = "Current Position: X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
 	std::string printLinearVelocity = "Current Linear Velocity: X: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().z);
 	std::string printAngularVelocity = "Current Angular Velocity: X: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().z);
@@ -30,7 +30,6 @@ void ImguiManager::renderStats(const PVehicle& player) {
 
 	ImGui::Text(simTime.c_str());
 	ImGui::Text(renderTime.c_str());
-	ImGui::Text(printBoost.c_str());
 	ImGui::Text(printPos.c_str());
 	ImGui::Text(printLinearVelocity.c_str());
 	ImGui::Text(printAngularVelocity.c_str());
@@ -55,14 +54,59 @@ void ImguiManager::renderSliders(const PVehicle& player, const PVehicle& enemy) 
 };
 void ImguiManager::renderMenu() {
 	ImGui::Begin("MENU:");
-	std::string menuDisplay = Menu::printMenu();
+	std::string menuDisplay = GameManager::get().printMenu();
 
 	ImGui::Text(menuDisplay.c_str());
-	bool checkBox = AudioManager::get().getMuteStatus();
-	ImGui::Checkbox("Mute Audio", &checkBox);
-	if (checkBox != AudioManager::get().getMuteStatus()) AudioManager::get().muteToggle();
-	
+	bool BGMtoggle = AudioManager::get().getBGMMute();
+	ImGui::Checkbox("Mute BGM", &BGMtoggle);
+	if (BGMtoggle != AudioManager::get().getBGMMute()) AudioManager::get().toggleBGMMute();
 
+	bool SFXtoggle = AudioManager::get().getSFXMute();
+	ImGui::Checkbox("Mute SFX", &SFXtoggle);
+	if (SFXtoggle != AudioManager::get().getSFXMute()) AudioManager::get().toggleSFXMute();
+
+	ImGui::End();
+}
+void ImguiManager::renderPlayerHUD(const PVehicle& player){
+	ImGui::Begin("Player HUD:");
+
+	std::string printBoost = ("Boost: " + std::to_string(player.vehicleParams.boost));
+	std::string printPocket = ("Pocket: ");
+
+	switch (player.getPocket()) {
+	case PowerUpType::eEMPTY:
+		printPocket += std::string("Empty");
+		break;
+	case PowerUpType::eJUMP:
+		printPocket += std::string("Jump");
+		break;
+
+	case PowerUpType::eSHIELD:
+		printPocket += std::string("Shield");
+		break;
+
+	}
+
+	ImGui::Text(printBoost.c_str());
+	ImGui::Text(printPocket.c_str());
+
+	ImGui::End();
+};
+void ImguiManager::renderDamageHUD(const std::vector<PVehicle*>& carList) {
+	ImGui::Begin("damage/lives HUD:");
+
+	std::string printDamage = ("Damage: P1, P2 Lives: P1, P2\n        ");
+	for (PVehicle* carPtr : carList) {
+		printDamage += fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
+		printDamage += " ";
+	}
+	printDamage += "      ";
+	for (PVehicle* carPtr : carList) {
+		printDamage += std::to_string(carPtr->m_lives);
+		printDamage += "   ";
+	}
+
+	ImGui::Text(printDamage.c_str());
 	ImGui::End();
 };
 

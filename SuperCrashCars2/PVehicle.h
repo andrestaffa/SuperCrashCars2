@@ -9,11 +9,18 @@
 #include "Model.h"
 #include "Log.h"
 #include "Utils.h"
+#include "GameManager.h"
 
 #include <glm/gtx/vector_angle.hpp>
 
+#include "PowerUp.h"
+
+#include <chrono>
+
+
 using namespace physx;
 using namespace snippetvehicle;
+using namespace std::chrono;
 
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
 
@@ -21,6 +28,13 @@ enum class VehicleType {
 	eJEEP = 0,
 	eTOYOTA = 1,
 	eSHUCKLE = 2
+};
+
+enum class VehicleState {
+	ePLAYING,
+	eRESPAWNING,
+	eDEAD, 
+	eOUTOFLIVES
 };
 
 struct VehicleCollisionAttributes {
@@ -69,22 +83,35 @@ public:
 	PxMat44 getTransform() const;
 	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
+	PowerUpType getPocket() const;
 	glm::vec3 getFrontVec();
 	glm::vec3 getUpVec();
 	glm::vec3 getRightVec();
+	
+	
 
 	void render();
 
-	void update();
+	void updatePhysics();
 	void free();
 
 	bool getVehicleInAir();
+	void pickUpPowerUp(PowerUp* p);
+	void usePowerUp();
+	void applyHealthPowerUp();
+
 
 	VehicleCollisionAttributes vehicleAttr;
 	VehicleParams vehicleParams;
+	int m_lives;
+
+	void checkDeath();
+	void updateState();
+	VehicleState m_state;
+	time_point<steady_clock> deathTimestamp;
+
 
 	// AI
-
 	void chaseVehicle(PVehicle& vehicle);
 
 private:
@@ -105,6 +132,8 @@ private:
 
 	Model m_chassis;
 	Model m_tires;
+
+	PowerUpType m_powerUpPocket; // bag
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,

@@ -12,7 +12,7 @@ PowerUp::PowerUp(PhysicsManager& pm, const Model& model, const PowerUpType& powe
 	const PxU32 nbShapes = rigidActor->getNbShapes();
 	rigidActor->getShapes(shapes, nbShapes);
 
-	for (int i = 0; i < nbShapes; i++) {
+	for (unsigned int i = 0; i < nbShapes; i++) {
 		shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
 		shapes[i]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
 	}
@@ -22,6 +22,8 @@ PowerUp::PowerUp(PhysicsManager& pm, const Model& model, const PowerUpType& powe
 PowerUpType PowerUp::getType() {
 	return this->m_powerUpType;
 }
+
+
 
 void PowerUp::render() {
 
@@ -58,7 +60,7 @@ void PowerUp::destroy() {
 	const PxU32 nbShapes = rigidActor->getNbShapes();
 	rigidActor->getShapes(shapes, nbShapes);
 
-	for (int i = 0; i < nbShapes; i++) {
+	for (unsigned int i = 0; i < nbShapes; i++) {
 		PxConvexMeshGeometry x;
 		shapes[i]->getConvexMeshGeometry(x);
 		x.scale.scale = PxVec3(PX_MESH_SCALE_MIN);
