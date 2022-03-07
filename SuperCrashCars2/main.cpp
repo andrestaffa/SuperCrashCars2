@@ -249,7 +249,7 @@ int main(int argc, char** argv) {
 					glm::mat4 lightSpaceMatrix;
 					float near_plane = 1.0f, far_plane = 7.5f;
 					//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-					lightProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.1f, 1000.0f);
+					lightProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.1f, 1500.0f);
 					lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 					lightSpaceMatrix = lightProjection * lightView;
 					// render scene from light's point of view
