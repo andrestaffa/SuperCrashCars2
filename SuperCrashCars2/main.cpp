@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
 			// simulate when unpaused, otherwise just grab the inputs.
 			if (Time::shouldSimulate) {
 
-				if (Menu::paused) { // paused, read the inputs using the menu function
+				if (GameManager::get().paused) { // paused, read the inputs using the menu function
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
 				} 
 				else {

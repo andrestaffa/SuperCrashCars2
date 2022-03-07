@@ -302,7 +302,7 @@ void InputController::NSInputInGame(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -318,7 +318,7 @@ void InputController::NSInputInMenu() {
 	if (GLFW_PRESS == buttons[1]) { // "confirm"
 		if (!xHeld) {
 			xHeld = true;
-			Menu::select();
+			GameManager::get().select();
 		}
 	}
 	else if (xHeld) xHeld = false;
@@ -326,7 +326,7 @@ void InputController::NSInputInMenu() {
 	if (GLFW_PRESS == buttons[12]) { // reset to the init menu - NS HOME button
 		if (!selHeld) {
 			selHeld = true;
-			Menu::initMenu();
+			GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
@@ -334,7 +334,7 @@ void InputController::NSInputInMenu() {
 	if (GLFW_PRESS == buttons[12]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -342,7 +342,7 @@ void InputController::NSInputInMenu() {
 	if (GLFW_PRESS == buttons[16]) { // "up" in menus
 		if (!upHeld) {
 			upHeld = true;
-			Menu::changeSelection(-1);
+			GameManager::get().changeSelection(-1);
 		}
 	}
 	else if (upHeld) upHeld = false;
@@ -350,7 +350,7 @@ void InputController::NSInputInMenu() {
 	if (GLFW_PRESS == buttons[18]) { // "down" in menus
 		if (!downHeld) {
 			downHeld = true;
-			Menu::changeSelection(1);
+			GameManager::get().changeSelection(1);
 		}
 	}
 	else if (downHeld) downHeld = false;
