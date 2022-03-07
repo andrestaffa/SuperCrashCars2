@@ -357,6 +357,7 @@ void PVehicle::updateState() {
 			deathTimestamp = steady_clock::now();
 			this->m_lives--;
 			AudioManager::get().playSound(SFX_DEATH, Utils::instance().pxToGlmVec3(this->getPosition()), 0.4f);
+
 			if (this->m_lives == 0) {
 				this->m_state = VehicleState::eOUTOFLIVES;
 
@@ -371,8 +372,8 @@ void PVehicle::updateState() {
 	case VehicleState::eRESPAWNING:
 
 		reset();
-		if (duration_cast<seconds>(steady_clock::now() - deathTimestamp) > seconds(3)) {
-			this->m_state = VehicleState::ePLAYING; // after 3 seconds passed since death, respawn
+		if (duration_cast<seconds>(steady_clock::now() - deathTimestamp) > seconds(2)) {
+			this->m_state = VehicleState::ePLAYING; // after 2 seconds passed since death, respawn
 		}
 		break;
 	case VehicleState::eOUTOFLIVES:

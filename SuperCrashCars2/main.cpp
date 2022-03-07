@@ -190,6 +190,7 @@ int main(int argc, char** argv) {
 						enemy.reset();
 						Time::resetStats();
 						GameManager::get().startFlag = false;
+
 					}
 
 #pragma endregion
