@@ -307,8 +307,8 @@ void InputController::NSInputInGame(PVehicle& p1) {
 	}
 	else if (startHeld) startHeld = false;
 
-	if (axis[3] != -1) p1.reverse((axis[3] + 1) / 2 * 0.65f);
-	if (axis[4] != -1) p1.accelerate((axis[4] + 1) / 2);
+	if (buttons[6] != -1) p1.reverse((buttons[6] + 1) / 2 * 0.65f);
+	if (buttons[7] != -1) p1.accelerate((buttons[7] + 1) / 2);
 
 }
 
