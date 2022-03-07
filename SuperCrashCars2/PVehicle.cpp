@@ -358,7 +358,7 @@ void PVehicle::updateState() {
 			deathTimestamp = steady_clock::now();
 			this->m_lives--;
 			AudioManager::get().playSound(SFX_DEATH, Utils::instance().pxToGlmVec3(this->getPosition()), 0.4f);
-
+			this->vehicleAttr.collisionCoefficient = 0.0f;
 			if (this->m_lives == 0) {
 				this->m_state = VehicleState::eOUTOFLIVES;
 

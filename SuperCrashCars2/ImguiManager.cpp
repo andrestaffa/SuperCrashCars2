@@ -52,7 +52,7 @@ void ImguiManager::renderSliders(const PVehicle& player, const PVehicle& enemy) 
 
 	ImGui::End();
 };
-void ImguiManager::renderMenu() {
+void ImguiManager::renderMenu(bool &AItoggle) {
 	ImGui::Begin("MENU:");
 	std::string menuDisplay = GameManager::get().printMenu();
 
@@ -64,6 +64,8 @@ void ImguiManager::renderMenu() {
 	bool SFXtoggle = AudioManager::get().getSFXMute();
 	ImGui::Checkbox("Mute SFX", &SFXtoggle);
 	if (SFXtoggle != AudioManager::get().getSFXMute()) AudioManager::get().toggleSFXMute();
+
+	ImGui::Checkbox("AI Toggle", &AItoggle);
 
 	ImGui::End();
 }

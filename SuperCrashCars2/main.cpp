@@ -73,6 +73,9 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
+
+	// AI toggle
+	bool ai_ON;
 	
 	// Controller
 	InputController controller1, controller2, controller3, controller4;
@@ -145,7 +148,7 @@ int main(int argc, char** argv) {
 
 				// imGUI section
 				imgui.initFrame();
-				imgui.renderMenu();
+				imgui.renderMenu(ai_ON);
 				imgui.endFrame();
 
 
@@ -219,8 +222,10 @@ int main(int argc, char** argv) {
 							powerUpPtr->destroy();
 						}
 					}
-					
+
+					if (ai_ON) enemy.chaseVehicle(player);
 					pm.simulate();
+					
 					player.updatePhysics();
 					enemy.updatePhysics();
 					Time::simulatePhysics();
@@ -324,7 +329,7 @@ int main(int argc, char** argv) {
 					imgui.initFrame();
 					imgui.renderStats(player);
 					//imgui.renderSliders(player, enemy);
-					imgui.renderMenu();
+					imgui.renderMenu(ai_ON);
 					imgui.renderDamageHUD(vehicleList);
 					imgui.renderPlayerHUD(player);
 					imgui.endFrame();
