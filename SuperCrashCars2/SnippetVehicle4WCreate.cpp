@@ -264,7 +264,7 @@ PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, const std::v
 
 		//Set up the simulation data for all wheels.
 		fourwheel::setupWheelsSimulationData
-			(vehicle4WDesc.wheelMass, vehicle4WDesc.wheelMOI, wheelRadius, wheelWidth, 
+			(vehicle4WDesc.wheelMass, vehicle4WDesc.wheelMOI, wheelRadius, wheelWidth,
 			 numWheels, wheelCenterActorOffsets,
 			 vehicle4WDesc.chassisCMOffset, vehicle4WDesc.chassisMass,
 			 wheelsSimData);
@@ -280,8 +280,8 @@ PxVehicleDrive4W* createVehicle4W(const VehicleDesc& vehicle4WDesc, const std::v
 
 		//Engine
 		PxVehicleEngineData engine;
-		engine.mPeakTorque=500.0f;
-		engine.mMaxOmega=600.0f;//approx 6000 rpm
+		engine.mPeakTorque=500.0f * 30.0f;
+		engine.mMaxOmega=600.0f * 1000.0f;
 		driveSimData.setEngineData(engine);
 
 		//Gears
