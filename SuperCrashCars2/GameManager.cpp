@@ -120,6 +120,7 @@ void GameManager::initMenu() {
 	this->mainMenuScreen = MainMenuScreen::eMAIN_SCREEN;
 	this->pauseButton = PauseButton::eRESUME;
 	this->paused = false;
+	winner = -1;
 }
 
 // toggles pause (only if in game)
@@ -184,9 +185,17 @@ std::string GameManager::printMenu() {
 		else {
 			str = str + "Unpaused";
 		}
+		if (winner != -1) {
+			str = str + "\nGame Over, player ";
+			str = str + std::to_string(winner);
+			str = str + " is the winner ";
+		}
+
 		break;
 	case Screen::eGAMEOVER:
-		str = str + "Game Over, button BACK selected ";
+		str = str + "Game Over, button BACK selected,\n ";
+		str = str + std::to_string(winner);
+		str = str + " is the winner ";
 		// do nothing, only quit button
 		break;
 	}

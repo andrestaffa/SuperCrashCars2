@@ -53,6 +53,8 @@ public:
 	bool quitGame = false;
 	bool startFlag = false;
 
+	int winner;
+
 	void changeSelection(int plus);
 	void select();
 	void initMenu();

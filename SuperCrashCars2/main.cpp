@@ -59,8 +59,8 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
-	PVehicle enemy = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
-	PVehicle player = PVehicle(pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
+	PVehicle player = PVehicle(2, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-20.0f, 20.0f, -30.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
@@ -89,6 +89,9 @@ int main(int argc, char** argv) {
 
 	// Audio 
 	AudioManager::get().init();
+
+	// Menu
+	GameManager::get().initMenu();
 
 	// Shadows
 	const unsigned int SHADOW_WIDTH = 2048 * 4, SHADOW_HEIGHT = 2048 * 4;

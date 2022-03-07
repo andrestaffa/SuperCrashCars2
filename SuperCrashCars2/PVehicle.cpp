@@ -2,7 +2,7 @@
 
 using namespace physx;
 
-PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position, const PxQuat& quat) : m_pm(pm), m_vehicleType(vehicleType) {
+PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position, const PxQuat& quat) : m_pm(pm), m_vehicleType(vehicleType) {
 	//Create the batched scene queries for the suspension raycasts.
 	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pm.gAllocator);
 	gBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *gVehicleSceneQueryData, pm.gScene);
@@ -40,7 +40,7 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 
 	m_lives = 3;
 	m_state = VehicleState::ePLAYING;
-	
+	this->carid = id;
 
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
@@ -346,6 +346,7 @@ void PVehicle::reset() {
 	this->getRigidDynamic()->setLinearVelocity(PxVec3(0.f));
 	this->getRigidDynamic()->setAngularVelocity(PxVec3(0.f));
 	this->vehicleParams.boost = 200;
+	//this->m_lives = 3;
 }
 
 void PVehicle::updateState() {
@@ -378,7 +379,8 @@ void PVehicle::updateState() {
 		}
 		break;
 	case VehicleState::eOUTOFLIVES:
-		//GameManager::get().screen
+		//GameManager::get().screen = Screen::eGAMEOVER; // not yet
+		GameManager::get().winner = this->carid;
 		break;
 	}
 

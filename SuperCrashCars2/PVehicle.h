@@ -63,7 +63,7 @@ class PVehicle {
 
 public:
 
-	PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
+	PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PVehicle();
 
 	void accelerate(float throttle);
@@ -109,7 +109,7 @@ public:
 	void updateState();
 	VehicleState m_state;
 	time_point<steady_clock> deathTimestamp;
-
+	int carid;
 
 	// AI
 	void chaseVehicle(PVehicle& vehicle);
