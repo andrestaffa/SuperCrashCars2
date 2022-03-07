@@ -209,6 +209,7 @@ void PVehicle::free() {
 
 
 void PVehicle::accelerate(float throttle) {
+	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 25.0f && this->m_vehicleType == VehicleType::eTOYOTA) return;
 	this->m_isReversing = false;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
