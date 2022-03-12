@@ -1,109 +1,302 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="AudioManager.cpp" />
-    <ClCompile Include="Camera.cpp" />
-    <ClCompile Include="EventCallback.cpp" />
-    <ClCompile Include="Geometry.cpp" />
-    <ClCompile Include="GLDebug.cpp" />
-    <ClCompile Include="GLHandles.cpp" />
-    <ClCompile Include="imgui\imgui.cpp" />
-    <ClCompile Include="imgui\imgui_demo.cpp" />
-    <ClCompile Include="imgui\imgui_draw.cpp" />
-    <ClCompile Include="imgui\imgui_impl_glfw.cpp" />
-    <ClCompile Include="imgui\imgui_impl_opengl3.cpp" />
-    <ClCompile Include="imgui\imgui_tables.cpp" />
-    <ClCompile Include="imgui\imgui_widgets.cpp" />
-    <ClCompile Include="InputController.cpp" />
-    <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Mesh.cpp" />
-    <ClCompile Include="Model.cpp" />
-    <ClCompile Include="PDynamic.cpp" />
-    <ClCompile Include="PhysicsManager.cpp" />
-    <ClCompile Include="PowerUp.cpp" />
-    <ClCompile Include="PStatic.cpp" />
-    <ClCompile Include="Shader.cpp" />
-    <ClCompile Include="ShaderProgram.cpp" />
-    <ClCompile Include="PVehicle.cpp" />
-    <ClCompile Include="SnippetVehicle4WCreate.cpp" />
-    <ClCompile Include="SnippetVehicleCreate.cpp" />
-    <ClCompile Include="SnippetVehicleFilterShader.cpp" />
-    <ClCompile Include="SnippetVehicleSceneQuery.cpp" />
-    <ClCompile Include="SnippetVehicleTireFriction.cpp" />
-    <ClCompile Include="Texture.cpp" />
-    <ClCompile Include="VertexArray.cpp" />
-    <ClCompile Include="VertexBuffer.cpp" />
-    <ClCompile Include="Window.cpp" />
-    <ClCompile Include="ImguiManager.cpp" />
-    <ClCompile Include="GameManager.cpp" />
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{efad9a74-412c-47a4-b714-f043bd6d92e8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics">
+      <UniqueIdentifier>{c3cd489a-5171-4db2-b4cf-871a48e6cd30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics\thirdparty">
+      <UniqueIdentifier>{5832e201-ea89-4aa6-8326-4dca3c2dbabc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Physics\thirdparty">
+      <UniqueIdentifier>{8243ad82-eda6-46fc-bcd9-67ff31400117}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Mesh &amp; Model">
+      <UniqueIdentifier>{1d259965-163a-4725-acdf-0cfaf2bab6fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Mesh &amp; Model">
+      <UniqueIdentifier>{76508394-1a95-4edb-8d60-ffba21d8f362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Mesh &amp; Model\Primitive Mesh">
+      <UniqueIdentifier>{fdcb37fc-4b86-451b-8608-07178a50ad14}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Mesh &amp; Model\Primitive Mesh">
+      <UniqueIdentifier>{d333e42f-7286-4e31-91d4-8f5df1319075}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\imgui">
+      <UniqueIdentifier>{c1ad4cd8-81e8-41a5-ac92-d79b7d47ba84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\imgui">
+      <UniqueIdentifier>{7b332d37-cd4e-49c4-b1ec-9727576a2e95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Physics\Collision Callbacks">
+      <UniqueIdentifier>{e9964908-2c29-4731-9d57-dc2973270816}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Physics\Collision Callbacks">
+      <UniqueIdentifier>{24037fae-9c43-4367-9717-601153da4920}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AudioManager.h" />
-    <ClInclude Include="Camera.h" />
-    <ClInclude Include="EventCallback.h" />
-    <ClInclude Include="Geometry.h" />
-    <ClInclude Include="GLDebug.h" />
-    <ClInclude Include="GLHandles.h" />
-    <ClInclude Include="imgui\imconfig.h" />
-    <ClInclude Include="imgui\imgui.h" />
-    <ClInclude Include="imgui\imgui_impl_glfw.h" />
-    <ClInclude Include="imgui\imgui_impl_opengl3.h" />
-    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h" />
-    <ClInclude Include="imgui\imgui_internal.h" />
-    <ClInclude Include="imgui\imstb_rectpack.h" />
-    <ClInclude Include="imgui\imstb_textedit.h" />
-    <ClInclude Include="imgui\imstb_truetype.h" />
-    <ClInclude Include="include\fmod.h" />
-    <ClInclude Include="include\fmod.hpp" />
-    <ClInclude Include="include\fmod_codec.h" />
-    <ClInclude Include="include\fmod_common.h" />
-    <ClInclude Include="include\fmod_dsp.h" />
-    <ClInclude Include="include\fmod_dsp_effects.h" />
-    <ClInclude Include="include\fmod_errors.h" />
-    <ClInclude Include="include\fmod_output.h" />
-    <ClInclude Include="InputController.h" />
-    <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Log.h" />
-    <ClInclude Include="Mesh.h" />
-    <ClInclude Include="Model.h" />
-    <ClInclude Include="PDynamic.h" />
-    <ClInclude Include="PhysicsManager.h" />
-    <ClInclude Include="PowerUp.h" />
-    <ClInclude Include="PStatic.h" />
-    <ClInclude Include="PVehicle.h" />
-    <ClInclude Include="Shader.h" />
-    <ClInclude Include="ShaderProgram.h" />
-    <ClInclude Include="Skybox.h" />
-    <ClInclude Include="SnippetVehicleConcurrency.h" />
-    <ClInclude Include="SnippetVehicleCreate.h" />
-    <ClInclude Include="SnippetVehicleFilterShader.h" />
-    <ClInclude Include="SnippetVehicleSceneQuery.h" />
-    <ClInclude Include="SnippetVehicleTireFriction.h" />
-    <ClInclude Include="SnippetVehicleWheelQueryResult.h" />
-    <ClInclude Include="Texture.h" />
-    <ClInclude Include="Time.h" />
-    <ClInclude Include="Utils.h" />
-    <ClInclude Include="VertexArray.h" />
-    <ClInclude Include="VertexBuffer.h" />
-    <ClInclude Include="Window.h" />
-    <ClInclude Include="GameManager.h" />
-    <ClInclude Include="ImguiManager.h" />
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShaderProgram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Window.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLHandles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GLDebug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PhysicsManager.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PVehicle.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleTireFriction.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicle4WCreate.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleCreate.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleFilterShader.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="SnippetVehicleSceneQuery.cpp">
+      <Filter>Source Files\Physics\thirdparty</Filter>
+    </ClCompile>
+    <ClCompile Include="PDynamic.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="PStatic.cpp">
+      <Filter>Source Files\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="Mesh.cpp">
+      <Filter>Source Files\Mesh &amp; Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Model.cpp">
+      <Filter>Source Files\Mesh &amp; Model</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexBuffer.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="VertexArray.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="Geometry.cpp">
+      <Filter>Source Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_tables.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_widgets.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_demo.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_draw.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_glfw.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui\imgui_impl_opengl3.cpp">
+      <Filter>Source Files\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="EventCallback.cpp">
+      <Filter>Source Files\Physics\Collision Callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="InputController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImguiManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="fmodL_vc.lib" />
-    <Library Include="fmod_vc.lib" />
+    <ClInclude Include="Window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ShaderProgram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLHandles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GLDebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PhysicsManager.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PVehicle.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleConcurrency.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleCreate.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleFilterShader.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleSceneQuery.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleTireFriction.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="SnippetVehicleWheelQueryResult.h">
+      <Filter>Header Files\Physics\thirdparty</Filter>
+    </ClInclude>
+    <ClInclude Include="PDynamic.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="PStatic.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>Header Files\Mesh &amp; Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Model.h">
+      <Filter>Header Files\Mesh &amp; Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexBuffer.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexArray.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Geometry.h">
+      <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_glfw.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_opengl3.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imgui_internal.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_rectpack.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_textedit.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imstb_truetype.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui\imconfig.h">
+      <Filter>Header Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="EventCallback.h">
+      <Filter>Header Files\Physics\Collision Callbacks</Filter>
+    </ClInclude>
+    <ClInclude Include="InputController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files\Mesh &amp; Model</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImguiManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="fmod.dll" />
-    <None Include="fmodL.dll" />
-    <None Include="shaders\light.frag" />
-    <None Include="shaders\light.vert" />
-    <None Include="shaders\shader_fragment.frag" />
-    <None Include="shaders\shader_vertex.vert" />
-    <None Include="shaders\simpleDepth.frag" />
-    <None Include="shaders\simpleDepth.vert" />
-    <None Include="shaders\skybox.frag" />
-    <None Include="shaders\skybox.vert" />
+    <None Include="shaders\shader_fragment.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\shader_vertex.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\light.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\light.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\skybox.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\skybox.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\simpleDepth.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\simpleDepth.frag">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
