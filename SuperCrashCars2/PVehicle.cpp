@@ -345,7 +345,7 @@ void PVehicle::reset() {
 	this->getRigidDynamic()->setGlobalPose(PxTransform(this->m_startingPosition, PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 	this->getRigidDynamic()->setLinearVelocity(PxVec3(0.f));
 	this->getRigidDynamic()->setAngularVelocity(PxVec3(0.f));
-	this->vehicleParams.boost = 200;
+	this->vehicleParams.boost = 100;
 	//this->m_lives = 3;
 }
 
@@ -379,7 +379,7 @@ void PVehicle::updateState() {
 		}
 		break;
 	case VehicleState::eOUTOFLIVES:
-		//GameManager::get().screen = Screen::eGAMEOVER; // not yet
+		GameManager::get().screen = Screen::eGAMEOVER; 
 		GameManager::get().winner = this->carid;
 		break;
 	}

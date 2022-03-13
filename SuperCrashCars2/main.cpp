@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(600.0f, 300.0f, 0.0f);
+	glm::vec3 lightPos = glm::vec3(300.0f, 400.0f, 0.0f);
 
 	// Skybox
 	Skybox skybox;
@@ -160,8 +160,51 @@ int main(int argc, char** argv) {
 				Time::renderFrame(); // turn off the render flag and stop timer
 			}
 			break;
-		case Screen::eLOADING: // not used rn 
-			// if we ever have a loading screen (maybe)
+		case Screen::eLOADING: 
+			Time::startRenderTimer();
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+			glFrontFace(GL_CW);
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			Utils::instance().shader->use();
+			Utils::instance().shader->setVector4("lightColor", lightColor);
+			Utils::instance().shader->setVector3("lightPos", lightPos);
+			Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
+
+
+			skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+			// imGUI section
+			imgui.initFrame();
+			imgui.renderMenu(ai_ON);
+			imgui.endFrame();
+
+
+			glDisable(GL_FRAMEBUFFER_SRGB);
+			window.swapBuffers();
+			Time::renderFrame(); // turn off the render flag and stop timer
+
+			// set up init game here
+			Time::resetStats();
+
+			for (PVehicle* carPtr : vehicleList) {
+				carPtr->m_state = VehicleState::ePLAYING;
+				carPtr->m_lives = 3;
+				carPtr->vehicleAttr.collisionCoefficient = 0.0f;
+				carPtr->reset();
+			}
+
+			for (PowerUp* powerUpPtr : powerUps) {
+				powerUpPtr->forceRespawn();
+			}
+
+
+
+
+			GameManager::get().screen = Screen::ePLAYING;
+
 			break;
 		case Screen::ePLAYING:
 			// simulate when unpaused, otherwise just grab the inputs.
@@ -187,42 +230,32 @@ int main(int argc, char** argv) {
 					}
 					if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
 					if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
-					if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS) || GameManager::get().startFlag == true) {
+					if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
 						player.reset();
 						enemy.reset();
 						Time::resetStats();
-						GameManager::get().startFlag = false;
-
 					}
 
 #pragma endregion
 
 					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
-					// applying collisions in main thread instead of collision thread
-
 					for (PVehicle* carPtr : vehicleList) {
 						if (carPtr->vehicleAttr.collided) {
 							carPtr->getRigidDynamic()->addForce((carPtr->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
 							carPtr->vehicleAttr.collided = false;
-							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->getPosition()), 0.5f);
-							Log::debug("Player coeff: {}", player.vehicleAttr.collisionCoefficient);
-							Log::debug("Enemy coeff: {}", enemy.vehicleAttr.collisionCoefficient);
+							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->vehicleAttr.collisionMidpoint), 0.4f);
 						}
-						
-						// update car state
 						carPtr->updateState();
-
 					}
 
-
-					// handling triggers of powerUps in the main thrad instead of the collision thread
 					for (PowerUp* powerUpPtr : powerUps) {
-						//PowerUp* x = (PowerUp*)powerUp.getRigidStatic()->userData;
-						if (powerUpPtr->triggered) {
-							powerUpPtr->triggered = false;
+						if (!powerUpPtr->active) {
+							powerUpPtr->tryRespawn();
+						}
+						else if (powerUpPtr->triggered) {
 							AudioManager::get().playSound(SFX_ITEM_COLLECT, Utils::instance().pxToGlmVec3(powerUpPtr->getPosition()), 0.65f);
-							powerUpPtr->destroy();
+							powerUpPtr->collect();
 						}
 					}
 
@@ -243,7 +276,7 @@ int main(int argc, char** argv) {
 					glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-					#pragma region Shadow map
+#pragma region Shadow map
 
 					glCullFace(GL_FRONT);
 					glFrontFace(GL_CCW);
@@ -275,16 +308,15 @@ int main(int argc, char** argv) {
 					glClear(GL_DEPTH_BUFFER_BIT);
 					glActiveTexture(GL_TEXTURE0);
 	
-					//playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
-					pm.drawGround();
-					enemy.render();
-					player.render();
-					//skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
+					for (PVehicle* carPtr : vehicleList) {
+						carPtr->render();
+					}
 
-
-					powerUp1.render();
-					powerUp2.render();
-					powerUp3.render();
+					for (PowerUp* powerUpPtr : powerUps) {
+						if (powerUpPtr->active) {
+							powerUpPtr->render();
+						}
+					}
 
 
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -313,13 +345,16 @@ int main(int argc, char** argv) {
 
 
 					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
-					pm.drawGround();
-					enemy.render();
-					player.render();
 
-					powerUp1.render();
-					powerUp2.render();
-					powerUp3.render();
+					pm.drawGround();
+					for (PVehicle* carPtr : vehicleList) {
+						carPtr->render();
+					}
+					for (PowerUp* powerUpPtr : powerUps) {
+						if (powerUpPtr->active) {
+							powerUpPtr->render();
+						}
+					}
 
 					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
@@ -345,7 +380,40 @@ int main(int argc, char** argv) {
 				}
 			break;
 		case Screen::eGAMEOVER:
-			// gome over not implemented yet
+			if (Time::shouldSimulate) {
+				Time::startSimTimer();
+
+				// read inputs 
+				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
+
+				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
+			}
+			if (Time::shouldRender) { // render at 60fps even in menu
+				Time::startRenderTimer();
+				glEnable(GL_CULL_FACE);
+				glCullFace(GL_FRONT);
+				glFrontFace(GL_CW);
+				glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				Utils::instance().shader->use();
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				Utils::instance().shader->setVector3("lightPos", lightPos); 
+				Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
+
+
+				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+				// imGUI section
+				imgui.initFrame();
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
+
+
+				glDisable(GL_FRAMEBUFFER_SRGB);
+				window.swapBuffers();
+				Time::renderFrame(); // turn off the render flag and stop timer
+			}
 			break;
 		}
 	}
