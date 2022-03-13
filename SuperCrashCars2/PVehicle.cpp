@@ -217,28 +217,37 @@ void PVehicle::releaseAllControls() {
 #pragma region movement
 void PVehicle::accelerate(float throttle) {
 	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f && this->m_vehicleType == VehicleType::eTOYOTA) return;
-	this->m_isReversing = false;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
 void PVehicle::reverse(float throttle) {
-	this->m_isReversing = true;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
 void PVehicle::brake(float throttle) {
-	PxVec3 velocity = this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity();
-	if (velocity.magnitude() <= 0.05f || this->m_isReversing) reverse(throttle);
-	else gVehicleInputData.setAnalogBrake(throttle);
+	gVehicleInputData.setAnalogBrake(throttle);
 }
 void PVehicle::turnLeft(float throttle) {
 	gVehicleInputData.setAnalogSteer(throttle);
+	this->rotateXAxis(-0.35f);
+	/*PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+	float mag = vel.magnitude();
+	PxVec3 front = Utils::instance().glmToPxVec3(this->getFrontVec());
+	this->getRigidDynamic()->setLinearVelocity(front * mag * 0.75f + vel * 0.25f);*/
+	this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 0.99f);
 }
 void PVehicle::turnRight(float throttle) {
 	gVehicleInputData.setAnalogSteer(-throttle);
+	this->rotateXAxis(0.35f);
+	/*PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+	float mag = vel.magnitude();
+	PxVec3 front = Utils::instance().glmToPxVec3(this->getFrontVec());
+	this->getRigidDynamic()->setLinearVelocity(front * mag * 0.75f + vel * 0.25f);*/
+	this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 0.99f);
 }
 void PVehicle::handbrake() {
 	gVehicleInputData.setAnalogHandbrake(1.0f);
+	this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 1.01f);
 }
 void PVehicle::rotateYAxis(float amount) {
 	glm::vec3 rightVec = this->getRightVec();

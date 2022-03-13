@@ -124,7 +124,6 @@ private:
 
 	PhysicsManager& m_pm;
 	bool m_isFalling = false;
-	bool m_isReversing = false;
 
 	VehicleType m_vehicleType;
 

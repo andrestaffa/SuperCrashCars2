@@ -104,8 +104,8 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 	}
 	else {
 		if (abs(axis[0]) > 0.15f) {
-			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
-			else p1.turnRight(abs(axis[0]) * 0.5f);
+			if (axis[0] < 0) p1.turnLeft(abs(axis[0]));
+			else p1.turnRight(abs(axis[0]));
 		}
 	}
 	 
