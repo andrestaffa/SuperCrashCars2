@@ -54,6 +54,10 @@ void PVehicle::initVehicleCollisionAttributes() {
 	this->vehicleAttr = VehicleCollisionAttributes();
 	this->vehicleAttr.collisionCoefficient = 1.0f;
 	this->vehicleAttr.collided = false;
+
+	this->vehicleAttr.targetVehicle = nullptr;
+	this->vehicleAttr.reachedTarget = false;
+
 	this->vehicleAttr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
 }
 void PVehicle::initVehicleModel() {
@@ -453,6 +457,8 @@ void PVehicle::applyHealthPowerUp() {
 
 void PVehicle::chaseVehicle(PVehicle& vehicle) {
 	
+	this->vehicleAttr.targetVehicle = (PVehicle*)&vehicle;
+
 	PxVec2 p = PxVec2(vehicle.getPosition().x, vehicle.getPosition().z) - PxVec2(this->getPosition().x, this->getPosition().z);
 	glm::vec2 relativeVec = glm::vec2(p.x, p.y);
 

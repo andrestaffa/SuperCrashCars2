@@ -39,7 +39,16 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		launchVector = launchVector.getNormalized();
 
 		PVehicle* victimVehicle = (PVehicle*)victim->userData;
+		PVehicle* attackerVehicle = (PVehicle*)attacker->userData;
+
 		victimVehicle->vehicleAttr.collided = true;
+
+		if ((PVehicle*)attackerVehicle->vehicleAttr.targetVehicle) {
+			PVehicle* targetVehicle = (PVehicle*)attackerVehicle->vehicleAttr.targetVehicle;
+			if (targetVehicle == victimVehicle) {
+				attackerVehicle->vehicleAttr.reachedTarget = true;
+			}
+		}
 
 		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
 		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);

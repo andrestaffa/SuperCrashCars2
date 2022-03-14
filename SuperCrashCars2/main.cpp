@@ -59,8 +59,11 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
 	PVehicle player = PVehicle(2, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
+	PVehicle enemy2 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -20.0f));
+	PVehicle enemy3 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -30.0f));
+	PVehicle enemy4 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -40.0f));
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-20.0f, 20.0f, -30.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
@@ -70,12 +73,15 @@ int main(int argc, char** argv) {
 	std::vector<PowerUp*> powerUps;
 	vehicleList.push_back(&player);
 	vehicleList.push_back(&enemy);
+	vehicleList.push_back(&enemy2);
+	vehicleList.push_back(&enemy3);
+	vehicleList.push_back(&enemy4);
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
 
 	// AI toggle
-	bool ai_ON;
+	bool ai_ON = true;
 	
 	// Controller
 	InputController controller1, controller2, controller3, controller4;
@@ -209,6 +215,14 @@ int main(int argc, char** argv) {
 							Log::debug("Player coeff: {}", player.vehicleAttr.collisionCoefficient);
 							Log::debug("Enemy coeff: {}", enemy.vehicleAttr.collisionCoefficient);
 						}
+
+						if (carPtr->vehicleAttr.reachedTarget && carPtr->carid == 1) {
+							int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+							if (vehicleList[rndIndex] != carPtr) {
+								carPtr->vehicleAttr.reachedTarget = false;
+								carPtr->chaseVehicle(*vehicleList[rndIndex]);
+							}
+						}
 						
 						// update car state
 						carPtr->updateState();
@@ -218,7 +232,6 @@ int main(int argc, char** argv) {
 
 					// handling triggers of powerUps in the main thrad instead of the collision thread
 					for (PowerUp* powerUpPtr : powerUps) {
-						//PowerUp* x = (PowerUp*)powerUp.getRigidStatic()->userData;
 						if (powerUpPtr->triggered) {
 							powerUpPtr->triggered = false;
 							AudioManager::get().playSound(SFX_ITEM_COLLECT, Utils::instance().pxToGlmVec3(powerUpPtr->getPosition()), 0.65f);
@@ -226,11 +239,22 @@ int main(int argc, char** argv) {
 						}
 					}
 
-					if (ai_ON) enemy.chaseVehicle(player);
+					if (ai_ON) {
+						for (int i = 0; i < vehicleList.size(); i++) {
+							if (vehicleList[i]->carid != 1) continue;
+							PVehicle* targetVehicle = (PVehicle*)vehicleList[i]->vehicleAttr.targetVehicle;
+							if (targetVehicle) vehicleList[i]->chaseVehicle(*targetVehicle);
+							else {
+								int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+								if (vehicleList[rndIndex] != vehicleList[i]) {
+									vehicleList[i]->chaseVehicle(*vehicleList[rndIndex]);
+								}
+							}
+						}
+					}
+
 					pm.simulate();
-					
-					player.updatePhysics();
-					enemy.updatePhysics();
+					for (PVehicle* vehicle : vehicleList) vehicle->updatePhysics();
 					Time::simulatePhysics();
 				}
 			}
@@ -275,17 +299,9 @@ int main(int argc, char** argv) {
 					glClear(GL_DEPTH_BUFFER_BIT);
 					glActiveTexture(GL_TEXTURE0);
 	
-					//playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 					pm.drawGround();
-					enemy.render();
-					player.render();
-					//skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
-
-
-					powerUp1.render();
-					powerUp2.render();
-					powerUp3.render();
-
+					for (PVehicle* vehicle : vehicleList) vehicle->render();
+					for (PowerUp* powerUp : powerUps) powerUp->render();
 
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -314,13 +330,8 @@ int main(int argc, char** argv) {
 
 					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 					pm.drawGround();
-					enemy.render();
-					player.render();
-
-					powerUp1.render();
-					powerUp2.render();
-					powerUp3.render();
-
+					for (PVehicle* vehicle : vehicleList) vehicle->render();
+					for (PowerUp* powerUp : powerUps) powerUp->render();
 					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
 					if (GameManager::get().paused) {

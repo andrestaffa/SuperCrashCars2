@@ -40,6 +40,10 @@ enum class VehicleState {
 struct VehicleCollisionAttributes {
 	float collisionCoefficient;
 	bool collided;
+	
+	void* targetVehicle;
+	bool reachedTarget;
+
 	PxVec3 forceToAdd;
 };
 
