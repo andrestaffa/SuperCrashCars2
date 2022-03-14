@@ -14,7 +14,7 @@
 
 #include "PVehicle.h"
 
-#include "Menu.h"
+#include "GameManager.h"
 
 
 
@@ -27,7 +27,9 @@ public:
 	void endFrame();
 	void renderStats(const PVehicle& player);
 	void renderSliders(const PVehicle& player, const PVehicle& enemy);
-	void renderMenu();
+	void renderMenu(bool &AIToggle);
+	void renderPlayerHUD(const PVehicle& player);
+	void renderDamageHUD(const std::vector<PVehicle*>& carList);
 
 	void freeImgui();
 

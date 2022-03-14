@@ -9,9 +9,19 @@
 #include "Model.h"
 #include "Log.h"
 #include "Utils.h"
+#include "GameManager.h"
+
+#include <glm/gtx/vector_angle.hpp>
+
+#include "PowerUp.h"
+
+#include <chrono>
+
+
 
 using namespace physx;
 using namespace snippetvehicle;
+using namespace std::chrono;
 
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
 
@@ -21,14 +31,22 @@ enum class VehicleType {
 	eSHUCKLE = 2
 };
 
+enum class VehicleState {
+	ePLAYING,
+	eRESPAWNING,
+	eDEAD, 
+	eOUTOFLIVES
+};
+
 struct VehicleCollisionAttributes {
 	float collisionCoefficient;
 	bool collided;
 	PxVec3 forceToAdd;
+	PxVec3 collisionMidpoint;
 };
 
 struct VehicleParams {
-	
+
 	// keyboard throttle
 	float k_throttle = 1.0f;
 
@@ -47,7 +65,7 @@ class PVehicle {
 
 public:
 
-	PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
+	PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PVehicle();
 
 	void accelerate(float throttle);
@@ -63,22 +81,40 @@ public:
 	void jump();
 	void regainJump();
 	void reset();
-	
+
 	PxMat44 getTransform() const;
 	PxVec3 getPosition() const;
 	PxRigidDynamic* getRigidDynamic() const;
+	PowerUpType getPocket() const;
 	glm::vec3 getFrontVec();
 	glm::vec3 getUpVec();
 	glm::vec3 getRightVec();
+	
+	
 
 	void render();
 
-	void update();
+	void updatePhysics();
 	void free();
 
 	bool getVehicleInAir();
+	void pickUpPowerUp(PowerUp* p);
+	void usePowerUp();
+	void applyHealthPowerUp();
 
+
+	VehicleCollisionAttributes vehicleAttr;
 	VehicleParams vehicleParams;
+	int m_lives;
+
+	void checkDeath();
+	void updateState();
+	VehicleState m_state;
+	time_point<steady_clock> deathTimestamp;
+	int carid;
+
+	// AI
+	void chaseVehicle(PVehicle& vehicle);
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -99,10 +135,10 @@ private:
 	Model m_chassis;
 	Model m_tires;
 
-	VehicleCollisionAttributes m_attr;
+	PowerUpType m_powerUpPocket; // bag
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
-		0.0f,		0.75f,		
+		0.0f,		0.75f,
 		5.0f,		0.75f,
 		30.0f,		0.125f,
 		120.0f,		0.1f,
@@ -116,15 +152,15 @@ private:
 	PxVehicleKeySmoothingData gKeySmoothingData = {
 		{
 			6.0f,	//rise rate eANALOG_INPUT_ACCEL
-			6.0f,	//rise rate eANALOG_INPUT_BRAKE		
-			6.0f,	//rise rate eANALOG_INPUT_HANDBRAKE	
+			6.0f,	//rise rate eANALOG_INPUT_BRAKE
+			6.0f,	//rise rate eANALOG_INPUT_HANDBRAKE
 			2.5f,	//rise rate eANALOG_INPUT_STEER_LEFT
 			2.5f,	//rise rate eANALOG_INPUT_STEER_RIGHT
 		},
 		{
 			10.0f,	//fall rate eANALOG_INPUT_ACCEL
-			10.0f,	//fall rate eANALOG_INPUT_BRAKE		
-			10.0f,	//fall rate eANALOG_INPUT_HANDBRAKE	
+			10.0f,	//fall rate eANALOG_INPUT_BRAKE
+			10.0f,	//fall rate eANALOG_INPUT_HANDBRAKE
 			5.0f,	//fall rate eANALOG_INPUT_STEER_LEFT
 			5.0f	//fall rate eANALOG_INPUT_STEER_RIGHT
 		}
@@ -133,15 +169,15 @@ private:
 	PxVehiclePadSmoothingData gPadSmoothingData = {
 		{
 			6.0f,	//rise rate eANALOG_INPUT_ACCEL
-			6.0f,	//rise rate eANALOG_INPUT_BRAKE		
-			6.0f,	//rise rate eANALOG_INPUT_HANDBRAKE	
+			6.0f,	//rise rate eANALOG_INPUT_BRAKE
+			6.0f,	//rise rate eANALOG_INPUT_HANDBRAKE
 			2.5f,	//rise rate eANALOG_INPUT_STEER_LEFT
 			2.5f,	//rise rate eANALOG_INPUT_STEER_RIGHT
 		},
 		{
 			10.0f,	//fall rate eANALOG_INPUT_ACCEL
-			10.0f,	//fall rate eANALOG_INPUT_BRAKE		
-			10.0f,	//fall rate eANALOG_INPUT_HANDBRAKE	
+			10.0f,	//fall rate eANALOG_INPUT_BRAKE
+			10.0f,	//fall rate eANALOG_INPUT_HANDBRAKE
 			5.0f,	//fall rate eANALOG_INPUT_STEER_LEFT
 			5.0f	//fall rate eANALOG_INPUT_STEER_RIGHT
 		}

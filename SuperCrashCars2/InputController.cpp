@@ -1,5 +1,5 @@
 #include "InputController.h"
-#include "Menu.h"
+#include "GameManager.h"
 
 InputController::InputController()
 {
@@ -17,6 +17,17 @@ InputController::InputController(int playerID)
 }
 
 InputController::~InputController() {}
+
+
+const char* InputController::getName() {
+	return this->name;
+}
+int InputController::getButtonCount() {
+	return this->buttonCount;
+}
+int InputController::getAxesCount() {
+	return this->axesCount;
+}
 
 /* This is the test code for input controller mapping
  *
@@ -89,6 +100,7 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 		if (abs(axis[1]) > 0.25f) {
 			p1.rotateYAxis(axis[1]);
 		}
+		if (GLFW_PRESS == buttons[2]) p1.getRigidDynamic()->setAngularVelocity(p1.getRigidDynamic()->getAngularVelocity() * 0.7f);
 		
 	}
 	else {
@@ -96,11 +108,14 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
 			else p1.turnRight(abs(axis[0]) * 0.5f);
 		}
+
+		if (GLFW_PRESS == buttons[2]) p1.handbrake();
 	}
 	 
-	if (GLFW_PRESS == buttons[2]) p1.handbrake();
+
 
 	if (GLFW_PRESS == buttons[0]) p1.jump();
+	if (GLFW_PRESS == buttons[1]) p1.usePowerUp();
 	if (GLFW_PRESS == buttons[3]) {
 		// the first time boost trigger is registered is different from the rest
 		p1.boost();
@@ -113,7 +128,7 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[7]) { // pause - XBOX START button
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -134,17 +149,20 @@ void InputController::PS4InputInGame(PVehicle& p1) {
 		if (abs(axis[1]) > 0.25f) {
 			p1.rotateYAxis(axis[1]);
 		}
+		if (GLFW_PRESS == buttons[0]) p1.getRigidDynamic()->setAngularVelocity(p1.getRigidDynamic()->getAngularVelocity() * 0.97f);
 
 	}
-	else {
+	else { // if vehicle is on ground
 		if (abs(axis[0]) > 0.15f) {
 			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
 			else p1.turnRight(abs(axis[0]) * 0.5f);
 		}
+		if (GLFW_PRESS == buttons[0]) p1.handbrake();
 	}
-	if (GLFW_PRESS == buttons[0]) p1.handbrake();
+
 
 	if (GLFW_PRESS == buttons[1]) p1.jump();
+	if (GLFW_PRESS == buttons[2]) p1.usePowerUp();
 	if (GLFW_PRESS == buttons[3]) {
 		// the first time boost trigger is registered is different from the rest
 		p1.boost();
@@ -157,7 +175,7 @@ void InputController::PS4InputInGame(PVehicle& p1) {
 	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -172,7 +190,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[0]) { // "confirm"
 		if (!xHeld) {
 			xHeld = true;
-			Menu::select();
+			GameManager::get().select();
 		}
 	}
 	else if (xHeld) xHeld = false;
@@ -180,7 +198,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[6]) { // reset to the init menu - XBOX select button (back)
 		if (!selHeld) {
 			selHeld = true;
-			Menu::initMenu();
+			GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
@@ -188,7 +206,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[7]) { // pause - XBOX START button
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -196,7 +214,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[10]) { // "up" in menus
 		if (!upHeld) {
 			upHeld = true;
-			Menu::changeSelection(1);
+			GameManager::get().changeSelection(-1);
 		}
 	}
 	else if (upHeld) upHeld = false;
@@ -204,7 +222,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[12]) { // "down" in menus
 		if (!downHeld) {
 			downHeld = true;
-			Menu::changeSelection(-1);
+			GameManager::get().changeSelection(1);
 		}
 	}
 	else if (downHeld) downHeld = false;
@@ -216,7 +234,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[1]) { // "confirm"
 		if (!xHeld) {
 			xHeld = true;
-			Menu::select();
+			GameManager::get().select();
 		}
 	}
 	else if (xHeld) xHeld = false;
@@ -224,7 +242,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[8]) { // reset to the init menu - PS4 SHARE button (select)
 		if (!selHeld) {
 			selHeld = true;
-			Menu::initMenu();
+			GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
@@ -232,7 +250,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
 			startHeld = true;
-			Menu::togglePause();
+			GameManager::get().togglePause();
 		}
 	}
 	else if (startHeld) startHeld = false;
@@ -240,7 +258,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[14]) { // "up" in menus
 		if (!upHeld) {
 			upHeld = true;
-			Menu::changeSelection(1);
+			GameManager::get().changeSelection(-1);
 		}
 	}
 	else if (upHeld) upHeld = false;
@@ -248,25 +266,129 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[16]) { // "down" in menus
 		if (!downHeld) {
 			downHeld = true;
-			Menu::changeSelection(-1);
+			GameManager::get().changeSelection(1);
 		}
 	}
 	else if (downHeld) downHeld = false;
 }
-void InputController::NSInput(PVehicle& p1) {
+
+void InputController::NSInputInGame(PVehicle& p1) {
 	readInput();
-	if (abs(axis[0]) > 0.15) {
-		if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
-		else p1.turnRight(abs(axis[0]) * 0.5f);
+	// if vehicle is in air, rotate car using joystick, else use joystick to turn wheels
+	if (p1.getVehicleInAir()) {
+
+		if (abs(axis[0]) > 0.25f) {
+			p1.rotateXAxis(axis[0]);
+		}
+
+		if (abs(axis[1]) > 0.25f) {
+			p1.rotateYAxis(axis[1]);
+		}
+
 	}
-	if (GLFW_PRESS == buttons[0]) p1.handbrake();
-	if (GLFW_PRESS == buttons[6]) p1.reverse(0.65f);
-	if (GLFW_PRESS == buttons[7]) p1.accelerate(1);
+	else {
+		if (abs(axis[0]) > 0.15f) {
+			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
+			else p1.turnRight(abs(axis[0]) * 0.5f);
+		}
+	}
+	if (GLFW_PRESS == buttons[2]) p1.handbrake();
+
+	if (GLFW_PRESS == buttons[0]) p1.jump();
+	if (GLFW_PRESS == buttons[3]) {
+		// the first time boost trigger is registered is different from the rest
+		p1.boost();
+		if (!p1.vehicleParams.boosting) p1.vehicleParams.boosting = true;
+	}
+	else if (p1.vehicleParams.boosting) p1.vehicleParams.boosting = false;
+
+	if (GLFW_PRESS == buttons[8]) p1.reset();
+
+	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
+		if (!startHeld) {
+			startHeld = true;
+			GameManager::get().togglePause();
+		}
+	}
+	else if (startHeld) startHeld = false;
+
+	if (buttons[6] != -1) p1.reverse((buttons[6] + 1) / 2 * 0.65f);
+	if (buttons[7] != -1) p1.accelerate((buttons[7] + 1) / 2);
+
 }
+
+void InputController::NSInputInMenu() {
+	readInput();
+
+	if (GLFW_PRESS == buttons[1]) { // "confirm"
+		if (!xHeld) {
+			xHeld = true;
+			GameManager::get().select();
+		}
+	}
+	else if (xHeld) xHeld = false;
+
+	if (GLFW_PRESS == buttons[12]) { // reset to the init menu - NS HOME button
+		if (!selHeld) {
+			selHeld = true;
+			GameManager::get().initMenu();
+		}
+	}
+	else if (selHeld) selHeld = false;
+
+	if (GLFW_PRESS == buttons[12]) { // pause - PS4 OPT button (start)
+		if (!startHeld) {
+			startHeld = true;
+			GameManager::get().togglePause();
+		}
+	}
+	else if (startHeld) startHeld = false;
+
+	if (GLFW_PRESS == buttons[16]) { // "up" in menus
+		if (!upHeld) {
+			upHeld = true;
+			GameManager::get().changeSelection(-1);
+		}
+	}
+	else if (upHeld) upHeld = false;
+
+	if (GLFW_PRESS == buttons[18]) { // "down" in menus
+		if (!downHeld) {
+			downHeld = true;
+			GameManager::get().changeSelection(1);
+		}
+	}
+	else if (downHeld) downHeld = false;
+}
+
 void InputController::readInput() {
 	this->axesCount = 0;
 	this->axis = glfwGetJoystickAxes(this->id, &this->axesCount);
+	//std::cout << this->name << axesCount << std::endl;
+	
 	this->buttonCount = 0;
 	this->buttons = glfwGetJoystickButtons(this->id, &buttonCount);
+	//std::cout << this->name << buttonCount << std::endl;
 }
 
+void InputController::uniController(bool isInGame, PVehicle& player) {
+
+	if (!isInGame) {
+		//PS4 controller
+		if (this->getButtonCount() == 18) this->PS4InputInMenu();
+		else if (this->getButtonCount() == 14) {
+			this->XboxInputInMenu();
+			//Log::info("XBOX");
+		}
+		else if (this->getAxesCount() == 4) this->NSInputInMenu();
+
+	}
+	else {
+		if (this->getButtonCount() == 18) this->PS4InputInGame(player);		
+		else if (this->getButtonCount() == 14) {
+			this->XboxInputInGame(player);
+			//Log::info("XBOX");
+		}
+		else if (this->getAxesCount() == 4) this->NSInputInGame(player);
+	}
+}

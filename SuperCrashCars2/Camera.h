@@ -24,6 +24,7 @@ public:
 	const float getPitch() const;
 	const glm::mat4 getViewMat();
 	const glm::mat4 getPerspMat();
+	const glm::vec3 getFront();
 
 	void setPosition(const glm::vec3& position);
 	void setYaw(float yaw);
