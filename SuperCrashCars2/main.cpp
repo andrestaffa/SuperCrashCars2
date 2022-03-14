@@ -59,12 +59,13 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -10.0f));
-	PVehicle player = PVehicle(2, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 30.0f, 0.0f));
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(-150.f, 100.f, -150.f));
+	PVehicle player = PVehicle(2, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 100.0f, 240.0f));
 
-	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-20.0f, 20.0f, -30.0f));
+	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 100.0f, 148.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-20.0f, 20.0f, -50.0f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 100.f, 182.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(228.f, 100.0f, -148.0f));
 	
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
@@ -73,6 +74,8 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
+	powerUps.push_back(&powerUp4);
+
 
 	// AI toggle
 	bool ai_ON;
@@ -191,7 +194,7 @@ int main(int argc, char** argv) {
 
 			for (PVehicle* carPtr : vehicleList) {
 				carPtr->m_state = VehicleState::ePLAYING;
-				carPtr->m_lives = 3;
+				carPtr->m_lives = 100;
 				carPtr->vehicleAttr.collisionCoefficient = 0.0f;
 				carPtr->reset();
 			}
