@@ -51,7 +51,6 @@ public:
 	PauseButton pauseButton = PauseButton::eRESUME;
 	bool paused = false;
 	bool quitGame = false;
-	bool startFlag = false;
 
 	int winner;
 

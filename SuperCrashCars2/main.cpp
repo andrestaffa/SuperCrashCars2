@@ -42,7 +42,7 @@ int main(int argc, char** argv) {
 
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-	glm::vec3 lightPos = glm::vec3(600.0f, 300.0f, 0.0f);
+	glm::vec3 lightPos = glm::vec3(300.0f, 400.0f, 0.0f);
 
 	// Skybox
 	Skybox skybox;
@@ -65,10 +65,11 @@ int main(int argc, char** argv) {
 	PVehicle enemy3 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -30.0f));
 	PVehicle enemy4 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(1.0f, 30.0f, -40.0f));
 
-	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-20.0f, 20.0f, -30.0f));
+	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 100.0f, 148.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-20.0f, 20.0f, -50.0f));
-	
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 100.f, 182.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(228.f, 100.0f, -148.0f));
+
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
 	vehicleList.push_back(&player);
@@ -79,10 +80,12 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
+	powerUps.push_back(&powerUp4);
+
 
 	// AI toggle
 	bool ai_ON = true;
-	
+
 	// Controller
 	InputController controller1, controller2, controller3, controller4;
 	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1 = InputController(GLFW_JOYSTICK_1);
@@ -90,10 +93,10 @@ int main(int argc, char** argv) {
 		Log::info("Controller 2 connected");
 		controller2 = InputController(GLFW_JOYSTICK_2);
 	}
-	// ImGui 
+	// ImGui
 	ImguiManager imgui(window);
 
-	// Audio 
+	// Audio
 	AudioManager::get().init();
 
 	// Menu
@@ -122,7 +125,7 @@ int main(int argc, char** argv) {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
-		
+
 		// always update the time and poll events
 		Time::update();
 		glfwPollEvents();
@@ -134,9 +137,9 @@ int main(int argc, char** argv) {
 			if (Time::shouldSimulate) {
 				Time::startSimTimer();
 
-				// read inputs 
+				// read inputs
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
-				
+
 				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
 			}
 			if (Time::shouldRender) { // render at 60fps even in menu
@@ -166,8 +169,48 @@ int main(int argc, char** argv) {
 				Time::renderFrame(); // turn off the render flag and stop timer
 			}
 			break;
-		case Screen::eLOADING: // not used rn 
-			// if we ever have a loading screen (maybe)
+		case Screen::eLOADING:
+			Time::startRenderTimer();
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+			glFrontFace(GL_CW);
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			Utils::instance().shader->use();
+			Utils::instance().shader->setVector4("lightColor", lightColor);
+			Utils::instance().shader->setVector3("lightPos", lightPos);
+			Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
+
+
+			skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+			// imGUI section
+			imgui.initFrame();
+			imgui.renderMenu(ai_ON);
+			imgui.endFrame();
+
+
+			glDisable(GL_FRAMEBUFFER_SRGB);
+			window.swapBuffers();
+			Time::renderFrame(); // turn off the render flag and stop timer
+
+			// set up init game here
+			Time::resetStats();
+
+			for (PVehicle* carPtr : vehicleList) {
+				carPtr->m_state = VehicleState::ePLAYING;
+				carPtr->m_lives = 100;
+				carPtr->vehicleAttr.collisionCoefficient = 0.0f;
+				carPtr->reset();
+			}
+
+			for (PowerUp* powerUpPtr : powerUps) {
+				powerUpPtr->forceRespawn();
+			}
+
+			GameManager::get().screen = Screen::ePLAYING;
+
 			break;
 		case Screen::ePLAYING:
 			// simulate when unpaused, otherwise just grab the inputs.
@@ -175,7 +218,7 @@ int main(int argc, char** argv) {
 
 				if (GameManager::get().paused) { // paused, read the inputs using the menu function
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
-				} 
+				}
 				else {
 					Time::startSimTimer();
 
@@ -193,27 +236,21 @@ int main(int argc, char** argv) {
 					}
 					if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
 					if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
-					if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS) || GameManager::get().startFlag == true) {
+					if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
 						player.reset();
 						enemy.reset();
 						Time::resetStats();
-						GameManager::get().startFlag = false;
-
 					}
 
 #pragma endregion
 
 					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
-					// applying collisions in main thread instead of collision thread
-
 					for (PVehicle* carPtr : vehicleList) {
 						if (carPtr->vehicleAttr.collided) {
 							carPtr->getRigidDynamic()->addForce((carPtr->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
 							carPtr->vehicleAttr.collided = false;
-							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->getPosition()), 0.5f);
-							Log::debug("Player coeff: {}", player.vehicleAttr.collisionCoefficient);
-							Log::debug("Enemy coeff: {}", enemy.vehicleAttr.collisionCoefficient);
+							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->vehicleAttr.collisionMidpoint), 0.4f);
 						}
 
 						if (carPtr->vehicleAttr.reachedTarget && carPtr->carid == 1) {
@@ -223,19 +260,18 @@ int main(int argc, char** argv) {
 								carPtr->chaseVehicle(*vehicleList[rndIndex]);
 							}
 						}
-						
+
 						// update car state
 						carPtr->updateState();
-
 					}
 
-
-					// handling triggers of powerUps in the main thrad instead of the collision thread
 					for (PowerUp* powerUpPtr : powerUps) {
-						if (powerUpPtr->triggered) {
-							powerUpPtr->triggered = false;
+						if (!powerUpPtr->active) {
+							powerUpPtr->tryRespawn();
+						}
+						else if (powerUpPtr->triggered) {
 							AudioManager::get().playSound(SFX_ITEM_COLLECT, Utils::instance().pxToGlmVec3(powerUpPtr->getPosition()), 0.65f);
-							powerUpPtr->destroy();
+							powerUpPtr->collect();
 						}
 					}
 
@@ -267,7 +303,7 @@ int main(int argc, char** argv) {
 					glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-					#pragma region Shadow map
+#pragma region Shadow map
 
 					glCullFace(GL_FRONT);
 					glFrontFace(GL_CCW);
@@ -282,7 +318,7 @@ int main(int argc, char** argv) {
 					lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 					lightSpaceMatrix = lightProjection * lightView;
 					// render scene from light's point of view
-					
+
 
 					Utils::instance().shader = depthShader;
 					Utils::instance().shader->use();
@@ -298,10 +334,16 @@ int main(int argc, char** argv) {
 					glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 					glClear(GL_DEPTH_BUFFER_BIT);
 					glActiveTexture(GL_TEXTURE0);
-	
+
 					pm.drawGround();
 					for (PVehicle* vehicle : vehicleList) vehicle->render();
-					for (PowerUp* powerUp : powerUps) powerUp->render();
+
+					for (PowerUp* powerUpPtr : powerUps) {
+						if (powerUpPtr->active) {
+							powerUpPtr->render();
+						}
+					}
+
 
 					glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -311,7 +353,7 @@ int main(int argc, char** argv) {
 
 					glCullFace(GL_BACK);
 					glFrontFace(GL_CCW);
-					#pragma endregion 
+					#pragma endregion
 
 
 					Utils::instance().shader = defaultShader;
@@ -331,7 +373,13 @@ int main(int argc, char** argv) {
 					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 					pm.drawGround();
 					for (PVehicle* vehicle : vehicleList) vehicle->render();
-					for (PowerUp* powerUp : powerUps) powerUp->render();
+
+					for (PowerUp* powerUpPtr : powerUps) {
+						if (powerUpPtr->active) {
+							powerUpPtr->render();
+						}
+					}
+
 					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
 					if (GameManager::get().paused) {
@@ -356,7 +404,40 @@ int main(int argc, char** argv) {
 				}
 			break;
 		case Screen::eGAMEOVER:
-			// gome over not implemented yet
+			if (Time::shouldSimulate) {
+				Time::startSimTimer();
+
+				// read inputs
+				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
+
+				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
+			}
+			if (Time::shouldRender) { // render at 60fps even in menu
+				Time::startRenderTimer();
+				glEnable(GL_CULL_FACE);
+				glCullFace(GL_FRONT);
+				glFrontFace(GL_CW);
+				glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				Utils::instance().shader->use();
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				Utils::instance().shader->setVector3("lightPos", lightPos);
+				Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
+
+
+				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+				// imGUI section
+				imgui.initFrame();
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
+
+
+				glDisable(GL_FRAMEBUFFER_SRGB);
+				window.swapBuffers();
+				Time::renderFrame(); // turn off the render flag and stop timer
+			}
 			break;
 		}
 	}
@@ -370,7 +451,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void Render() 
+void Render()
 {
 
 }

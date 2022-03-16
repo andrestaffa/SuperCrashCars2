@@ -100,6 +100,7 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 		if (abs(axis[1]) > 0.25f) {
 			p1.rotateYAxis(axis[1]);
 		}
+		if (GLFW_PRESS == buttons[2]) p1.getRigidDynamic()->setAngularVelocity(p1.getRigidDynamic()->getAngularVelocity() * 0.7f);
 		
 	}
 	else {
@@ -107,9 +108,11 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 			if (axis[0] < 0) p1.turnLeft(abs(axis[0]));
 			else p1.turnRight(abs(axis[0]));
 		}
+
+		if (GLFW_PRESS == buttons[2]) p1.handbrake();
 	}
 	 
-	if (GLFW_PRESS == buttons[2]) p1.handbrake();
+
 
 	if (GLFW_PRESS == buttons[0]) p1.jump();
 	if (GLFW_PRESS == buttons[1]) p1.usePowerUp();
@@ -146,15 +149,17 @@ void InputController::PS4InputInGame(PVehicle& p1) {
 		if (abs(axis[1]) > 0.25f) {
 			p1.rotateYAxis(axis[1]);
 		}
+		if (GLFW_PRESS == buttons[0]) p1.getRigidDynamic()->setAngularVelocity(p1.getRigidDynamic()->getAngularVelocity() * 0.97f);
 
 	}
-	else {
+	else { // if vehicle is on ground
 		if (abs(axis[0]) > 0.15f) {
 			if (axis[0] < 0) p1.turnLeft(abs(axis[0]) * 0.5f);
 			else p1.turnRight(abs(axis[0]) * 0.5f);
 		}
+		if (GLFW_PRESS == buttons[0]) p1.handbrake();
 	}
-	if (GLFW_PRESS == buttons[0]) p1.handbrake();
+
 
 	if (GLFW_PRESS == buttons[1]) p1.jump();
 	if (GLFW_PRESS == buttons[2]) p1.usePowerUp();

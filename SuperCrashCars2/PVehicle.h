@@ -18,6 +18,7 @@
 #include <chrono>
 
 
+
 using namespace physx;
 using namespace snippetvehicle;
 using namespace std::chrono;
@@ -45,6 +46,7 @@ struct VehicleCollisionAttributes {
 	bool reachedTarget;
 
 	PxVec3 forceToAdd;
+	PxVec3 collisionMidpoint;
 };
 
 struct VehicleParams {

@@ -62,6 +62,7 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 
 		victimVehicle->vehicleAttr.forceToAdd = PxVec3((launchVector + PxVec3(0.0f, 0.0f * (magMult - 1.f), 0.0f)) * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
 		victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
+		victimVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
 	}
 }
 

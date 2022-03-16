@@ -56,8 +56,7 @@ void GameManager::select() {
 			switch (this->menuButton) {
 			case MainMenuButton::eSTART:
 				// start game (for now just instantly switches to rendering)
-				this->screen = Screen::ePLAYING;
-				this->startFlag = true;
+				this->screen = Screen::eLOADING;
 
 				break;
 			case MainMenuButton::eHOWTOPLAY:
@@ -173,7 +172,7 @@ std::string GameManager::printMenu() {
 
 		break;
 	case Screen::eLOADING:
-		str = str + "Loading Screen";
+		str = str + "Loading....";
 		break;
 	case Screen::ePLAYING:
 		str = str + "In Game, ";
@@ -185,15 +184,11 @@ std::string GameManager::printMenu() {
 		else {
 			str = str + "Unpaused";
 		}
-		if (winner != -1) {
-			str = str + "\nGame Over, player ";
-			str = str + std::to_string(winner);
-			str = str + " is the winner ";
-		}
+
 
 		break;
 	case Screen::eGAMEOVER:
-		str = str + "Game Over, button BACK selected,\n ";
+		str = str + "Game Over, button BACK selected,\nPlayer  ";
 		str = str + std::to_string(winner);
 		str = str + " is the winner ";
 		// do nothing, only quit button
