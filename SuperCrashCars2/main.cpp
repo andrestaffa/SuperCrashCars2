@@ -16,6 +16,7 @@
 
 #include "Camera.h"
 #include "Skybox.h"
+#include "TextRenderer.h"
 
 #include "PVehicle.h"
 #include "PDynamic.h"
@@ -46,6 +47,22 @@ int main(int argc, char** argv) {
 
 	// Skybox
 	Skybox skybox;
+
+	// In-game UI
+	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	boost.Load("freetype/fonts/vemanem.ttf", 50);
+	TextRenderer currentPowerup(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	currentPowerup.Load("freetype/fonts/armybuster.ttf", 40);
+
+	// Main Menu Buttons
+	TextRenderer start(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	start.Load("freetype/fonts/bof.ttf", 40);
+	TextRenderer howToPlay(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	howToPlay.Load("freetype/fonts/bof.ttf", 40);
+	TextRenderer credits(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	credits.Load("freetype/fonts/bof.ttf", 40);
+	TextRenderer quit(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	quit.Load("freetype/fonts/bof.ttf", 40);
 
 	// Anti-Aliasing (Not working)
 	unsigned int samples = 8;
@@ -151,6 +168,28 @@ int main(int argc, char** argv) {
 
 
 				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+				// Menu rendering
+				std::string currentState = GameManager::get().printButtonSelected();
+				glm::vec3 regCol = glm::vec3(0.f, 0.478f, 0.066f);
+				glm::vec3 selCol = glm::vec3(0.478f, 0.113f, 0.f);
+				glm::vec3 startCol;
+				glm::vec3 howToPlayCol;
+				glm::vec3 creditsCol;
+				glm::vec3 quitCol;
+				if (currentState == "START") startCol = selCol;
+				else startCol = regCol;
+				if (currentState == "HOW TO PLAY") howToPlayCol = selCol;
+				else howToPlayCol = regCol;
+				if (currentState == "CREDITS") creditsCol = selCol;
+				else creditsCol = regCol;
+				if (currentState == "QUIT") quitCol = selCol;
+				else quitCol = regCol;
+
+				start.RenderText("START", Utils::instance().SCREEN_WIDTH/2 - (start.totalW/2), 100.f, 1.0f, startCol);
+				howToPlay.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH/2 - (howToPlay.totalW / 2), 100.f + (2 * start.totalH), 1.0f, howToPlayCol);
+				credits.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH/2 - (credits.totalW / 2), 100.f + (2 * start.totalH) + (2 * howToPlay.totalH), 1.0f, creditsCol);
+				quit.RenderText("QUIT", Utils::instance().SCREEN_WIDTH/2 - (quit.totalW / 2), 100.f + (2 * start.totalH) + (2 * howToPlay.totalH) + (2 * credits.totalH), 1.0f, quitCol);
 
 				// imGUI section
 				imgui.initFrame();
@@ -370,9 +409,38 @@ int main(int argc, char** argv) {
 					imgui.initFrame();
 					imgui.renderStats(player);
 					//imgui.renderSliders(player, enemy);
+
+					// Menu indicator in progress
 					imgui.renderMenu(ai_ON);
+					
+					// Damage and live indicator in progress
 					imgui.renderDamageHUD(vehicleList);
+
+					for (PVehicle* carPtr : vehicleList) {
+						float colCoef = carPtr->vehicleAttr.collisionCoefficient;
+					}
+					for (PVehicle* carPtr : vehicleList) {
+						std::string lives = std::to_string(carPtr->m_lives);
+					}
+
+					// Boost and Powerup indicator
 					imgui.renderPlayerHUD(player);
+
+					boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
+					switch (player.getPocket()) {
+					case PowerUpType::eEMPTY:
+						currentPowerup.RenderText("Pocket: Empty", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW/2), 10.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
+						break;
+					case PowerUpType::eJUMP:
+						currentPowerup.RenderText("Pocket: Jump", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						break;
+
+					case PowerUpType::eSHIELD:
+						currentPowerup.RenderText("Pocket: Shield", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						break;
+
+					}
+
 					imgui.endFrame();
 
 					glDisable(GL_FRAMEBUFFER_SRGB);

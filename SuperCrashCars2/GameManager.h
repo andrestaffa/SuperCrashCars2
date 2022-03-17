@@ -58,6 +58,7 @@ public:
 	void select();
 	void initMenu();
 	void togglePause();
+	std::string printButtonSelected();
 	std::string printMenu();
 
 private:
