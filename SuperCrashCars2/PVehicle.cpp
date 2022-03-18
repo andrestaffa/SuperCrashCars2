@@ -198,6 +198,7 @@ void PVehicle::updatePhysics() {
 	// boosting
 	this->regainBoost();
 	this->regainJump();
+	this->regainFlash();
 }
 void PVehicle::free() {
 	PX_RELEASE(gBatchQuery);
@@ -281,6 +282,17 @@ void PVehicle::jump() {
 void PVehicle::regainJump() {
 	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 1.0f && !this->getVehicleInAir()) this->vehicleParams.canJump = true;
 }
+
+void PVehicle::flashWhite() {
+	this->vehicleParams.flashWhite = 1.0f;
+	this->vehicleParams.flashDuration = time(0);
+}
+
+void PVehicle::regainFlash() {
+	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
+	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
+}
+
 #pragma endregion
 #pragma region getters
 PxMat44 PVehicle::getTransform() const {

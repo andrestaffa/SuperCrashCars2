@@ -38,6 +38,7 @@ int main(int argc, char** argv) {
 	// Shaders
 	auto defaultShader = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 	auto depthShader = std::make_shared<ShaderProgram>("shaders/simpleDepth.vert", "shaders/simpleDepth.frag");
+	auto carShader = std::make_shared<ShaderProgram>("shaders/car.vert", "shaders/car.frag");
 	Utils::instance().shader = defaultShader;
 
 
@@ -285,6 +286,7 @@ int main(int argc, char** argv) {
 					for (PVehicle* carPtr : vehicleList) {
 						if (carPtr->vehicleAttr.collided) {
 							carPtr->getRigidDynamic()->addForce((carPtr->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
+							carPtr->flashWhite();
 							carPtr->vehicleAttr.collided = false;
 							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->vehicleAttr.collisionMidpoint), 0.4f);
 						}
@@ -372,7 +374,8 @@ int main(int argc, char** argv) {
 					#pragma endregion 
 
 
-					Utils::instance().shader = defaultShader;
+					// Cars rendering
+					Utils::instance().shader = carShader;
 					Utils::instance().shader->use();
 					Utils::instance().shader->setInt("shadowMap", 1);
 					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -381,17 +384,33 @@ int main(int argc, char** argv) {
 					Utils::instance().shader->setVector3("lightPos", lightPos);
 					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
 
+					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 
 					glActiveTexture(GL_TEXTURE1);
 					glBindTexture(GL_TEXTURE_2D, depthMap);
 
+					for (PVehicle* carPtr : vehicleList) {
+						Utils::instance().shader->setFloat("damage", carPtr->vehicleAttr.collisionCoefficient * 0.3); // number is how fast car turns red
+						Utils::instance().shader->setFloat("flashStrength", carPtr->vehicleParams.flashWhite);
+						carPtr->render();
+					}
+
+
+					// Other rendering
+					Utils::instance().shader = defaultShader;
+					Utils::instance().shader->use();
+					Utils::instance().shader->setInt("shadowMap", 1);
+					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+					Utils::instance().shader->setVector4("lightColor", lightColor);
+					Utils::instance().shader->setVector3("lightPos", lightPos);
+					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
 
 					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
 
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, depthMap);
+
 					pm.drawGround();
-					for (PVehicle* carPtr : vehicleList) {
-						carPtr->render();
-					}
 					for (PowerUp* powerUpPtr : powerUps) {
 						if (powerUpPtr->active) {
 							powerUpPtr->render();
