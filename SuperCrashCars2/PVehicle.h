@@ -55,13 +55,17 @@ struct VehicleParams {
 	float k_throttle = 1.0f;
 
 	// jumping
-	time_t jumpCooldown;
 	bool canJump = true;
+	time_t jumpCooldown;
 
 	// boosting
 	bool boosting = false;
 	time_t boostCooldown;
 	int boost = 100;
+
+	// visual effects
+	float flashWhite = 0.0f;
+	time_t flashDuration;
 
 };
 
@@ -84,6 +88,8 @@ public:
 	void regainBoost();
 	void jump();
 	void regainJump();
+	void flashWhite();
+	void regainFlash();
 	void reset();
 
 	PxMat44 getTransform() const;

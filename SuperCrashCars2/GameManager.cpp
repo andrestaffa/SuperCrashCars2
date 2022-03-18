@@ -131,7 +131,67 @@ void GameManager::togglePause() {
 }
 
 ////////////////////// display functions
+std::string GameManager::printButtonSelected() {
+	std::string str = "";
 
+	switch (this->screen)
+	{
+	case Screen::eMAINMENU:
+		switch (this->mainMenuScreen) {
+		case MainMenuScreen::eMAIN_SCREEN:
+			switch (this->menuButton) {
+			case MainMenuButton::eSTART:
+				str = "START";
+
+				break;
+			case MainMenuButton::eHOWTOPLAY:
+				str = "HOW TO PLAY";
+				break;
+			case MainMenuButton::eCREDITS:
+				str = "CREDITS";
+				break;
+			case MainMenuButton::eQUIT:
+				str = "QUIT";
+
+				break;
+			}
+
+			break;
+		case MainMenuScreen::eHOWTOPLAY_SCREEN:
+			// do nothing, only one button
+			str = "BACK";
+			break;
+		case MainMenuScreen::eCREDITS_SCREEN:
+			str = "BACK";
+			break;
+		}
+
+		break;
+	case Screen::eLOADING:
+		break;
+	case Screen::ePLAYING:
+		str = str + "In Game, ";
+		if (this->paused) {
+			str = str + "Paused, ";
+			if (this->pauseButton == PauseButton::eRESUME) { str = str + "with button RESUME selected"; }
+			else { str = str + "with button QUIT selected"; }
+		}
+		else {
+			str = str + "Unpaused";
+		}
+
+
+		break;
+	case Screen::eGAMEOVER:
+		str = str + "Game Over, button BACK selected,\nPlayer  ";
+		str = str + std::to_string(winner);
+		str = str + " is the winner ";
+		// do nothing, only quit button
+		break;
+	}
+
+	return str;
+}
 std::string GameManager::printMenu() {
 	std::string str = "Current State:\n";
 
