@@ -56,14 +56,18 @@ int main(int argc, char** argv) {
 	currentPowerup.Load("freetype/fonts/armybuster.ttf", 40);
 
 	// Main Menu Buttons
-	TextRenderer start(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	start.Load("freetype/fonts/bof.ttf", 40);
-	TextRenderer howToPlay(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	howToPlay.Load("freetype/fonts/bof.ttf", 40);
-	TextRenderer credits(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	credits.Load("freetype/fonts/bof.ttf", 40);
-	TextRenderer quit(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	quit.Load("freetype/fonts/bof.ttf", 40);
+	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	menuText.Load("freetype/fonts/bof.ttf", 40);
+
+	static glm::vec3 regCol = glm::vec3(0.f, 0.478f, 0.066f); // colors
+	static glm::vec3 selCol = glm::vec3(0.478f, 0.113f, 0.f); //
+
+	std::vector<glm::vec3> buttonColors;
+	std::vector<float> menuTextWidth;
+	for (int i = 0; i < 4; i++) {
+		buttonColors.push_back(regCol);
+		menuTextWidth.push_back(menuText.totalW);
+	}
 
 	// Anti-Aliasing (Not working)
 	unsigned int samples = 8;
@@ -171,32 +175,28 @@ int main(int argc, char** argv) {
 				Utils::instance().shader->use();
 				Utils::instance().shader->setVector4("lightColor", lightColor);
 				Utils::instance().shader->setVector3("lightPos", lightPos); // later we will change this to the actual light position, leave as this for now
-				Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
 
 
 				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
 				// Menu rendering
-				std::string currentState = GameManager::get().printButtonSelected();
-				glm::vec3 regCol = glm::vec3(0.f, 0.478f, 0.066f);
-				glm::vec3 selCol = glm::vec3(0.478f, 0.113f, 0.f);
-				glm::vec3 startCol;
-				glm::vec3 howToPlayCol;
-				glm::vec3 creditsCol;
-				glm::vec3 quitCol;
-				if (currentState == "START") startCol = selCol;
-				else startCol = regCol;
-				if (currentState == "HOW TO PLAY") howToPlayCol = selCol;
-				else howToPlayCol = regCol;
-				if (currentState == "CREDITS") creditsCol = selCol;
-				else creditsCol = regCol;
-				if (currentState == "QUIT") quitCol = selCol;
-				else quitCol = regCol;
 
-				start.RenderText("START", Utils::instance().SCREEN_WIDTH/2 - (start.totalW/2), 100.f, 1.0f, startCol);
-				howToPlay.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH/2 - (howToPlay.totalW / 2), 100.f + (2 * start.totalH), 1.0f, howToPlayCol);
-				credits.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH/2 - (credits.totalW / 2), 100.f + (2 * start.totalH) + (2 * howToPlay.totalH), 1.0f, creditsCol);
-				quit.RenderText("QUIT", Utils::instance().SCREEN_WIDTH/2 - (quit.totalW / 2), 100.f + (2 * start.totalH) + (2 * howToPlay.totalH) + (2 * credits.totalH), 1.0f, quitCol);
+				for (int i = 0; i < 4; i++) {
+				//	buttonColors.push_back(regCol);
+				//	menuTextWidth.push_back(menuText.totalW);
+					if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
+					else buttonColors.at(i) = regCol;
+
+				}
+
+				menuText.RenderText("START", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
+				menuTextWidth.at(0) = menuText.totalW;
+				menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(1) / 2), 200.f, 1.0f, buttonColors.at(1));
+				menuTextWidth.at(1) = menuText.totalW;
+				menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(2) / 2),300.f, 1.0f, buttonColors.at(2));
+				menuTextWidth.at(2) = menuText.totalW;
+				menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(3) / 2),400.f, 1.0f, buttonColors.at(3));
+				menuTextWidth.at(3) = menuText.totalW;
 
 				// imGUI section
 				imgui.initFrame();
@@ -452,14 +452,14 @@ int main(int argc, char** argv) {
 					// imgui
 					imgui.initFrame();
 					imgui.renderStats(player);
-					//imgui.renderSliders(player, enemy);
-
-					// Menu indicator in progress
+					imgui.renderDamageHUD(vehicleList);
 					imgui.renderMenu(ai_ON);
+					//imgui.renderPlayerHUD(player);
+					//imgui.renderSliders(player, enemy);
+					imgui.endFrame();
+
 
 					// Damage and live indicator in progress
-					imgui.renderDamageHUD(vehicleList);
-
 					for (PVehicle* carPtr : vehicleList) {
 						float colCoef = carPtr->vehicleAttr.collisionCoefficient;
 					}
@@ -468,7 +468,6 @@ int main(int argc, char** argv) {
 					}
 
 					// Boost and Powerup indicator
-					imgui.renderPlayerHUD(player);
 
 					boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
 					switch (player.getPocket()) {
@@ -485,7 +484,7 @@ int main(int argc, char** argv) {
 
 					}
 
-					imgui.endFrame();
+
 
 					glDisable(GL_FRAMEBUFFER_SRGB);
 					window.swapBuffers();
