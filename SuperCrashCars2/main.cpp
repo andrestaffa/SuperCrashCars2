@@ -249,9 +249,6 @@ int main(int argc, char** argv) {
 				powerUpPtr->forceRespawn();
 			}
 
-
-
-
 			GameManager::get().screen = Screen::ePLAYING;
 
 			break;
@@ -378,7 +375,7 @@ int main(int argc, char** argv) {
 					glCullFace(GL_BACK);
 					glFrontFace(GL_CCW);
 					#pragma endregion 
-
+				
 
 					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
@@ -401,11 +398,28 @@ int main(int argc, char** argv) {
 						Utils::instance().shader->setFloat("flashStrength", carPtr->vehicleParams.flashWhite);
 						carPtr->render();
 					}
+;
+
+					// Other rendering
+					Utils::instance().shader = defaultShader;
+					Utils::instance().shader->use();
+					Utils::instance().shader->setInt("shadowMap", 1);
+					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+					Utils::instance().shader->setVector4("lightColor", lightColor);
+					Utils::instance().shader->setVector3("lightPos", lightPos);
+					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, depthMap);
+					pm.drawGround();
 					
+					auto os = (sin((float)colorVar / 20) + 1.0) / 2.0;
+					colorVar++;
 
 					// Sphere
 					Utils::instance().shader = transparent;
 					Utils::instance().shader->use();
+					Utils::instance().shader->setFloat("opacity", os);
 					Utils::instance().shader->setInt("shadowMap", 1);
 					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 					Utils::instance().shader->setVector4("lightColor", lightColor);
@@ -416,11 +430,10 @@ int main(int argc, char** argv) {
 
 
 					// Power ups
-					auto os = sin((float)colorVar / 20);
-					colorVar++;
 					Utils::instance().shader = powerUpShader;
 					Utils::instance().shader->use();
 					Utils::instance().shader->setFloat("os", os);
+					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 					Utils::instance().shader->setVector4("lightColor", lightColor);
 					Utils::instance().shader->setVector3("lightPos", lightPos);
@@ -434,22 +447,6 @@ int main(int argc, char** argv) {
 						}
 					}
 
-
-					// Other rendering
-					Utils::instance().shader = defaultShader;
-					Utils::instance().shader->use();
-					Utils::instance().shader->setInt("shadowMap", 1);
-					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-					Utils::instance().shader->setVector4("lightColor", lightColor);
-					Utils::instance().shader->setVector3("lightPos", lightPos);
-					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
-
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
-
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, depthMap);
-
-					pm.drawGround();
 
 					if (GameManager::get().paused) {
 						// if game is paused, we will render an overlay.

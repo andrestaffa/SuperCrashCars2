@@ -13,6 +13,7 @@ uniform sampler2D shadowMap;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 camPos;
+uniform float opacity;
 
 
 float ShadowCalculation(vec4 fragPosLightSpace)
@@ -68,6 +69,6 @@ void main()
     float shadow = ShadowCalculation(FragPosLightSpace);       
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
     
-    FragColor = vec4(lighting, 0.3);
+    FragColor = vec4(lighting, mix(0.3, 0.6, opacity));
 
 } 
