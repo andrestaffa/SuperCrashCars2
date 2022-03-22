@@ -6,6 +6,7 @@
 #include "GLDebug.h"
 #include "Log.h"
 #include "Window.h"
+#include <cmath>
 
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
@@ -39,6 +40,9 @@ int main(int argc, char** argv) {
 	auto defaultShader = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 	auto depthShader = std::make_shared<ShaderProgram>("shaders/simpleDepth.vert", "shaders/simpleDepth.frag");
 	auto carShader = std::make_shared<ShaderProgram>("shaders/car.vert", "shaders/car.frag");
+	auto transparent = std::make_shared<ShaderProgram>("shaders/transparent.vert", "shaders/transparent.frag");
+	auto powerUpShader = std::make_shared<ShaderProgram>("shaders/powerUp.vert", "shaders/powerUp.frag");
+	int colorVar = 0;
 	Utils::instance().shader = defaultShader;
 
 
@@ -89,6 +93,8 @@ int main(int argc, char** argv) {
 	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 100.f, 182.f));
 	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(228.f, 100.0f, -148.0f));
 	
+	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.0f, 100.0f, 220.0f));
+
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
 	vehicleList.push_back(&player);
@@ -168,7 +174,7 @@ int main(int argc, char** argv) {
 
 				Utils::instance().shader->use();
 				Utils::instance().shader->setVector4("lightColor", lightColor);
-				Utils::instance().shader->setVector3("lightPos", lightPos); // later we will change this to the actual light position, leave as this for now
+				Utils::instance().shader->setVector3("lightPos", lightPos); 
 			
 
 				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
@@ -331,7 +337,7 @@ int main(int argc, char** argv) {
 					glm::mat4 lightSpaceMatrix;
 					float near_plane = 1.0f, far_plane = 7.5f;
 					//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-					lightProjection = glm::ortho(-500.0f, 500.0f, -500.0f, 500.0f, 0.1f, 1500.0f);
+					lightProjection = glm::ortho(-300.0f, 300.0f, -300.0f, 300.0f, 0.1f, 1000.0f);
 					lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
 					lightSpaceMatrix = lightProjection * lightView;
 					// render scene from light's point of view
@@ -374,13 +380,14 @@ int main(int argc, char** argv) {
 					#pragma endregion 
 
 
+					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
+
 					// Cars rendering
 					Utils::instance().shader = carShader;
 					Utils::instance().shader->use();
 					Utils::instance().shader->setInt("shadowMap", 1);
 					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 					Utils::instance().shader->setVector4("lightColor", lightColor);
-					//Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
 					Utils::instance().shader->setVector3("lightPos", lightPos);
 					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
 
@@ -393,6 +400,38 @@ int main(int argc, char** argv) {
 						Utils::instance().shader->setFloat("damage", carPtr->vehicleAttr.collisionCoefficient * 0.3); // number is how fast car turns red
 						Utils::instance().shader->setFloat("flashStrength", carPtr->vehicleParams.flashWhite);
 						carPtr->render();
+					}
+					
+
+					// Sphere
+					Utils::instance().shader = transparent;
+					Utils::instance().shader->use();
+					Utils::instance().shader->setInt("shadowMap", 1);
+					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+					Utils::instance().shader->setVector4("lightColor", lightColor);
+					Utils::instance().shader->setVector3("lightPos", lightPos);
+					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+					sphere.render();
+
+
+					// Power ups
+					auto os = sin((float)colorVar / 20);
+					colorVar++;
+					Utils::instance().shader = powerUpShader;
+					Utils::instance().shader->use();
+					Utils::instance().shader->setFloat("os", os);
+					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+					Utils::instance().shader->setVector4("lightColor", lightColor);
+					Utils::instance().shader->setVector3("lightPos", lightPos);
+					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+					
+					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+					
+					for (PowerUp* powerUpPtr : powerUps) {
+						if (powerUpPtr->active) {
+							powerUpPtr->render();
+						}
 					}
 
 
@@ -411,13 +450,6 @@ int main(int argc, char** argv) {
 					glBindTexture(GL_TEXTURE_2D, depthMap);
 
 					pm.drawGround();
-					for (PowerUp* powerUpPtr : powerUps) {
-						if (powerUpPtr->active) {
-							powerUpPtr->render();
-						}
-					}
-
-					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
 
 					if (GameManager::get().paused) {
 						// if game is paused, we will render an overlay.

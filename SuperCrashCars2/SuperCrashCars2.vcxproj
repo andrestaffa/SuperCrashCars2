@@ -243,14 +243,20 @@
   <ItemGroup>
     <None Include="fmod.dll" />
     <None Include="fmodL.dll" />
+    <None Include="shaders\car.frag" />
+    <None Include="shaders\car.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
+    <None Include="shaders\powerUp.frag" />
+    <None Include="shaders\powerUp.vert" />
     <None Include="shaders\shader_fragment.frag" />
     <None Include="shaders\shader_vertex.vert" />
     <None Include="shaders\simpleDepth.frag" />
     <None Include="shaders\simpleDepth.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
+    <None Include="shaders\transparent.frag" />
+    <None Include="shaders\transparent.vert" />
     <None Include="text.frag" />
     <None Include="text.vert" />
   </ItemGroup>

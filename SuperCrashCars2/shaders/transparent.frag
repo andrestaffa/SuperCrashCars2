@@ -13,8 +13,7 @@ uniform sampler2D shadowMap;
 uniform vec3 lightColor;
 uniform vec3 lightPos;
 uniform vec3 camPos;
-uniform float damage;
-uniform float flashStrength;
+
 
 float ShadowCalculation(vec4 fragPosLightSpace)
 {
@@ -33,7 +32,7 @@ float ShadowCalculation(vec4 fragPosLightSpace)
     
    //float shadow = currentDepth > closestDepth  ? 1.0 : 0.0;
    
-    float bias = 0.01f;
+    float bias = 0.0001f;
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;  
    
     //float bias = max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);  
@@ -49,13 +48,10 @@ void main()
     vec3 lightColor = vec3(1.0);
     vec3 color = texture(texture_diffuse1, TexCoords).rgb;
     vec3 normal = normalize(Normal);
-
-    // damage
-    color = vec3((color.r + damage), color.g, color.b);
     
     // ambient
-    vec3 ambient = 0.15 * lightColor;
-
+    vec3 ambient = 0.25 * lightColor;
+    
     // diffuse
     vec3 lightDirection = normalize(lightPos - FragPos);
     float diff = max(dot(lightDirection, normal), 0.0f);
@@ -71,9 +67,7 @@ void main()
     // calculate shadow
     float shadow = ShadowCalculation(FragPosLightSpace);       
     vec3 lighting = (ambient + (1.0 - shadow) * (diffuse + specular)) * color;    
+    
+    FragColor = vec4(lighting, 0.3);
 
-
-   // FragColor = vec4(lighting, 1.0);
-   FragColor = vec4(mix(lighting, vec3(1.0f, 1.0f, 1.0f), flashStrength), 1.0f);
- 
-}
+} 

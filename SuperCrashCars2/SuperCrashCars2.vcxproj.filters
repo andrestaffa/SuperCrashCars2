@@ -351,6 +351,24 @@
     <None Include="text.frag">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="shaders\car.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\car.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\transparent.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\transparent.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\powerUp.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\powerUp.vert">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Library Include="fmodL_vc.lib" />
