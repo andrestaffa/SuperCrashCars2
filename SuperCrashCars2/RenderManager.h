@@ -64,7 +64,7 @@ public:
 
 	void renderNormalObjects();
 
-	void renderTransparentObjects(PStatic& sphere, double os);
+	void renderTransparentObjects(const std::vector<PVehicle*>& vehicleList, double os);
 
 	void renderPowerUps(const std::vector<PowerUp*>& powerUps, double os);
 

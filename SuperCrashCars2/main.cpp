@@ -2,6 +2,8 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
+#include "Time.h"
+
 #include "Geometry.h"
 #include "GLDebug.h"
 #include "Log.h"
@@ -48,6 +50,10 @@ int main(int argc, char** argv) {
 	int colorVar = 0;
 	double os;
 
+	Time time = Time();
+
+
+
 	// In-game UI
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	boost.Load("freetype/fonts/vemanem.ttf", 50);
@@ -91,7 +97,7 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
-	powerUps.push_back(&powerUp4);
+	powerUps.push_back(&powerUp4); 
 
 	// AI toggle
 	bool ai_ON;
@@ -115,12 +121,12 @@ int main(int argc, char** argv) {
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 		
 		// always update the time and poll events
-		Time::update();
+		time.update();
 		glfwPollEvents();
 		glEnable(GL_DEPTH_TEST);
 
-		if (Time::shouldSimulate) {
-			Time::startSimTimer();
+		if (time.shouldSimulate) {
+			time.startSimTimer();
 			switch (GameManager::get().screen) {
 			case Screen::eMAINMENU: {
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
@@ -129,7 +135,7 @@ int main(int argc, char** argv) {
 			case Screen::eLOADING: {
 
 				// set up init game here
-				Time::resetStats();
+				time.resetStats();
 
 				for (PVehicle* carPtr : vehicleList) {
 					carPtr->m_state = VehicleState::ePLAYING;
@@ -174,12 +180,15 @@ int main(int argc, char** argv) {
 						}
 					}
 
+				
+
 					if (ai_ON) enemy.chaseVehicle(player);
 					pm.simulate();
 
 					player.updatePhysics();
 					enemy.updatePhysics();
-					Time::endSimTimer();
+
+					time.endSimTimer();
 				}
 
 				break; }
@@ -187,11 +196,11 @@ int main(int argc, char** argv) {
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
 				break; }
 			}
-			Time::endSimTimer(); // end sim timer !
+			time.endSimTimer(); // end sim timer !
 		}
 
-		if (Time::shouldRender) { 
-			Time::startRenderTimer();
+		if (time.shouldRender) { 
+			time.startRenderTimer();
 
 			renderer.startFrame();
 				
@@ -236,7 +245,7 @@ int main(int argc, char** argv) {
 
 				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 				colorVar++;
-
+				
 				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
 				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
 
@@ -250,7 +259,7 @@ int main(int argc, char** argv) {
 				renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
 				pm.drawGround();
 
-				renderer.renderTransparentObjects(sphere, os);
+				renderer.renderTransparentObjects(vehicleList, os);
 
 				if (GameManager::get().paused) {
 					// if game is paused, we will render an overlay.
@@ -259,7 +268,7 @@ int main(int argc, char** argv) {
 
 				// imgui
 				imgui.initFrame();
-				imgui.renderStats(player);
+				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
 				imgui.renderDamageHUD(vehicleList);
 				imgui.renderMenu(ai_ON);
 				//imgui.renderPlayerHUD(player);
@@ -304,7 +313,7 @@ int main(int argc, char** argv) {
 			}
 
 			renderer.endFrame();
-			Time::endRenderTimer();
+			time.endRenderTimer();
 		}
 
 	}

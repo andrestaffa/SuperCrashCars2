@@ -42,6 +42,11 @@ PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, c
 	m_state = VehicleState::ePLAYING;
 	this->carid = id;
 
+	m_shieldSphere = Model("models/sphere/sphere.obj");
+	m_shieldSphere.setPosition(Utils::instance().pxToGlmVec3(this->getPosition()));
+	m_shieldSphere.scale(glm::vec3(0.37f, 0.37f, 0.37f));
+	this->m_shieldState = ShieldPowerUpState::eACTIVE;
+
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
 	gVehicle4W->setToRestState();
@@ -190,6 +195,9 @@ void PVehicle::updatePhysics() {
 
 	//Work out if the vehicle is in the air.
 	gIsVehicleInAir = gVehicle4W->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
+
+	// update sphere position.
+	m_shieldSphere.setPosition(Utils::instance().pxToGlmVec3(this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().p));
 
 	// other updates over time
 
@@ -362,6 +370,8 @@ void PVehicle::reset() {
 }
 
 void PVehicle::updateState() {
+	time_point now = steady_clock::now();
+
 	switch (this->m_state) {
 	case VehicleState::ePLAYING:
 
@@ -386,7 +396,7 @@ void PVehicle::updateState() {
 	case VehicleState::eRESPAWNING:
 
 		reset();
-		if (duration_cast<seconds>(steady_clock::now() - deathTimestamp) > seconds(2)) {
+		if (duration_cast<seconds>(now - deathTimestamp) > seconds(2)) {
 			this->m_state = VehicleState::ePLAYING; // after 2 seconds passed since death, respawn
 		}
 		break;
@@ -396,6 +406,19 @@ void PVehicle::updateState() {
 		break;
 	}
 
+	switch (m_shieldState){
+	case ShieldPowerUpState::eINACTIVE:
+		break;
+	case ShieldPowerUpState::eACTIVE:
+		if (duration_cast<seconds>(now - deathTimestamp) > seconds(5)) m_shieldState = ShieldPowerUpState::eEXPIRING;
+		break;
+	case ShieldPowerUpState::eEXPIRING:
+		if (duration_cast<seconds>(now - deathTimestamp) > seconds(8)) m_shieldState = ShieldPowerUpState::eLAST_SECOND;
+		break;
+	case ShieldPowerUpState::eLAST_SECOND:
+		if (duration_cast<seconds>(now - deathTimestamp) > seconds(10)) m_shieldState = ShieldPowerUpState::eINACTIVE;
+		break;
+	} 
 }
 
 #pragma region powerups
@@ -434,7 +457,9 @@ void PVehicle::usePowerUp() {
 		AudioManager::get().playSound(SFX_JUMP_MEGA, Utils::instance().pxToGlmVec3(this->getPosition()), 0.55f);
 		break;
 
-	case PowerUpType::eSHIELD: // not implemented yet
+	case PowerUpType::eSHIELD:
+		this->m_shieldState = ShieldPowerUpState::eACTIVE;
+		m_shieldUseTimestamp = steady_clock::now();
 		this->m_powerUpPocket = PowerUpType::eSHIELD;
 		break;
 	default:

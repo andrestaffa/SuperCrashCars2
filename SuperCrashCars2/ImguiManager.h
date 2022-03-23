@@ -4,8 +4,6 @@
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
-#include "Time.h"
-
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -25,7 +23,7 @@ public:
 
 	void initFrame();
 	void endFrame();
-	void renderStats(const PVehicle& player);
+	void renderStats(const PVehicle& player, int avgSimTime, int avgRenderTime);
 	void renderSliders(const PVehicle& player, const PVehicle& enemy);
 	void renderMenu(bool &AIToggle);
 	void renderPlayerHUD(const PVehicle& player);
