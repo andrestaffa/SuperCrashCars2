@@ -172,6 +172,7 @@
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="PStatic.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="PVehicle.cpp" />
@@ -221,6 +222,7 @@
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="PStatic.h" />
     <ClInclude Include="PVehicle.h" />
+    <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Skybox.h" />

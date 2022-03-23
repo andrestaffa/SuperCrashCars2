@@ -44,7 +44,7 @@ public:
 		}
 	}
 
-	static void renderFrame() {
+	static void endRenderTimer() {
 		Time::renders++;
 		Time::totalRenderTime += duration_cast<microseconds>(steady_clock::now() - Time::renderDelta);
 		//Log::info("Frame Rendered");
@@ -52,7 +52,7 @@ public:
 		Time::averageRenderTime = (int)totalRenderTime.count() / Time::renders;
 	}
 
-	static void simulatePhysics() {
+	static void endSimTimer() {
 		Time::simulations++;
 		Time::totalSimTime += duration_cast<microseconds>(steady_clock::now() - Time::simulateDelta);
 		//Log::info("Physics Simulated");

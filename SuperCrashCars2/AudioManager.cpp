@@ -48,12 +48,6 @@ void AudioManager::playBackgroundMusic(std::string filePath)
 	result = backgroundChannel->setPaused(false);
 }
 
-void AudioManager::refreshBGMVolume()
-{
-	backgroundChannel->setPaused(true);
-	backgroundChannel->setVolume(this->masterVolume * BGMVolume * (float)(!mutedBGM));
-	backgroundChannel->setPaused(false);
-}
 
 void AudioManager::loadBackgroundSound(std::string filePath)
 {
@@ -142,6 +136,9 @@ void AudioManager::setListenerPosition(glm::vec3 position, glm::vec3 forward, gl
 	system->set3DListenerAttributes(0, &fmodPos, nullptr, &fmodForward, &fmodUp);
 }
 
+
+
+#pragma region volumeControl
 void AudioManager::setMasterVolume(float newVolume) {
 	this->masterVolume = newVolume;
 	this->masterVolume = clampVol(this->masterVolume);
@@ -163,7 +160,6 @@ void AudioManager::toggleBGMMute() {
 	else mutedBGM = true;
 	refreshBGMVolume();
 }
-
 void AudioManager::toggleSFXMute() {
 	if (mutedSFX) mutedSFX = false;
 	else mutedSFX = true;
@@ -183,3 +179,11 @@ float AudioManager::clampVol(float vol) {
 		vol = 0.0f;
 	return vol;
 }
+
+void AudioManager::refreshBGMVolume()
+{
+	backgroundChannel->setPaused(true);
+	backgroundChannel->setVolume(this->masterVolume * BGMVolume * (float)(!mutedBGM));
+	backgroundChannel->setPaused(false);
+}
+#pragma endregion

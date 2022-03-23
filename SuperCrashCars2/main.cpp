@@ -42,9 +42,12 @@ int main(int argc, char** argv) {
 	auto carShader = std::make_shared<ShaderProgram>("shaders/car.vert", "shaders/car.frag");
 	auto transparent = std::make_shared<ShaderProgram>("shaders/transparent.vert", "shaders/transparent.frag");
 	auto powerUpShader = std::make_shared<ShaderProgram>("shaders/powerUp.vert", "shaders/powerUp.frag");
-	int colorVar = 0;
+
 	Utils::instance().shader = defaultShader;
 
+	// OSCILATION 
+	int colorVar = 0;
+	double os;
 
 	// Lighting
 	glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
@@ -104,7 +107,6 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp3);
 	powerUps.push_back(&powerUp4);
 
-
 	// AI toggle
 	bool ai_ON;
 	
@@ -124,6 +126,8 @@ int main(int argc, char** argv) {
 	// Menu
 	GameManager::get().initMenu();
 
+
+#pragma region shadow_init
 	// Shadows
 	const unsigned int SHADOW_WIDTH = 2048 * 4, SHADOW_HEIGHT = 2048 * 4;
 	unsigned int depthMapFBO;
@@ -146,6 +150,14 @@ int main(int argc, char** argv) {
 	glReadBuffer(GL_NONE);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	glm::mat4 lightProjection, lightView;
+	glm::mat4 lightSpaceMatrix;
+	float near_plane = 1.0f, far_plane = 7.5f;
+	//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
+	lightProjection = glm::ortho(-300.0f, 300.0f, -300.0f, 300.0f, 0.1f, 1000.0f);
+
+#pragma endregion
+
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 		
 		// always update the time and poll events
@@ -153,137 +165,44 @@ int main(int argc, char** argv) {
 		glfwPollEvents();
 		glEnable(GL_DEPTH_TEST);
 
-		// main switch to decide what screen to display
-		switch (GameManager::get().screen){
-		case Screen::eMAINMENU:
-			if (Time::shouldSimulate) {
-				Time::startSimTimer();
 
-				// read inputs 
+		if (Time::shouldSimulate) {
+			Time::startSimTimer();
+			switch (GameManager::get().screen) {
+			case Screen::eMAINMENU: {
+
+				// controller in menu
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
-				
-				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
-			}
-			if (Time::shouldRender) { // render at 60fps even in menu
-				Time::startRenderTimer();
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT);
-				glFrontFace(GL_CW);
-				glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-				Utils::instance().shader->use();
-				Utils::instance().shader->setVector4("lightColor", lightColor);
-				Utils::instance().shader->setVector3("lightPos", lightPos); 
-			
 
-				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+				break; }
+			case Screen::eLOADING: {
 
-				// Menu rendering
+				// set up init game here
+				Time::resetStats();
 
-				for (int i = 0; i < 4; i++) {
-				//	buttonColors.push_back(regCol);
-				//	menuTextWidth.push_back(menuText.totalW);
-					if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
-					else buttonColors.at(i) = regCol;
-
+				for (PVehicle* carPtr : vehicleList) {
+					carPtr->m_state = VehicleState::ePLAYING;
+					carPtr->m_lives = 100;
+					carPtr->vehicleAttr.collisionCoefficient = 0.0f;
+					carPtr->reset();
 				}
 
-				menuText.RenderText("START", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
-				menuTextWidth.at(0) = menuText.totalW;
-				menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(1) / 2), 200.f, 1.0f, buttonColors.at(1));
-				menuTextWidth.at(1) = menuText.totalW;
-				menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(2) / 2),300.f, 1.0f, buttonColors.at(2));
-				menuTextWidth.at(2) = menuText.totalW;
-				menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH/2 - (menuTextWidth.at(3) / 2),400.f, 1.0f, buttonColors.at(3));
-				menuTextWidth.at(3) = menuText.totalW;
+				for (PowerUp* powerUpPtr : powerUps) {
+					powerUpPtr->forceRespawn();
+				}
 
-				// imGUI section
-				imgui.initFrame();
-				imgui.renderMenu(ai_ON);
-				imgui.endFrame();
+				GameManager::get().screen = Screen::ePLAYING;
 
-
-				glDisable(GL_FRAMEBUFFER_SRGB);
-				window.swapBuffers();
-				Time::renderFrame(); // turn off the render flag and stop timer
-			}
-			break;
-		case Screen::eLOADING: 
-			Time::startRenderTimer();
-			glEnable(GL_CULL_FACE);
-			glCullFace(GL_FRONT);
-			glFrontFace(GL_CW);
-			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			Utils::instance().shader->use();
-			Utils::instance().shader->setVector4("lightColor", lightColor);
-			Utils::instance().shader->setVector3("lightPos", lightPos);
-			Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
-
-
-			skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
-
-			// imGUI section
-			imgui.initFrame();
-			imgui.renderMenu(ai_ON);
-			imgui.endFrame();
-
-
-			glDisable(GL_FRAMEBUFFER_SRGB);
-			window.swapBuffers();
-			Time::renderFrame(); // turn off the render flag and stop timer
-
-			// set up init game here
-			Time::resetStats();
-
-			for (PVehicle* carPtr : vehicleList) {
-				carPtr->m_state = VehicleState::ePLAYING;
-				carPtr->m_lives = 100;
-				carPtr->vehicleAttr.collisionCoefficient = 0.0f;
-				carPtr->reset();
-			}
-
-			for (PowerUp* powerUpPtr : powerUps) {
-				powerUpPtr->forceRespawn();
-			}
-
-			GameManager::get().screen = Screen::ePLAYING;
-
-			break;
-		case Screen::ePLAYING:
-			// simulate when unpaused, otherwise just grab the inputs.
-			if (Time::shouldSimulate) {
+				break; }
+			case Screen::ePLAYING: {
 
 				if (GameManager::get().paused) { // paused, read the inputs using the menu function
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
-				} 
-				else {
-					Time::startSimTimer();
-
-#pragma region inputs
+				}
+				else { // in game
 
 					if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(true, player);
-
-					if (inputManager->onKeyAction(GLFW_KEY_UP, GLFW_PRESS)) player.accelerate(player.vehicleParams.k_throttle);
-					if (inputManager->onKeyAction(GLFW_KEY_DOWN, GLFW_PRESS)) player.reverse(player.vehicleParams.k_throttle * 0.5f);
-					if (inputManager->onKeyAction(GLFW_KEY_LEFT, GLFW_PRESS)) player.turnLeft(player.vehicleParams.k_throttle * 0.5f);
-					if (inputManager->onKeyAction(GLFW_KEY_RIGHT, GLFW_PRESS)) player.turnRight(player.vehicleParams.k_throttle * 0.5f);
-					if (inputManager->onKeyAction(GLFW_KEY_SPACE, GLFW_PRESS)) {
-						player.handbrake();
-						Time::resetStats();
-					}
-					if (inputManager->onKeyAction(GLFW_KEY_E, GLFW_PRESS)) player.jump();
-					if (inputManager->onKeyAction(GLFW_KEY_F, GLFW_PRESS)) player.boost();
-					if (inputManager->onKeyAction(GLFW_KEY_R, GLFW_PRESS)) {
-						player.reset();
-						enemy.reset();
-						Time::resetStats();
-					}
-
-#pragma endregion
-
 					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
 					for (PVehicle* carPtr : vehicleList) {
@@ -293,7 +212,7 @@ int main(int argc, char** argv) {
 							carPtr->vehicleAttr.collided = false;
 							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->vehicleAttr.collisionMidpoint), 0.4f);
 						}
-						carPtr->updateState();
+						carPtr->updateState(); // to check for car death
 					}
 
 					for (PowerUp* powerUpPtr : powerUps) {
@@ -308,215 +227,73 @@ int main(int argc, char** argv) {
 
 					if (ai_ON) enemy.chaseVehicle(player);
 					pm.simulate();
-					
+
 					player.updatePhysics();
 					enemy.updatePhysics();
-					Time::simulatePhysics();
+					Time::endSimTimer();
 				}
-			}
-			if (Time::shouldRender) {
-					Time::startRenderTimer();
 
-					glEnable(GL_CULL_FACE);
-					glCullFace(GL_BACK);
-					glFrontFace(GL_CCW);
-					glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				break; }
+			case Screen::eGAMEOVER:{
 
-#pragma region Shadow map
-
-					glCullFace(GL_FRONT);
-					glFrontFace(GL_CCW);
-
-					// 1. render depth of scene to texture (from light's perspective)
-					// --------------------------------------------------------------
-					glm::mat4 lightProjection, lightView;
-					glm::mat4 lightSpaceMatrix;
-					float near_plane = 1.0f, far_plane = 7.5f;
-					//lightProjection = glm::perspective(glm::radians(45.0f), (GLfloat)SHADOW_WIDTH / (GLfloat)SHADOW_HEIGHT, near_plane, far_plane); // note that if you use a perspective projection matrix you'll have to change the light position as the current light position isn't enough to reflect the whole scene
-					lightProjection = glm::ortho(-300.0f, 300.0f, -300.0f, 300.0f, 0.1f, 1000.0f);
-					lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-					lightSpaceMatrix = lightProjection * lightView;
-					// render scene from light's point of view
-					
-
-					Utils::instance().shader = depthShader;
-					Utils::instance().shader->use();
-					Utils::instance().shader->setInt("shadowMap", 1);
-					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-					Utils::instance().shader->setVector4("lightColor", lightColor);
-					//Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
-					Utils::instance().shader->setVector3("lightPos", lightPos);
-					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
-
-
-					glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
-					glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
-					glClear(GL_DEPTH_BUFFER_BIT);
-					glActiveTexture(GL_TEXTURE0);
-	
-					for (PVehicle* carPtr : vehicleList) {
-						carPtr->render();
-					}
-
-					for (PowerUp* powerUpPtr : powerUps) {
-						if (powerUpPtr->active) {
-							powerUpPtr->render();
-						}
-					}
-
-
-					glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-					// reset viewport
-					glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-					glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-					glCullFace(GL_BACK);
-					glFrontFace(GL_CCW);
-					#pragma endregion 
-				
-
-					skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
-
-					// Cars rendering
-					Utils::instance().shader = carShader;
-					Utils::instance().shader->use();
-					Utils::instance().shader->setInt("shadowMap", 1);
-					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-					Utils::instance().shader->setVector4("lightColor", lightColor);
-					Utils::instance().shader->setVector3("lightPos", lightPos);
-					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
-
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
-
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, depthMap);
-
-					for (PVehicle* carPtr : vehicleList) {
-						Utils::instance().shader->setFloat("damage", carPtr->vehicleAttr.collisionCoefficient * 0.3); // number is how fast car turns red
-						Utils::instance().shader->setFloat("flashStrength", carPtr->vehicleParams.flashWhite);
-						carPtr->render();
-					}
-;
-
-					// Other rendering
-					Utils::instance().shader = defaultShader;
-					Utils::instance().shader->use();
-					Utils::instance().shader->setInt("shadowMap", 1);
-					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-					Utils::instance().shader->setVector4("lightColor", lightColor);
-					Utils::instance().shader->setVector3("lightPos", lightPos);
-					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, depthMap);
-					pm.drawGround();
-					
-					auto os = (sin((float)colorVar / 20) + 1.0) / 2.0;
-					colorVar++;
-
-					// Sphere
-					Utils::instance().shader = transparent;
-					Utils::instance().shader->use();
-					Utils::instance().shader->setFloat("opacity", os);
-					Utils::instance().shader->setInt("shadowMap", 1);
-					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-					Utils::instance().shader->setVector4("lightColor", lightColor);
-					Utils::instance().shader->setVector3("lightPos", lightPos);
-					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
-					sphere.render();
-
-
-					// Power ups
-					Utils::instance().shader = powerUpShader;
-					Utils::instance().shader->use();
-					Utils::instance().shader->setFloat("os", os);
-					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-					Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
-					Utils::instance().shader->setVector4("lightColor", lightColor);
-					Utils::instance().shader->setVector3("lightPos", lightPos);
-					Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
-					
-					playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
-					
-					for (PowerUp* powerUpPtr : powerUps) {
-						if (powerUpPtr->active) {
-							powerUpPtr->render();
-						}
-					}
-
-
-					if (GameManager::get().paused) {
-						// if game is paused, we will render an overlay.
-						// render the PAUSE MENU HERE
-					}
-
-					// imgui
-					imgui.initFrame();
-					imgui.renderStats(player);
-					imgui.renderDamageHUD(vehicleList);
-					imgui.renderMenu(ai_ON);
-					//imgui.renderPlayerHUD(player);
-					//imgui.renderSliders(player, enemy);
-					imgui.endFrame();
-
-
-					// Damage and live indicator in progress
-					for (PVehicle* carPtr : vehicleList) {
-						float colCoef = carPtr->vehicleAttr.collisionCoefficient;
-					}
-					for (PVehicle* carPtr : vehicleList) {
-						std::string lives = std::to_string(carPtr->m_lives);
-					}
-
-					// Boost and Powerup indicator
-
-					boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-					switch (player.getPocket()) {
-					case PowerUpType::eEMPTY:
-						currentPowerup.RenderText("Pocket: Empty", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW/2), 10.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
-						break;
-					case PowerUpType::eJUMP:
-						currentPowerup.RenderText("Pocket: Jump", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-						break;
-
-					case PowerUpType::eSHIELD:
-						currentPowerup.RenderText("Pocket: Shield", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-						break;
-
-					}
-
-
-
-					glDisable(GL_FRAMEBUFFER_SRGB);
-					window.swapBuffers();
-
-					Time::renderFrame(); // turn off the render flag and stop timer
-
-				}
-			break;
-		case Screen::eGAMEOVER:
-			if (Time::shouldSimulate) {
-				Time::startSimTimer();
-
-				// read inputs 
 				if (glfwJoystickPresent(GLFW_JOYSTICK_1)) controller1.uniController(false, player);
 
-				Time::simulatePhysics(); // not technically physics but we reset the bool + timer here
+				break; }
+				
 			}
-			if (Time::shouldRender) { // render at 60fps even in menu
-				Time::startRenderTimer();
-				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT);
-				glFrontFace(GL_CW);
-				glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			Time::endSimTimer(); // end sim timer !
+		}
+
+		if (Time::shouldRender) { 
+			Time::startRenderTimer();
+
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_FRONT);
+			glFrontFace(GL_CW);
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				
+			switch (GameManager::get().screen) {
+			case Screen::eMAINMENU: {
+
+	/*			Utils::instance().shader->use();
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				Utils::instance().shader->setVector3("lightPos", lightPos);*/
+
+				skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+				// Menu rendering
+
+				for (int i = 0; i < 4; i++) {
+					//	buttonColors.push_back(regCol);
+					//	menuTextWidth.push_back(menuText.totalW);
+					if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
+					else buttonColors.at(i) = regCol;
+
+				}
+
+				menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
+				menuTextWidth.at(0) = menuText.totalW;
+				menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(1) / 2), 200.f, 1.0f, buttonColors.at(1));
+				menuTextWidth.at(1) = menuText.totalW;
+				menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(2) / 2), 300.f, 1.0f, buttonColors.at(2));
+				menuTextWidth.at(2) = menuText.totalW;
+				menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(3) / 2), 400.f, 1.0f, buttonColors.at(3));
+				menuTextWidth.at(3) = menuText.totalW;
+
+				// imGUI section
+				imgui.initFrame();
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
+
+
+				break; }
+			case Screen::eLOADING:
+
 
 				Utils::instance().shader->use();
 				Utils::instance().shader->setVector4("lightColor", lightColor);
-				Utils::instance().shader->setVector3("lightPos", lightPos); 
+				Utils::instance().shader->setVector3("lightPos", lightPos);
 				Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
 
 
@@ -528,12 +305,203 @@ int main(int argc, char** argv) {
 				imgui.endFrame();
 
 
-				glDisable(GL_FRAMEBUFFER_SRGB);
-				window.swapBuffers();
-				Time::renderFrame(); // turn off the render flag and stop timer
+				break;
+
+			case Screen::ePLAYING:
+
+
+
+#pragma region Shadow map
+
+				glCullFace(GL_FRONT);
+				glFrontFace(GL_CCW);
+
+				// 1. render depth of scene to texture (from light's perspective)
+				// --------------------------------------------------------------
+
+				lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
+				lightSpaceMatrix = lightProjection * lightView;
+				// render scene from light's point of view
+
+				Utils::instance().shader = depthShader;
+				Utils::instance().shader->use();
+				Utils::instance().shader->setInt("shadowMap", 1);
+				Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				//Utils::instance().shader->setVector3("lightPos", Utils::instance().pxToGlmVec3(player.getPosition()));
+				Utils::instance().shader->setVector3("lightPos", lightPos);
+				Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+
+
+				glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+				glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+				glClear(GL_DEPTH_BUFFER_BIT);
+				glActiveTexture(GL_TEXTURE0);
+
+				for (PVehicle* carPtr : vehicleList) {
+					carPtr->render();
+				}
+
+				for (PowerUp* powerUpPtr : powerUps) {
+					if (powerUpPtr->active) {
+						powerUpPtr->render();
+					}
+				}
+
+
+				glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+				// reset viewport
+				glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+				glCullFace(GL_BACK);
+				glFrontFace(GL_CCW);
+#pragma endregion 
+
+
+				skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
+
+				// Cars rendering
+				Utils::instance().shader = carShader;
+				Utils::instance().shader->use();
+				Utils::instance().shader->setInt("shadowMap", 1);
+				Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				Utils::instance().shader->setVector3("lightPos", lightPos);
+				Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+				playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, depthMap);
+
+				for (PVehicle* carPtr : vehicleList) {
+					Utils::instance().shader->setFloat("damage", carPtr->vehicleAttr.collisionCoefficient * 0.3); // number is how fast car turns red
+					Utils::instance().shader->setFloat("flashStrength", carPtr->vehicleParams.flashWhite);
+					carPtr->render();
+				}
+				;
+
+				// Other rendering
+				Utils::instance().shader = defaultShader;
+				Utils::instance().shader->use();
+				Utils::instance().shader->setInt("shadowMap", 1);
+				Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				Utils::instance().shader->setVector3("lightPos", lightPos);
+				Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+				playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+				glActiveTexture(GL_TEXTURE1);
+				glBindTexture(GL_TEXTURE_2D, depthMap);
+				pm.drawGround();
+
+				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
+				colorVar++;
+
+				// Sphere
+				Utils::instance().shader = transparent;
+				Utils::instance().shader->use();
+				Utils::instance().shader->setFloat("opacity", os);
+				Utils::instance().shader->setInt("shadowMap", 1);
+				Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				Utils::instance().shader->setVector3("lightPos", lightPos);
+				Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+				playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+				sphere.render();
+
+
+				// Power ups
+				Utils::instance().shader = powerUpShader;
+				Utils::instance().shader->use();
+				Utils::instance().shader->setFloat("os", os);
+				Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+				Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+				Utils::instance().shader->setVector4("lightColor", lightColor);
+				Utils::instance().shader->setVector3("lightPos", lightPos);
+				Utils::instance().shader->setVector3("camPos", playerCamera.getPosition());
+
+				playerCamera.updateCamera(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec());
+
+				for (PowerUp* powerUpPtr : powerUps) {
+					if (powerUpPtr->active) {
+						powerUpPtr->render();
+					}
+				}
+
+
+				if (GameManager::get().paused) {
+					// if game is paused, we will render an overlay.
+					// render the PAUSE MENU HERE
+				}
+
+				// imgui
+				imgui.initFrame();
+				imgui.renderStats(player);
+				imgui.renderDamageHUD(vehicleList);
+				imgui.renderMenu(ai_ON);
+				//imgui.renderPlayerHUD(player);
+				//imgui.renderSliders(player, enemy);
+				imgui.endFrame();
+
+
+				// Damage and live indicator in progress
+				for (PVehicle* carPtr : vehicleList) {
+					float colCoef = carPtr->vehicleAttr.collisionCoefficient;
+				}
+				for (PVehicle* carPtr : vehicleList) {
+					std::string lives = std::to_string(carPtr->m_lives);
+				}
+
+				// Boost and Powerup indicator
+
+				boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
+				switch (player.getPocket()) {
+				case PowerUpType::eEMPTY:
+					currentPowerup.RenderText("Pocket: Empty", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
+					break;
+				case PowerUpType::eJUMP:
+					currentPowerup.RenderText("Pocket: Jump", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+					break;
+
+				case PowerUpType::eSHIELD:
+					currentPowerup.RenderText("Pocket: Shield", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+					break;
+
+				}
+
+
+				break;
+			case Screen::eGAMEOVER:
+
+
+
+					Utils::instance().shader->use();
+					Utils::instance().shader->setVector4("lightColor", lightColor);
+					Utils::instance().shader->setVector3("lightPos", lightPos);
+					Utils::instance().shader->setVector3("camPos", menuCamera.getPosition());
+
+
+					skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+					// imGUI section
+					imgui.initFrame();
+					imgui.renderMenu(ai_ON);
+					imgui.endFrame();
+
+
+				break;
 			}
-			break;
+
+			glDisable(GL_FRAMEBUFFER_SRGB);
+			window.swapBuffers();
+
+			Time::endRenderTimer();
 		}
+
+
+
+
 	}
 
 	player.free();
