@@ -2,7 +2,7 @@
 
 using namespace physx;
 
-PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position, const PxQuat& quat) : m_pm(pm), m_vehicleType(vehicleType) {
+PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position, const PxQuat& quat) : m_pm(pm), m_vehicleType(vehicleType) {
 	//Create the batched scene queries for the suspension raycasts.
 	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pm.gAllocator);
 	gBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *gVehicleSceneQueryData, pm.gScene);
@@ -40,7 +40,7 @@ PVehicle::PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxV
 
 	m_lives = 3;
 	m_state = VehicleState::ePLAYING;
-	
+	this->carid = id;
 
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
@@ -198,6 +198,7 @@ void PVehicle::updatePhysics() {
 	// boosting
 	this->regainBoost();
 	this->regainJump();
+	this->regainFlash();
 }
 void PVehicle::free() {
 	PX_RELEASE(gBatchQuery);
@@ -281,6 +282,17 @@ void PVehicle::jump() {
 void PVehicle::regainJump() {
 	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 1.0f && !this->getVehicleInAir()) this->vehicleParams.canJump = true;
 }
+
+void PVehicle::flashWhite() {
+	this->vehicleParams.flashWhite = 1.0f;
+	this->vehicleParams.flashDuration = time(0);
+}
+
+void PVehicle::regainFlash() {
+	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
+	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
+}
+
 #pragma endregion
 #pragma region getters
 PxMat44 PVehicle::getTransform() const {
@@ -345,7 +357,8 @@ void PVehicle::reset() {
 	this->getRigidDynamic()->setGlobalPose(PxTransform(this->m_startingPosition, PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f))));
 	this->getRigidDynamic()->setLinearVelocity(PxVec3(0.f));
 	this->getRigidDynamic()->setAngularVelocity(PxVec3(0.f));
-	this->vehicleParams.boost = 200;
+	this->vehicleParams.boost = 100;
+	//this->m_lives = 3;
 }
 
 void PVehicle::updateState() {
@@ -378,7 +391,8 @@ void PVehicle::updateState() {
 		}
 		break;
 	case VehicleState::eOUTOFLIVES:
-		//GameManager::get().screen
+		GameManager::get().screen = Screen::eGAMEOVER; 
+		GameManager::get().winner = this->carid;
 		break;
 	}
 

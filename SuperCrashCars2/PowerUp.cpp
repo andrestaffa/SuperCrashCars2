@@ -5,6 +5,10 @@ PowerUp::PowerUp(PhysicsManager& pm, const Model& model, const PowerUpType& powe
 {
 	this->m_static->userData = this;
 	this->m_powerUpType = powerUpType;
+	this->m_startingPosition = position;
+
+	this->active = true;
+	this->triggered = false;
 
 	const int MAX_NUM_ACTOR_SHAPES = 128;
 	PxShape* shapes[MAX_NUM_ACTOR_SHAPES];
@@ -50,6 +54,22 @@ void PowerUp::render() {
 
 		this->m_model.draw(TM);
 	}
+}
+
+void PowerUp::collect(){
+	this->active = false;
+	triggeredTimestamp = steady_clock::now();
+}
+
+void PowerUp::tryRespawn(){
+	if (duration_cast<seconds>(steady_clock::now() - triggeredTimestamp) > seconds(15)) {
+		this->active = true;
+		this->triggered = false;
+	}
+}
+void PowerUp::forceRespawn(){
+	this->active = true;
+	this->triggered = false;
 }
 
 void PowerUp::destroy() {

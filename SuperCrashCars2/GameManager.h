@@ -51,12 +51,14 @@ public:
 	PauseButton pauseButton = PauseButton::eRESUME;
 	bool paused = false;
 	bool quitGame = false;
-	bool startFlag = false;
+
+	int winner;
 
 	void changeSelection(int plus);
 	void select();
 	void initMenu();
 	void togglePause();
+	std::string printButtonSelected();
 	std::string printMenu();
 
 private:

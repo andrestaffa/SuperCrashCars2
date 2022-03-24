@@ -18,6 +18,7 @@
 #include <chrono>
 
 
+
 using namespace physx;
 using namespace snippetvehicle;
 using namespace std::chrono;
@@ -41,6 +42,7 @@ struct VehicleCollisionAttributes {
 	float collisionCoefficient;
 	bool collided;
 	PxVec3 forceToAdd;
+	PxVec3 collisionMidpoint;
 };
 
 struct VehicleParams {
@@ -49,13 +51,17 @@ struct VehicleParams {
 	float k_throttle = 1.0f;
 
 	// jumping
-	time_t jumpCooldown;
 	bool canJump = true;
+	time_t jumpCooldown;
 
 	// boosting
 	bool boosting = false;
 	time_t boostCooldown;
 	int boost = 100;
+
+	// visual effects
+	float flashWhite = 0.0f;
+	time_t flashDuration;
 
 };
 
@@ -63,7 +69,7 @@ class PVehicle {
 
 public:
 
-	PVehicle(PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
+	PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PVehicle();
 
 	void accelerate(float throttle);
@@ -78,6 +84,8 @@ public:
 	void regainBoost();
 	void jump();
 	void regainJump();
+	void flashWhite();
+	void regainFlash();
 	void reset();
 
 	PxMat44 getTransform() const;
@@ -109,7 +117,7 @@ public:
 	void updateState();
 	VehicleState m_state;
 	time_point<steady_clock> deathTimestamp;
-
+	int carid;
 
 	// AI
 	void chaseVehicle(PVehicle& vehicle);
