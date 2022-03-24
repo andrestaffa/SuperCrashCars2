@@ -23,6 +23,8 @@
 #include "PStatic.h"
 #include "PowerUp.h"
 
+#include "Time.h"
+
 class RenderManager {
 
 public:
@@ -64,7 +66,7 @@ public:
 
 	void renderNormalObjects();
 
-	void renderTransparentObjects(const std::vector<PVehicle*>& vehicleList, double os);
+	void renderTransparentObjects(const std::vector<PVehicle*>& vehicleList, PStatic& sphere, double os, Time& time);
 
 	void renderPowerUps(const std::vector<PowerUp*>& powerUps, double os);
 

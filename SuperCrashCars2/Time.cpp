@@ -35,6 +35,15 @@ void Time::update() {
 		shouldSimulate = true;
 		physicsAccum = physicsAccum % microseconds(8333);
 	}
+
+}
+
+bool Time::fastOscilator() {
+	return (duration_cast<milliseconds>(steady_clock::now() - startOfProgram).count() % 100) < 50;
+}
+
+bool Time::slowOscilator() {
+	return (duration_cast<milliseconds>(steady_clock::now() - startOfProgram).count() % 400) < 200;
 }
 
 void Time::endRenderTimer() {
@@ -78,7 +87,4 @@ time_point<steady_clock> Time::getTime() {
 	return steady_clock::now();
 }
 
-void Time::initOscilators() {
-
-}
 

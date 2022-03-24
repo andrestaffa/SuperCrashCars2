@@ -86,9 +86,11 @@ int main(int argc, char** argv) {
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 100.0f, 148.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
 	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 100.f, 182.f));
-	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(228.f, 100.0f, -148.0f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-228.f, 100.0f, -148.0f));
+	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-130.f, 100.f, -110.f));
+	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(28.f, 100.0f, -188.0f));
 	
-	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.0f, 100.0f, 220.0f));
+	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
 
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
@@ -97,7 +99,9 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
-	powerUps.push_back(&powerUp4); 
+	powerUps.push_back(&powerUp4);
+	powerUps.push_back(&powerUp5);
+	powerUps.push_back(&powerUp6);
 
 	// AI toggle
 	bool ai_ON;
@@ -259,7 +263,7 @@ int main(int argc, char** argv) {
 				renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
 				pm.drawGround();
 
-				renderer.renderTransparentObjects(vehicleList, os);
+				renderer.renderTransparentObjects(vehicleList, sphere, os, time);
 
 				if (GameManager::get().paused) {
 					// if game is paused, we will render an overlay.

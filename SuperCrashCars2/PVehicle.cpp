@@ -40,6 +40,8 @@ PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, c
 
 	m_lives = 3;
 	m_state = VehicleState::ePLAYING;
+	m_shieldUseTimestamp = steady_clock::now();
+
 	this->carid = id;
 
 	m_shieldSphere = Model("models/sphere/sphere.obj");
@@ -410,13 +412,14 @@ void PVehicle::updateState() {
 	case ShieldPowerUpState::eINACTIVE:
 		break;
 	case ShieldPowerUpState::eACTIVE:
-		if (duration_cast<seconds>(now - deathTimestamp) > seconds(5)) m_shieldState = ShieldPowerUpState::eEXPIRING;
+		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(5)) m_shieldState = ShieldPowerUpState::eEXPIRING;
 		break;
 	case ShieldPowerUpState::eEXPIRING:
-		if (duration_cast<seconds>(now - deathTimestamp) > seconds(8)) m_shieldState = ShieldPowerUpState::eLAST_SECOND;
+		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(8)) m_shieldState = ShieldPowerUpState::eLAST_SECOND;
+
 		break;
 	case ShieldPowerUpState::eLAST_SECOND:
-		if (duration_cast<seconds>(now - deathTimestamp) > seconds(10)) m_shieldState = ShieldPowerUpState::eINACTIVE;
+		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(10)) m_shieldState = ShieldPowerUpState::eINACTIVE;
 		break;
 	} 
 }

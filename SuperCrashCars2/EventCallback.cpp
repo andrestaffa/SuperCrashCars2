@@ -39,7 +39,7 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		launchVector = launchVector.getNormalized();
 
 		PVehicle* victimVehicle = (PVehicle*)victim->userData;
-		victimVehicle->vehicleAttr.collided = true;
+		PVehicle* attackerVehicle = (PVehicle*)attacker->userData;
 
 		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
 		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
@@ -50,10 +50,26 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
 
 		float magMult = (1.f + 2.f * attackerMag / 70.f);
+		PxVec3 forceToAdd = PxVec3((launchVector + PxVec3(0.0f, 0.0f * (magMult - 1.f), 0.0f)) * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
 
-		victimVehicle->vehicleAttr.forceToAdd = PxVec3((launchVector + PxVec3(0.0f, 0.0f * (magMult - 1.f), 0.0f)) * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
-		victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
-		victimVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
+		if (victimVehicle->m_shieldState != ShieldPowerUpState::eINACTIVE) { // if victim has shielf up, force gets applied to the attacker !
+			attackerVehicle->vehicleAttr.forceToAdd = (-forceToAdd) * 1.5f;
+			attackerVehicle->vehicleAttr.collisionCoefficient = attackerVehicle->vehicleAttr.collisionCoefficient + 0.5f;
+			attackerVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
+			attackerVehicle->vehicleAttr.collided = true;
+			victimVehicle->m_shieldState = ShieldPowerUpState::eINACTIVE;
+
+		}
+		else {
+			victimVehicle->vehicleAttr.forceToAdd = forceToAdd;
+			victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
+			victimVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
+			victimVehicle->vehicleAttr.collided = true;
+
+		}
+
+
+
 	}
 }
 

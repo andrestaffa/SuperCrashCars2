@@ -29,6 +29,9 @@ public:
 	// oscillation stuff
 	time_point<steady_clock> startOfProgram;
 
+	bool fastOscilator();
+	bool slowOscilator();
+
 	void update();
 	void endRenderTimer();
 	void endSimTimer();
@@ -37,7 +40,6 @@ public:
 	void displayDeltaTime();
 	void resetStats();
 	time_point<steady_clock> getTime();
-	void initOscilators();
 
 private:
 	
