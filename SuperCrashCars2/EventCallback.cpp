@@ -52,12 +52,16 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		float magMult = (1.f + 2.f * attackerMag / 70.f);
 		PxVec3 forceToAdd = PxVec3(launchVector * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
 
+		victim->setAngularVelocity(PxVec3(0.f, 0.f, 0.f));
+		attacker->setAngularVelocity(PxVec3(0.f, 0.f, 0.f));
+
 		if (victimVehicle->m_shieldState != ShieldPowerUpState::eINACTIVE) { // if victim has shielf up, force gets applied to the attacker !
 			attackerVehicle->vehicleAttr.forceToAdd = (-forceToAdd) * 1.5f;
 			attackerVehicle->vehicleAttr.collisionCoefficient = attackerVehicle->vehicleAttr.collisionCoefficient + 0.5f;
 			attackerVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
 			attackerVehicle->vehicleAttr.collided = true;
 			victimVehicle->m_shieldState = ShieldPowerUpState::eINACTIVE;
+			victim->setAngularVelocity(PxVec3(0.f, 0.f, 0.f));
 
 		}
 		else {
