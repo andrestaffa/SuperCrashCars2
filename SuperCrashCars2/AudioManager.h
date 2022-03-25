@@ -12,6 +12,9 @@
 
 // sfx
 #define SFX_MENUBUTTON "audio/sfx/buttonclick.wav"
+#define SFX_CONTROLLER_ON "audio/sfx/controller_on.wav"
+#define SFX_CONTROLLER_OFF "audio/sfx/controller_off.wav"
+#define SFX_INCREMENT "audio/sfx/increment.wav"
 
 #define SFX_CARWINDUP "audio/carsounds/car_long/windup.wav"
 #define SFX_CAR_FAST "audio/carsounds/car_long/maxspeed.wav"
@@ -42,6 +45,8 @@ public:
 	void init();
 	void playBackgroundMusic(std::string filePath);
 	void refreshBGMVolume();
+	void incrementBGMVolume(int sign);
+	void incrementSFXVolume(int sign);
 	void loadBackgroundSound(std::string filePath);
 	void playSound(std::string soundName, float soundVolume);
 	void playSound(std::string soundName, glm::vec3 position, float soundVolume);
@@ -53,13 +58,18 @@ public:
 
 	bool getBGMMute();
 	bool getSFXMute();
+	int getBGMLevel();
+	int getSFXLevel();
+
+	void update();
 
 	void setListenerPosition(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
+	
 
 	FMOD::System* system;
 	
-	// The master volume
-	float masterVolume, BGMVolume, SFXVolume, unmutedVolume;
+
+
 
 private:
 	AudioManager() {}
@@ -67,12 +77,14 @@ private:
 	std::unordered_map<std::string, FMOD::Sound*> mSounds;
 
 	FMOD::Channel* backgroundChannel;
+	float masterVolume, BGMVolume, SFXVolume, unmutedVolume;
 
 	void loadSound(std::string filePath);
 	float clampVol(float vol);
 
 	bool muted, mutedSFX, mutedBGM;
 	const float BGM_VOL_INIT = 0.2f;
+	const float POSITION_SCALING = 0.05f;
 	
 };
 

@@ -47,7 +47,6 @@ PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, c
 	m_shieldSphere = Model("models/sphere/sphere.obj");
 	m_shieldSphere.setPosition(Utils::instance().pxToGlmVec3(this->getPosition()));
 	m_shieldSphere.scale(glm::vec3(0.37f, 0.37f, 0.37f));
-	this->m_shieldState = ShieldPowerUpState::eACTIVE;
 
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
@@ -286,7 +285,7 @@ void PVehicle::jump() {
 		this->vehicleParams.canJump = false;
 		this->getRigidDynamic()->addForce(PxVec3(0.0, 15.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
 		this->vehicleParams.jumpCooldown = time(0);
-		AudioManager::get().playSound(SFX_JUMP_NORMAL, Utils::instance().pxToGlmVec3(this->getPosition()), 0.55f);
+		AudioManager::get().playSound(SFX_JUMP_NORMAL, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
 	}
 }
 void PVehicle::regainJump() {
@@ -382,7 +381,7 @@ void PVehicle::updateState() {
 			this->m_state = VehicleState::eRESPAWNING;
 			deathTimestamp = steady_clock::now();
 			this->m_lives--;
-			AudioManager::get().playSound(SFX_DEATH, Utils::instance().pxToGlmVec3(this->getPosition()), 0.4f);
+			AudioManager::get().playSound(SFX_DEATH, Utils::instance().pxToGlmVec3(this->getPosition()), 0.9f);
 			this->vehicleAttr.collisionCoefficient = 0.0f;
 			if (this->m_lives == 0) {
 				this->m_state = VehicleState::eOUTOFLIVES;
@@ -456,8 +455,8 @@ void PVehicle::pickUpPowerUp(PowerUp* p) {
 void PVehicle::usePowerUp() {
 	switch (this->m_powerUpPocket) {
 	case PowerUpType::eJUMP:
-		this->getRigidDynamic()->addForce(PxVec3(0.0, 20.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
-		AudioManager::get().playSound(SFX_JUMP_MEGA, Utils::instance().pxToGlmVec3(this->getPosition()), 0.55f);
+		this->getRigidDynamic()->addForce(PxVec3(0.0, 30.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
+		AudioManager::get().playSound(SFX_JUMP_MEGA, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
 		break;
 
 	case PowerUpType::eSHIELD:

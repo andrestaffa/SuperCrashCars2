@@ -6,10 +6,6 @@
 #include "PVehicle.h"
 #include <iostream>
 
-// TO DO :
-// Make a unified function for both controllers, pass which controller is used instaed of separate functions for each controller
-// automatic controller type detection
-
 enum Controller {
 	PS4,
 	XBOX,
@@ -35,9 +31,11 @@ public:
 	void NSInputInGame(PVehicle& p1);
 	void NSInputInMenu();
 	void uniController(bool isInGame, PVehicle& player);
+
+	bool connected; // for audio and menu
 private:
 
-	bool selHeld, startHeld, xHeld, upHeld, downHeld = 0;
+	bool selHeld, startHeld, xHeld, upHeld, downHeld, rightHeld, leftHeld = 0;
 
 	int id;
 	int axesCount;

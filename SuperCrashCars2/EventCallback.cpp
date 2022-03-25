@@ -50,7 +50,7 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
 
 		float magMult = (1.f + 2.f * attackerMag / 70.f);
-		PxVec3 forceToAdd = PxVec3((launchVector + PxVec3(0.0f, 0.0f * (magMult - 1.f), 0.0f)) * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
+		PxVec3 forceToAdd = PxVec3(launchVector * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
 
 		if (victimVehicle->m_shieldState != ShieldPowerUpState::eINACTIVE) { // if victim has shielf up, force gets applied to the attacker !
 			attackerVehicle->vehicleAttr.forceToAdd = (-forceToAdd) * 1.5f;
