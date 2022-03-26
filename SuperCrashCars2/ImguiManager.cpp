@@ -19,10 +19,10 @@ void ImguiManager::endFrame() {
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 };
-void ImguiManager::renderStats(const PVehicle& player) {
+void ImguiManager::renderStats(const PVehicle& player, int avgSimTime, int avgRenderTime) {
 	ImGui::Begin("Stats:");
-	std::string simTime = ("Average Simulation time: " + std::to_string(Time::averageSimTime) + " microseconds");
-	std::string renderTime = ("Average Render Time: " + std::to_string(Time::averageRenderTime) + " microseconds");
+	std::string simTime = ("Average Simulation time: " + std::to_string(avgSimTime) + " microseconds");
+	std::string renderTime = ("Average Render Time: " + std::to_string(avgRenderTime) + " microseconds");
 	std::string printPos = "Current Position: X: " + std::to_string(player.getPosition().x) + " Y: " + std::to_string(player.getPosition().y) + " Z: " + std::to_string(player.getPosition().z);
 	std::string printLinearVelocity = "Current Linear Velocity: X: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getLinearVelocity().z);
 	std::string printAngularVelocity = "Current Angular Velocity: X: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().x) + " Y: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().y) + " Z: " + std::to_string(player.getRigidDynamic()->getAngularVelocity().z);

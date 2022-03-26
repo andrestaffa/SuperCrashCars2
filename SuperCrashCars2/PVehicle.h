@@ -96,7 +96,7 @@ public:
 	glm::vec3 getUpVec();
 	glm::vec3 getRightVec();
 	
-	
+	Model m_shieldSphere;
 
 	void render();
 
@@ -107,7 +107,8 @@ public:
 	void pickUpPowerUp(PowerUp* p);
 	void usePowerUp();
 	void applyHealthPowerUp();
-
+	ShieldPowerUpState m_shieldState;
+	time_point<steady_clock> m_shieldUseTimestamp;
 
 	VehicleCollisionAttributes vehicleAttr;
 	VehicleParams vehicleParams;

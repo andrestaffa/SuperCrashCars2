@@ -21,7 +21,7 @@ public:
 	~Model() = default;
 
 	void translate(const glm::vec3& offset);
-	void setPosition(const glm::vec3& position);
+	void setPosition(const glm::vec3 position);
 	void scale(const glm::vec3& scale);
 	void rotate(float angleRadian, const glm::vec3& axis);
 	void rotateAround(const glm::vec3& position, float theta, float phi, float radius);

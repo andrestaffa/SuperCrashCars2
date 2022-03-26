@@ -132,7 +132,7 @@ void RenderManager::renderNormalObjects() {
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 }
 
-void RenderManager::renderTransparentObjects(PStatic& sphere, double os) {
+void RenderManager::renderTransparentObjects(const std::vector<PVehicle*>& vehicleList, PStatic& sphere, double os, Time& time) {
 	// Sphere
 	Utils::instance().shader = transparentShader;
 	Utils::instance().shader->use();
@@ -143,7 +143,26 @@ void RenderManager::renderTransparentObjects(PStatic& sphere, double os) {
 	Utils::instance().shader->setVector3("lightPos", lightPos);
 	Utils::instance().shader->setVector3("camPos", m_camera->getPosition());
 	m_camera->sendMatricesToShader();
+	for (PVehicle* carPtr : vehicleList) {
+		switch (carPtr->m_shieldState) {
+		case ShieldPowerUpState::eINACTIVE:
+			break;
+		case ShieldPowerUpState::eACTIVE:
+			carPtr->m_shieldSphere.draw();
+			break;
+		case ShieldPowerUpState::eEXPIRING:
+			if (time.slowOscilator()) carPtr->m_shieldSphere.draw();
+			break;
+		case ShieldPowerUpState::eLAST_SECOND:
+			if (time.fastOscilator()) carPtr->m_shieldSphere.draw();
+			break;
+		}
+	}
+
 	sphere.render();
+
+	
+
 }
 
 void RenderManager::renderPowerUps(const std::vector<PowerUp*>& powerUps, double os) {

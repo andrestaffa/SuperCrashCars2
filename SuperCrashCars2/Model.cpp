@@ -50,7 +50,7 @@ void Model::translate(const glm::vec3& offset) {
 	this->m_position = this->m_position + offset;
 }
 
-void Model::setPosition(const glm::vec3& position) {
+void Model::setPosition(const glm::vec3 position) {
 	this->translate(-this->m_position);
 	this->translate(position);
 }
