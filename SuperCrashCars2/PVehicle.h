@@ -87,6 +87,7 @@ public:
 	void flashWhite();
 	void regainFlash();
 	void reset();
+	void updateSound();
 
 	PxMat44 getTransform() const;
 	PxVec3 getPosition() const;
@@ -119,9 +120,12 @@ public:
 	VehicleState m_state;
 	time_point<steady_clock> deathTimestamp;
 	int carid;
+	PowerUpType m_powerUpPocket; // bag
 
 	// AI
 	void chaseVehicle(PVehicle& vehicle);
+
+
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -142,7 +146,7 @@ private:
 	Model m_chassis;
 	Model m_tires;
 
-	PowerUpType m_powerUpPocket; // bag
+
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,

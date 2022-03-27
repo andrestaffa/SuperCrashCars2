@@ -283,6 +283,8 @@ void PVehicle::regainBoost() {
 void PVehicle::jump() {
 	if (this->vehicleParams.canJump) {
 		this->vehicleParams.canJump = false;
+		PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+		if (vel.y < 0) this->getRigidDynamic()->setLinearVelocity(PxVec3(vel.x, 0.f, vel.z));
 		this->getRigidDynamic()->addForce(PxVec3(0.0, 15.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
 		this->vehicleParams.jumpCooldown = time(0);
 		AudioManager::get().playSound(SFX_JUMP_NORMAL, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
@@ -292,15 +294,7 @@ void PVehicle::regainJump() {
 	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 1.0f && !this->getVehicleInAir()) this->vehicleParams.canJump = true;
 }
 
-void PVehicle::flashWhite() {
-	this->vehicleParams.flashWhite = 1.0f;
-	this->vehicleParams.flashDuration = time(0);
-}
 
-void PVehicle::regainFlash() {
-	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
-	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
-}
 
 #pragma endregion
 #pragma region getters
@@ -370,6 +364,16 @@ void PVehicle::reset() {
 	//this->m_lives = 3;
 }
 
+void PVehicle::flashWhite() {
+	this->vehicleParams.flashWhite = 1.0f;
+	this->vehicleParams.flashDuration = time(0);
+}
+
+void PVehicle::regainFlash() {
+	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
+	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
+}
+
 void PVehicle::updateState() {
 	time_point now = steady_clock::now();
 
@@ -421,7 +425,15 @@ void PVehicle::updateState() {
 		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(10)) m_shieldState = ShieldPowerUpState::eINACTIVE;
 		break;
 	} 
+
+	// update audio 
+	
+	// not ready yet
+
+	//AudioManager::get().updateCarPos(Utils::instance().pxToGlmVec3(this->getPosition()), this->carid);
+
 }
+
 
 #pragma region powerups
 void PVehicle::pickUpPowerUp(PowerUp* p) {
@@ -453,8 +465,11 @@ void PVehicle::pickUpPowerUp(PowerUp* p) {
 }
 
 void PVehicle::usePowerUp() {
+	PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
 	switch (this->m_powerUpPocket) {
 	case PowerUpType::eJUMP:
+
+		if (vel.y < 0) this->getRigidDynamic()->setLinearVelocity(PxVec3(vel.x, 0.f, vel.z));
 		this->getRigidDynamic()->addForce(PxVec3(0.0, 30.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
 		AudioManager::get().playSound(SFX_JUMP_MEGA, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
 		break;
@@ -464,8 +479,7 @@ void PVehicle::usePowerUp() {
 		m_shieldUseTimestamp = steady_clock::now();
 		this->m_powerUpPocket = PowerUpType::eSHIELD;
 		break;
-	default:
-		break;
+
 	}
 	this->m_powerUpPocket = PowerUpType::eEMPTY;
 

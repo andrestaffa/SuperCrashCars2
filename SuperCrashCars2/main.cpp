@@ -92,23 +92,23 @@ int main(int argc, char** argv) {
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
 	// Physx
-	PhysicsManager pm = PhysicsManager(1.5f/60.0f);
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(-150.f, 100.f, -150.f));
-	PVehicle player = PVehicle(2, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 100.0f, 240.0f));
+	PhysicsManager pm = PhysicsManager(1.3f/60.0f);
+	PVehicle enemy = PVehicle(0, pm, VehicleType::eTOYOTA, PxVec3(-150.f, 80.f, -150.f));
+	PVehicle player = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.f, 240.0f));
 
-	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 100.0f, 148.0f));
-	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 77.42f + 5.0f, -325.07f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 100.f, 182.f));
-	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-228.f, 100.0f, -148.0f));
-	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-130.f, 100.f, -110.f));
-	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(28.f, 100.0f, -188.0f));
+	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 80.f, 148.0f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 80.f, -325.07f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 80.f, 182.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-228.f, 80.f, -148.0f));
+	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-130.f, 80.f, -110.f));
+	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(28.f, 80.f, -188.0f));
 	
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
 
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
+	vehicleList.push_back(&enemy); // push back in order of ids so its nice
 	vehicleList.push_back(&player);
-	vehicleList.push_back(&enemy);
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
@@ -135,7 +135,10 @@ int main(int argc, char** argv) {
 	ImguiManager imgui(window);
 
 	// Audio 
-	AudioManager::get().init();
+	AudioManager::get().init(vehicleList);
+
+	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 0, Utils::instance().pxToGlmVec3(player.getPosition()));
+	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 1, Utils::instance().pxToGlmVec3(enemy.getPosition()));
 
 	// Menu
 	GameManager::get().initMenu();
@@ -178,8 +181,10 @@ int main(int argc, char** argv) {
 
 				for (PVehicle* carPtr : vehicleList) {
 					carPtr->m_state = VehicleState::ePLAYING;
-					carPtr->m_lives = 100;
+					carPtr->m_lives = 3;
 					carPtr->vehicleAttr.collisionCoefficient = 0.0f;
+					carPtr->m_shieldState = ShieldPowerUpState::eINACTIVE;
+					carPtr->m_powerUpPocket = PowerUpType::eEMPTY;
 					carPtr->reset();
 				}
 				for (PowerUp* powerUpPtr : powerUps) {
@@ -390,6 +395,10 @@ int main(int argc, char** argv) {
 			case Screen::eGAMEOVER:
 
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+				menuText.RenderText("Game Over", Utils::instance().SCREEN_WIDTH / 3, 200, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1 ) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				
+				menuText.RenderText("QUIT ", Utils::instance().SCREEN_WIDTH / 3, 400, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 				imgui.initFrame();
 				imgui.renderMenu(ai_ON);

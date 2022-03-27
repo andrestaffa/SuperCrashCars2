@@ -46,27 +46,27 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		float attackerMag = attacker->getLinearVelocity().magnitude();
 		Log::debug("Attacker magnitude: {}", attackerMag);
 		victimVehicle->vehicleAttr.forceToAdd = PxVec3(0.0f);
-		// launch formula: base 100k + 20k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
+		// launch formula: base 80k + 30k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
 		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
 
 		float magMult = (1.f + 2.f * attackerMag / 70.f);
-		PxVec3 forceToAdd = PxVec3(launchVector * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
+		PxVec3 forceToAdd = PxVec3(launchVector * (80000.f + 30000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
 
-		victim->setAngularVelocity(PxVec3(0.f, 0.f, 0.f));
-		attacker->setAngularVelocity(PxVec3(0.f, 0.f, 0.f));
+		victim->setAngularVelocity(victim->getAngularVelocity() * 0.1f);
+		attacker->setAngularVelocity(attacker->getAngularVelocity() * 0.1f);
 
 		if (victimVehicle->m_shieldState != ShieldPowerUpState::eINACTIVE) { // if victim has shielf up, force gets applied to the attacker !
-			attackerVehicle->vehicleAttr.forceToAdd = (-forceToAdd) * 1.5f;
-			attackerVehicle->vehicleAttr.collisionCoefficient = attackerVehicle->vehicleAttr.collisionCoefficient + 0.5f;
+			attackerVehicle->vehicleAttr.forceToAdd = (-forceToAdd) * 2.f;
+			attackerVehicle->vehicleAttr.collisionCoefficient = attackerVehicle->vehicleAttr.collisionCoefficient + (0.1f + (attackerMag / 40.f));
 			attackerVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
 			attackerVehicle->vehicleAttr.collided = true;
 			victimVehicle->m_shieldState = ShieldPowerUpState::eINACTIVE;
-			victim->setAngularVelocity(PxVec3(0.f, 0.f, 0.f));
+
 
 		}
 		else {
 			victimVehicle->vehicleAttr.forceToAdd = forceToAdd;
-			victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
+			victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + (0.1f + (attackerMag / 80.f));
 			victimVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
 			victimVehicle->vehicleAttr.collided = true;
 
