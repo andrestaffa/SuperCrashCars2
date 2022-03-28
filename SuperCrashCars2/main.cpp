@@ -93,8 +93,11 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.3f/60.0f);
-	PVehicle enemy = PVehicle(0, pm, VehicleType::eTOYOTA, PxVec3(-150.f, 80.f, -150.f));
-	PVehicle player = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.f, 240.0f));
+	PVehicle player = PVehicle(0, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.f, 240.0f));
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.f, 230.f));
+	PVehicle enemy2 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.0f, 220.0f));
+	PVehicle enemy3 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.0f, 210.0f));
+	PVehicle enemy4 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.0f, 200.0f));
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 80.f, 148.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 80.f, -325.07f));
@@ -107,8 +110,11 @@ int main(int argc, char** argv) {
 
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
-	vehicleList.push_back(&enemy); // push back in order of ids so its nice
 	vehicleList.push_back(&player);
+	vehicleList.push_back(&enemy);
+	vehicleList.push_back(&enemy2);
+	vehicleList.push_back(&enemy3);
+	vehicleList.push_back(&enemy4);
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
@@ -117,7 +123,7 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp6);
 
 	// AI toggle
-	bool ai_ON;
+	bool ai_ON = true;
 	
 	// Controller
 	InputController controller1, controller2, controller3, controller4;
@@ -212,6 +218,15 @@ int main(int argc, char** argv) {
 							carPtr->vehicleAttr.collided = false;
 							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->vehicleAttr.collisionMidpoint), 0.3f);
 						}
+
+						if (carPtr->vehicleAttr.reachedTarget && carPtr->carid == 1) {
+							int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+							if (vehicleList[rndIndex] != carPtr) {
+								carPtr->vehicleAttr.reachedTarget = false;
+								carPtr->chaseVehicle(*vehicleList[rndIndex]);
+							}
+						}
+
 						carPtr->updateState(); // to check for car death
 					}
 
@@ -227,11 +242,22 @@ int main(int argc, char** argv) {
 
 				
 
-					if (ai_ON) enemy.chaseVehicle(player);
+					if (ai_ON) {
+						for (int i = 0; i < vehicleList.size(); i++) {
+							if (vehicleList[i]->carid != 1) continue;
+							PVehicle* targetVehicle = (PVehicle*)vehicleList[i]->vehicleAttr.targetVehicle;
+							if (targetVehicle) vehicleList[i]->chaseVehicle(*targetVehicle);
+							else {
+								int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+								if (vehicleList[rndIndex] != vehicleList[i]) {
+									vehicleList[i]->chaseVehicle(*vehicleList[rndIndex]);
+								}
+							}
+						}
+					}
 					pm.simulate();
 
-					player.updatePhysics();
-					enemy.updatePhysics();
+					for (PVehicle* vehicle : vehicleList) vehicle->updatePhysics();
 
 					time.endSimTimer();
 				}
