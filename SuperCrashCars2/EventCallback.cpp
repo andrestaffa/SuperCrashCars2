@@ -31,7 +31,7 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 			attacker = car1;
 			victim = car0;
 		}
-		
+
 		// getting naive launch vector
 		PxVec3 attackerPos = attacker->getGlobalPose().p;
 		PxVec3 victimPos = victim->getGlobalPose().p;
@@ -40,6 +40,13 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 
 		PVehicle* victimVehicle = (PVehicle*)victim->userData;
 		PVehicle* attackerVehicle = (PVehicle*)attacker->userData;
+
+		if ((PVehicle*)attackerVehicle->vehicleAttr.targetVehicle) {
+			PVehicle* targetVehicle = (PVehicle*)attackerVehicle->vehicleAttr.targetVehicle;
+			if (targetVehicle == victimVehicle) {
+				attackerVehicle->vehicleAttr.reachedTarget = true;
+			}
+		}
 
 		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
 		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
@@ -77,7 +84,7 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 	}
 }
 
-void EventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count) { 
+void EventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count) {
 
 	PVehicle* vehicle = dynamic_cast<PVehicle*>((PVehicle*)(pairs->otherActor->userData));
 	PowerUp* powerUp = dynamic_cast<PowerUp*>((PowerUp*)(pairs->triggerActor->userData));

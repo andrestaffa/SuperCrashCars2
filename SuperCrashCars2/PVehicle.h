@@ -41,6 +41,10 @@ enum class VehicleState {
 struct VehicleCollisionAttributes {
 	float collisionCoefficient;
 	bool collided;
+	
+	void* targetVehicle;
+	bool reachedTarget;
+
 	PxVec3 forceToAdd;
 	PxVec3 collisionMidpoint;
 };
@@ -137,7 +141,6 @@ private:
 
 	PhysicsManager& m_pm;
 	bool m_isFalling = false;
-	bool m_isReversing = false;
 
 	VehicleType m_vehicleType;
 
