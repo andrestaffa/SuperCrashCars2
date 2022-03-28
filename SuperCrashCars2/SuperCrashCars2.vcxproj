@@ -172,6 +172,7 @@
     <ClCompile Include="PhysicsManager.cpp" />
     <ClCompile Include="PowerUp.cpp" />
     <ClCompile Include="PStatic.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="ShaderProgram.cpp" />
     <ClCompile Include="PVehicle.cpp" />
@@ -182,6 +183,7 @@
     <ClCompile Include="SnippetVehicleTireFriction.cpp" />
     <ClCompile Include="TextRenderer.cpp" />
     <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="Time.cpp" />
     <ClCompile Include="VertexArray.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -221,6 +223,7 @@
     <ClInclude Include="PowerUp.h" />
     <ClInclude Include="PStatic.h" />
     <ClInclude Include="PVehicle.h" />
+    <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="ShaderProgram.h" />
     <ClInclude Include="Skybox.h" />
@@ -243,14 +246,20 @@
   <ItemGroup>
     <None Include="fmod.dll" />
     <None Include="fmodL.dll" />
+    <None Include="shaders\car.frag" />
+    <None Include="shaders\car.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
+    <None Include="shaders\powerUp.frag" />
+    <None Include="shaders\powerUp.vert" />
     <None Include="shaders\shader_fragment.frag" />
     <None Include="shaders\shader_vertex.vert" />
     <None Include="shaders\simpleDepth.frag" />
     <None Include="shaders\simpleDepth.vert" />
     <None Include="shaders\skybox.frag" />
     <None Include="shaders\skybox.vert" />
+    <None Include="shaders\transparent.frag" />
+    <None Include="shaders\transparent.vert" />
     <None Include="text.frag" />
     <None Include="text.vert" />
   </ItemGroup>

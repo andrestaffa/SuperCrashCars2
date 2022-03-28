@@ -91,6 +91,7 @@ public:
 	void flashWhite();
 	void regainFlash();
 	void reset();
+	void updateSound();
 
 	PxMat44 getTransform() const;
 	PxVec3 getPosition() const;
@@ -100,7 +101,7 @@ public:
 	glm::vec3 getUpVec();
 	glm::vec3 getRightVec();
 	
-	
+	Model m_shieldSphere;
 
 	void render();
 
@@ -111,7 +112,8 @@ public:
 	void pickUpPowerUp(PowerUp* p);
 	void usePowerUp();
 	void applyHealthPowerUp();
-
+	ShieldPowerUpState m_shieldState;
+	time_point<steady_clock> m_shieldUseTimestamp;
 
 	VehicleCollisionAttributes vehicleAttr;
 	VehicleParams vehicleParams;
@@ -122,9 +124,12 @@ public:
 	VehicleState m_state;
 	time_point<steady_clock> deathTimestamp;
 	int carid;
+	PowerUpType m_powerUpPocket; // bag
 
 	// AI
 	void chaseVehicle(PVehicle& vehicle);
+
+
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -144,7 +149,7 @@ private:
 	Model m_chassis;
 	Model m_tires;
 
-	PowerUpType m_powerUpPocket; // bag
+
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,

@@ -14,6 +14,13 @@ enum class PowerUpType {
 	eJUMP = 4
 };
 
+enum class ShieldPowerUpState { // states of a shield powerup
+	eINACTIVE = 0,
+	eACTIVE = 1,
+	eEXPIRING = 2,
+	eLAST_SECOND = 3
+};
+
 
 
 class PowerUp : public PStatic {

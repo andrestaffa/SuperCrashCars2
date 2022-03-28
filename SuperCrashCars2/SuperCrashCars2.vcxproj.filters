@@ -162,6 +162,12 @@
     <ClCompile Include="TextRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="RenderManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Time.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Window.h">
@@ -239,9 +245,6 @@
     <ClInclude Include="Geometry.h">
       <Filter>Header Files\Mesh &amp; Model\Primitive Mesh</Filter>
     </ClInclude>
-    <ClInclude Include="Time.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="imgui\imgui.h">
       <Filter>Header Files\imgui</Filter>
     </ClInclude>
@@ -317,6 +320,12 @@
     <ClInclude Include="TextRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RenderManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Time.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader_fragment.frag">
@@ -349,6 +358,24 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="text.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\car.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\car.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\transparent.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\transparent.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\powerUp.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\powerUp.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

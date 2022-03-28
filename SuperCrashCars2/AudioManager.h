@@ -6,13 +6,20 @@
 #include <glm/glm.hpp>
 
 #include "Log.h"
+#include "Utils.h"
+//#include "PVehicle.h"
+
 
 // music
 #define BGM_CLOUDS "audio/bgm/clouds.wav"
 
 // sfx
 #define SFX_MENUBUTTON "audio/sfx/buttonclick.wav"
+#define SFX_CONTROLLER_ON "audio/sfx/controller_on.wav"
+#define SFX_CONTROLLER_OFF "audio/sfx/controller_off.wav"
+#define SFX_INCREMENT "audio/sfx/increment.wav"
 
+#define SFX_CAR_IDLE "audio/carsounds/car_long/idle.wav"
 #define SFX_CARWINDUP "audio/carsounds/car_long/windup.wav"
 #define SFX_CAR_FAST "audio/carsounds/car_long/maxspeed.wav"
 #define	SFX_CARWINDDOWN "audio/carsounds/car_long/winddown.wav"
@@ -23,9 +30,10 @@
 #define SFX_JUMP_NORMAL "audio/sfx/jump.wav"
 #define	SFX_JUMP_MEGA "audio/sfx/megajump.wav"
 
+class PVehicle;
 
-class AudioManager
-{
+class AudioManager{
+
 public:
 
 	// START SINGLETON STUFF
@@ -39,10 +47,13 @@ public:
 	void operator=(AudioManager const&) = delete;
 	// END SINGLETON STUFF
 
-	void init();
+	void init(std::vector<PVehicle*>& vehicleList);
 	void playBackgroundMusic(std::string filePath);
 	void refreshBGMVolume();
+	void incrementBGMVolume(int sign);
+	void incrementSFXVolume(int sign);
 	void loadBackgroundSound(std::string filePath);
+	void loadCarSound(std::string filePath);
 	void playSound(std::string soundName, float soundVolume);
 	void playSound(std::string soundName, glm::vec3 position, float soundVolume);
 	void setMasterVolume(float newVolume);
@@ -53,13 +64,19 @@ public:
 
 	bool getBGMMute();
 	bool getSFXMute();
+	int getBGMLevel();
+	int getSFXLevel();
+
+	void update();
 
 	void setListenerPosition(glm::vec3 position, glm::vec3 forward, glm::vec3 up);
+	
 
 	FMOD::System* system;
 	
-	// The master volume
-	float masterVolume, BGMVolume, SFXVolume, unmutedVolume;
+	void loadCarIdleSound(std::string soundName, float soundVolume, int carid, glm::vec3 position);
+	void updateCarPos(glm::vec3 position, int carid);
+
 
 private:
 	AudioManager() {}
@@ -67,12 +84,20 @@ private:
 	std::unordered_map<std::string, FMOD::Sound*> mSounds;
 
 	FMOD::Channel* backgroundChannel;
+	float masterVolume, BGMVolume, SFXVolume, unmutedVolume;
 
 	void loadSound(std::string filePath);
+
+
 	float clampVol(float vol);
 
 	bool muted, mutedSFX, mutedBGM;
 	const float BGM_VOL_INIT = 0.2f;
+	const float POSITION_SCALING = 0.05f;
+
+	FMOD::Channel* carChannels[4]; // because of this, max out at 4 cars.
+
+	std::vector<PVehicle*> m_vehicleList;
 	
 };
 

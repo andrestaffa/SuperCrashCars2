@@ -40,7 +40,13 @@ PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, c
 
 	m_lives = 3;
 	m_state = VehicleState::ePLAYING;
+	m_shieldUseTimestamp = steady_clock::now();
+
 	this->carid = id;
+
+	m_shieldSphere = Model("models/sphere/sphere.obj");
+	m_shieldSphere.setPosition(Utils::instance().pxToGlmVec3(this->getPosition()));
+	m_shieldSphere.scale(glm::vec3(0.37f, 0.37f, 0.37f));
 
 	//Set the vehicle to rest in neutral.
 	//Set the vehicle to use auto-gears.
@@ -195,6 +201,9 @@ void PVehicle::updatePhysics() {
 	//Work out if the vehicle is in the air.
 	gIsVehicleInAir = gVehicle4W->getRigidDynamicActor()->isSleeping() ? false : PxVehicleIsInAir(vehicleQueryResults[0]);
 
+	// update sphere position.
+	m_shieldSphere.setPosition(Utils::instance().pxToGlmVec3(this->gVehicle4W->getRigidDynamicActor()->getGlobalPose().p));
+
 	// other updates over time
 
 	this->releaseAllControls();
@@ -287,24 +296,18 @@ void PVehicle::regainBoost() {
 void PVehicle::jump() {
 	if (this->vehicleParams.canJump) {
 		this->vehicleParams.canJump = false;
+		PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+		if (vel.y < 0) this->getRigidDynamic()->setLinearVelocity(PxVec3(vel.x, 0.f, vel.z));
 		this->getRigidDynamic()->addForce(PxVec3(0.0, 15.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
 		this->vehicleParams.jumpCooldown = time(0);
-		AudioManager::get().playSound(SFX_JUMP_NORMAL, Utils::instance().pxToGlmVec3(this->getPosition()), 0.55f);
+		AudioManager::get().playSound(SFX_JUMP_NORMAL, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
 	}
 }
 void PVehicle::regainJump() {
 	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 1.0f && !this->getVehicleInAir()) this->vehicleParams.canJump = true;
 }
 
-void PVehicle::flashWhite() {
-	this->vehicleParams.flashWhite = 1.0f;
-	this->vehicleParams.flashDuration = time(0);
-}
 
-void PVehicle::regainFlash() {
-	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
-	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
-}
 
 #pragma endregion
 #pragma region getters
@@ -374,7 +377,19 @@ void PVehicle::reset() {
 	//this->m_lives = 3;
 }
 
+void PVehicle::flashWhite() {
+	this->vehicleParams.flashWhite = 1.0f;
+	this->vehicleParams.flashDuration = time(0);
+}
+
+void PVehicle::regainFlash() {
+	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
+	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
+}
+
 void PVehicle::updateState() {
+	time_point now = steady_clock::now();
+
 	switch (this->m_state) {
 	case VehicleState::ePLAYING:
 
@@ -383,7 +398,7 @@ void PVehicle::updateState() {
 			this->m_state = VehicleState::eRESPAWNING;
 			deathTimestamp = steady_clock::now();
 			this->m_lives--;
-			AudioManager::get().playSound(SFX_DEATH, Utils::instance().pxToGlmVec3(this->getPosition()), 0.4f);
+			AudioManager::get().playSound(SFX_DEATH, Utils::instance().pxToGlmVec3(this->getPosition()), 0.9f);
 			this->vehicleAttr.collisionCoefficient = 0.0f;
 			if (this->m_lives == 0) {
 				this->m_state = VehicleState::eOUTOFLIVES;
@@ -399,7 +414,7 @@ void PVehicle::updateState() {
 	case VehicleState::eRESPAWNING:
 
 		reset();
-		if (duration_cast<seconds>(steady_clock::now() - deathTimestamp) > seconds(2)) {
+		if (duration_cast<seconds>(now - deathTimestamp) > seconds(2)) {
 			this->m_state = VehicleState::ePLAYING; // after 2 seconds passed since death, respawn
 		}
 		break;
@@ -409,7 +424,29 @@ void PVehicle::updateState() {
 		break;
 	}
 
+	switch (m_shieldState){
+	case ShieldPowerUpState::eINACTIVE:
+		break;
+	case ShieldPowerUpState::eACTIVE:
+		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(5)) m_shieldState = ShieldPowerUpState::eEXPIRING;
+		break;
+	case ShieldPowerUpState::eEXPIRING:
+		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(8)) m_shieldState = ShieldPowerUpState::eLAST_SECOND;
+
+		break;
+	case ShieldPowerUpState::eLAST_SECOND:
+		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(10)) m_shieldState = ShieldPowerUpState::eINACTIVE;
+		break;
+	} 
+
+	// update audio 
+	
+	// not ready yet
+
+	//AudioManager::get().updateCarPos(Utils::instance().pxToGlmVec3(this->getPosition()), this->carid);
+
 }
+
 
 #pragma region powerups
 void PVehicle::pickUpPowerUp(PowerUp* p) {
@@ -441,17 +478,21 @@ void PVehicle::pickUpPowerUp(PowerUp* p) {
 }
 
 void PVehicle::usePowerUp() {
+	PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
 	switch (this->m_powerUpPocket) {
 	case PowerUpType::eJUMP:
-		this->getRigidDynamic()->addForce(PxVec3(0.0, 20.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
-		AudioManager::get().playSound(SFX_JUMP_MEGA, Utils::instance().pxToGlmVec3(this->getPosition()), 0.55f);
+
+		if (vel.y < 0) this->getRigidDynamic()->setLinearVelocity(PxVec3(vel.x, 0.f, vel.z));
+		this->getRigidDynamic()->addForce(PxVec3(0.0, 30.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
+		AudioManager::get().playSound(SFX_JUMP_MEGA, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
 		break;
 
-	case PowerUpType::eSHIELD: // not implemented yet
+	case PowerUpType::eSHIELD:
+		this->m_shieldState = ShieldPowerUpState::eACTIVE;
+		m_shieldUseTimestamp = steady_clock::now();
 		this->m_powerUpPocket = PowerUpType::eSHIELD;
 		break;
-	default:
-		break;
+
 	}
 	this->m_powerUpPocket = PowerUpType::eEMPTY;
 

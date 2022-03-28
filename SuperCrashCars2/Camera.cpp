@@ -13,7 +13,7 @@ Camera::Camera(int screenWidth, int screenHeight, const glm::vec3& position, con
 	m_lastX(0.0f),
 	m_lastY(0.0f),
 	m_pos_coeff(0.90),
-	m_rot_coeff(10.f), // the larger, the slower camera rotates
+	m_rot_coeff(10.0f), // the larger, the slower camera rotates.
 	m_camTheta(float(3.0 * M_PI / 2.0))
 {
 	this->m_position = position;
@@ -136,7 +136,7 @@ void Camera::updateTheta() {
 	}
 }
 
-void Camera::updateCamera(glm::vec3 carPosition, glm::vec3 frontVector) {
+void Camera::UpdateCameraPosition(glm::vec3 carPosition, glm::vec3 frontVector) {
 	// calculate the new angle
 	m_camThetaGoal = (float)(M_PI)+glm::orientedAngle(glm::normalize(glm::vec2(frontVector.x, frontVector.z)), glm::vec2(1.0f, 0.0f)); 
 	// recalculate the rotation coeff every frame based on the Y value of front vec
@@ -144,6 +144,7 @@ void Camera::updateCamera(glm::vec3 carPosition, glm::vec3 frontVector) {
 	m_rot_coeff = 15.f + (35.f * abs(frontVector.y));
 	// do the magic 
 	this->updateTheta();
+
 	// calculate the camera vector from angle. this is like frontVec, but without the y component.
 	// we calculate it from angle instead of just using frontVector to dampen rotations around a circle as opposed to cutting through it.
 	glm::vec2 cameraVec2 = glm::rotate(glm::vec2(1.0f, 0.0f), m_camTheta);
@@ -154,8 +155,6 @@ void Camera::updateCamera(glm::vec3 carPosition, glm::vec3 frontVector) {
 
 	this->UpdateVP(); // update the view and persp of camera
 
-	// upload the new camera matrices to the shader
-	this->sendMatricesToShader();
 }
 
 void Camera::sendMatricesToShader() {

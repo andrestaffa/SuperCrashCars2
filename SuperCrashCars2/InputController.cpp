@@ -4,6 +4,7 @@
 InputController::InputController()
 {
 	//Defalut constructor
+	this->connected = false;
 }
 
 InputController::InputController(int playerID)
@@ -226,6 +227,24 @@ void InputController::XboxInputInMenu() {
 		}
 	}
 	else if (downHeld) downHeld = false;
+
+	if (GLFW_PRESS == buttons[11]) { // "right" in menus
+		if (!rightHeld) {
+			rightHeld = true;
+			GameManager::get().incrementSlider(1);
+		}
+	}
+	else if (rightHeld) rightHeld = false;
+
+	if (GLFW_PRESS == buttons[13]) { // "left" in menus
+		if (!leftHeld) {
+			leftHeld = true;
+			GameManager::get().incrementSlider(-1);
+		}
+	}
+	else if (leftHeld) leftHeld = false;
+
+
 }
 
 void InputController::PS4InputInMenu() {
@@ -270,6 +289,22 @@ void InputController::PS4InputInMenu() {
 		}
 	}
 	else if (downHeld) downHeld = false;
+
+	if (GLFW_PRESS == buttons[15]) { // "right" in menus
+		if (!rightHeld) {
+			rightHeld = true;
+			GameManager::get().incrementSlider(1);
+		}
+	}
+	else if (rightHeld) rightHeld = false;
+
+	if (GLFW_PRESS == buttons[17]) { // "left" in menus
+		if (!leftHeld) {
+			leftHeld = true;
+			GameManager::get().incrementSlider(-1);
+		}
+	}
+	else if (leftHeld) leftHeld = false;
 }
 
 void InputController::NSInputInGame(PVehicle& p1) {
