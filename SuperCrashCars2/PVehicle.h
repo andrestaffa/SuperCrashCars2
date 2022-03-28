@@ -31,6 +31,11 @@ enum class VehicleType {
 	eSHUCKLE = 2
 };
 
+enum class PlayerOrAI {
+	ePLAYER,
+	eAI
+};
+
 enum class VehicleState {
 	ePLAYING,
 	eRESPAWNING,
@@ -73,7 +78,7 @@ class PVehicle {
 
 public:
 
-	PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
+	PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, PlayerOrAI carType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PVehicle();
 
 	void accelerate(float throttle);
@@ -129,7 +134,7 @@ public:
 	// AI
 	void chaseVehicle(PVehicle& vehicle);
 
-
+	PlayerOrAI m_carType;
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -148,6 +153,7 @@ private:
 
 	Model m_chassis;
 	Model m_tires;
+
 
 
 

@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	boost.Load("freetype/fonts/vemanem.ttf", 50);
 	TextRenderer currentPowerup(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	currentPowerup.Load("freetype/fonts/armybuster.ttf", 40);
+	currentPowerup.Load("freetype/fonts/bof.ttf", 40);
 
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
@@ -93,11 +93,10 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.3f/60.0f);
-	PVehicle player = PVehicle(0, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.f, 240.0f));
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.f, 230.f));
-	PVehicle enemy2 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.0f, 220.0f));
-	PVehicle enemy3 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.0f, 210.0f));
-	PVehicle enemy4 = PVehicle(1, pm, VehicleType::eTOYOTA, PxVec3(0.0f, 80.0f, 200.0f));
+	PVehicle player = PVehicle(0, pm, VehicleType::eTOYOTA, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f));
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f));
+	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
+	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 80.f, 148.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 80.f, -325.07f));
@@ -114,7 +113,6 @@ int main(int argc, char** argv) {
 	vehicleList.push_back(&enemy);
 	vehicleList.push_back(&enemy2);
 	vehicleList.push_back(&enemy3);
-	vehicleList.push_back(&enemy4);
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
 	powerUps.push_back(&powerUp3);
@@ -148,6 +146,11 @@ int main(int argc, char** argv) {
 
 	// Menu
 	GameManager::get().initMenu();
+
+	std::string printDamage;
+	std::string printNumbers;
+	float dmgX, dmgY, numX, numY;
+	dmgX = dmgY = numX = numY = 0.f;
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 		
@@ -210,6 +213,8 @@ int main(int argc, char** argv) {
 					if (controller1.connected) controller1.uniController(true, player);
 					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
+					int deadCounter = 0;
+
 					for (PVehicle* carPtr : vehicleList) {
 						if (carPtr->vehicleAttr.collided) {
 							carPtr->getRigidDynamic()->addForce((carPtr->vehicleAttr.forceToAdd), PxForceMode::eIMPULSE);
@@ -219,7 +224,7 @@ int main(int argc, char** argv) {
 							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->vehicleAttr.collisionMidpoint), 0.3f);
 						}
 
-						if (carPtr->vehicleAttr.reachedTarget && carPtr->carid == 1) {
+						if (carPtr->vehicleAttr.reachedTarget && carPtr->m_carType == PlayerOrAI::eAI) {
 							int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
 							if (vehicleList[rndIndex] != carPtr) {
 								carPtr->vehicleAttr.reachedTarget = false;
@@ -228,7 +233,19 @@ int main(int argc, char** argv) {
 						}
 
 						carPtr->updateState(); // to check for car death
+
+						if (carPtr->m_state == VehicleState::eOUTOFLIVES) deadCounter++;
+
+						
 					}
+
+					if (deadCounter == (vehicleList.size() - 1)) {
+						for (PVehicle* carPtr : vehicleList) {
+							if (carPtr->m_state != VehicleState::eOUTOFLIVES) GameManager::get().winner = carPtr->carid;
+						}
+						GameManager::get().screen = Screen::eGAMEOVER;
+					}
+
 
 					for (PowerUp* powerUpPtr : powerUps) {
 						if (!powerUpPtr->active) {
@@ -244,7 +261,7 @@ int main(int argc, char** argv) {
 
 					if (ai_ON) {
 						for (int i = 0; i < vehicleList.size(); i++) {
-							if (vehicleList[i]->carid != 1) continue;
+							if (vehicleList[i]->m_carType == PlayerOrAI::ePLAYER) continue;
 							PVehicle* targetVehicle = (PVehicle*)vehicleList[i]->vehicleAttr.targetVehicle;
 							if (targetVehicle) vehicleList[i]->chaseVehicle(*targetVehicle);
 							else {
@@ -255,6 +272,10 @@ int main(int argc, char** argv) {
 							}
 						}
 					}
+
+
+
+
 					pm.simulate();
 
 					for (PVehicle* vehicle : vehicleList) vehicle->updatePhysics();
@@ -392,27 +413,33 @@ int main(int argc, char** argv) {
 				imgui.renderMenu(ai_ON);
 				imgui.endFrame();
 
-				// Damage and live indicator in progress
+
+				printDamage = ("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4");
+				printNumbers = "      ";
 				for (PVehicle* carPtr : vehicleList) {
-					float colCoef = carPtr->vehicleAttr.collisionCoefficient;
+					printNumbers += fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
+					printNumbers += " ";
 				}
+				printNumbers += "         ";
 				for (PVehicle* carPtr : vehicleList) {
-					std::string lives = std::to_string(carPtr->m_lives);
+					printNumbers += std::to_string(carPtr->m_lives);
+					printNumbers += "    ";
 				}
 
-				// Boost and Powerup indicator
+				menuText.RenderText(printDamage, 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 				boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
 				switch (player.getPocket()) {
 				case PowerUpType::eEMPTY:
-					currentPowerup.RenderText("Pocket: Empty", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
+					currentPowerup.RenderText("Pocket: Empty", 7.547f,60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
 					break;
 				case PowerUpType::eJUMP:
-					currentPowerup.RenderText("Pocket: Jump", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+					currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
 					break;
 
 				case PowerUpType::eSHIELD:
-					currentPowerup.RenderText("Pocket: Shield", Utils::instance().SCREEN_WIDTH / 2 - (currentPowerup.totalW / 2), 10.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+					currentPowerup.RenderText("Pocket: Shield", 7.547f,60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
 					break;
 
 				}
@@ -428,6 +455,9 @@ int main(int argc, char** argv) {
 
 				imgui.initFrame();
 				imgui.renderMenu(ai_ON);
+
+
+
 				imgui.endFrame();
 
 				break;
