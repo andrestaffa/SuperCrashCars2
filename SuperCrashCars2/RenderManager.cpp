@@ -69,7 +69,7 @@ void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, con
 	Utils::instance().shader->setVector3("camPos", m_camera->getPosition());
 
 
-	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
@@ -88,7 +88,7 @@ void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, con
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// reset viewport
-	glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	//glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glCullFace(GL_BACK);

@@ -28,7 +28,7 @@ void InputManager::scrollCallback(double xoffset, double yoffset) {}
 void InputManager::windowSizeCallback(int width, int height) {
 	CallbackInterface::windowSizeCallback(width, height);
 	this->m_screenDim = glm::ivec2(width, height);
-	glViewport(0, 0, width, height);
+	//glViewport(0, 0, width, height);
 }
 
 bool InputManager::onKeyAction(int key, int action) {
