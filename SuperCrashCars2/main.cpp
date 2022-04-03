@@ -98,12 +98,12 @@ int main(int argc, char** argv) {
 	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
 	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
 
-	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 80.f, 148.0f));
-	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 80.f, -325.07f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 80.f, 182.f));
-	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-228.f, 80.f, -148.0f));
-	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-130.f, 80.f, -110.f));
-	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(28.f, 80.f, -188.0f));
+	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-90.f, 10.f, -185.0f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(-267.0, 70.f, 60.f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(152.f, 77.f + 10.f, -326.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(200.f, 7.f, 0.0f));
+	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(60.f, 30.f, -2.f));
+	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-250.f, 35.f, -102.5f));
 	
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
 
@@ -225,10 +225,25 @@ int main(int argc, char** argv) {
 						}
 
 						if (carPtr->vehicleAttr.reachedTarget && carPtr->m_carType == PlayerOrAI::eAI) {
-							int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
-							if (vehicleList[rndIndex] != carPtr) {
-								carPtr->vehicleAttr.reachedTarget = false;
-								carPtr->chaseVehicle(*vehicleList[rndIndex]);
+							int halfChance = Utils::instance().random(0, 2);
+							if (halfChance == 0 || halfChance == 1) {
+								int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+								if (vehicleList[rndIndex] != carPtr && vehicleList[rndIndex]->m_state == VehicleState::ePLAYING) {
+									carPtr->vehicleAttr.reachedTarget = false;
+									carPtr->driveTo(vehicleList[rndIndex]->getPosition(), vehicleList[rndIndex], nullptr);
+								}
+							} else {
+								int rndIndex = Utils::instance().random(0, (int)powerUps.size() - 1);
+								if (powerUps[rndIndex]->active) {
+									carPtr->vehicleAttr.reachedTarget = false;
+									carPtr->driveTo(powerUps[rndIndex]->getPosition(), nullptr, powerUps[rndIndex]);
+								} else {
+									int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+									if (vehicleList[rndIndex] != carPtr && vehicleList[rndIndex]->m_state == VehicleState::ePLAYING) {
+										carPtr->vehicleAttr.reachedTarget = false;
+										carPtr->driveTo(vehicleList[rndIndex]->getPosition(), vehicleList[rndIndex], nullptr);
+									}
+								}
 							}
 						}
 
@@ -263,11 +278,25 @@ int main(int argc, char** argv) {
 						for (int i = 0; i < vehicleList.size(); i++) {
 							if (vehicleList[i]->m_carType == PlayerOrAI::ePLAYER) continue;
 							PVehicle* targetVehicle = (PVehicle*)vehicleList[i]->vehicleAttr.targetVehicle;
-							if (targetVehicle) vehicleList[i]->chaseVehicle(*targetVehicle);
+							PowerUp* targetPowerUp = (PowerUp*)vehicleList[i]->vehicleAttr.targetPowerup;
+							if (targetVehicle) vehicleList[i]->driveTo(targetVehicle->getPosition(), targetVehicle, nullptr);
+							else if (targetPowerUp) vehicleList[i]->driveTo(targetPowerUp->getPosition(), nullptr, targetPowerUp);
 							else {
-								int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
-								if (vehicleList[rndIndex] != vehicleList[i]) {
-									vehicleList[i]->chaseVehicle(*vehicleList[rndIndex]);
+								int halfChance= Utils::instance().random(0, 2);
+								if (halfChance == 0 || halfChance == 1) {
+									int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+									if (vehicleList[rndIndex] != vehicleList[i] && vehicleList[rndIndex]->m_state == VehicleState::ePLAYING) {
+										vehicleList[i]->driveTo(vehicleList[rndIndex]->getPosition(), vehicleList[rndIndex], nullptr);
+									}
+								} else {
+									int rndIndex = Utils::instance().random(0, (int)powerUps.size() - 1);
+									if (powerUps[rndIndex]->active) vehicleList[i]->driveTo(powerUps[rndIndex]->getPosition(), nullptr, powerUps[rndIndex]);
+									else {
+										int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
+										if (vehicleList[rndIndex] != vehicleList[i] && vehicleList[rndIndex]->m_state == VehicleState::ePLAYING) {
+											vehicleList[i]->driveTo(vehicleList[rndIndex]->getPosition(), vehicleList[rndIndex], nullptr);
+										}
+									}
 								}
 							}
 						}

@@ -48,6 +48,7 @@ struct VehicleCollisionAttributes {
 	bool collided;
 	
 	void* targetVehicle;
+	void* targetPowerup;
 	bool reachedTarget;
 
 	PxVec3 forceToAdd;
@@ -132,8 +133,7 @@ public:
 	PowerUpType m_powerUpPocket; // bag
 
 	// AI
-	void chaseVehicle(PVehicle& vehicle);
-
+	void driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp* targetPowerUp);
 	PlayerOrAI m_carType;
 
 private:

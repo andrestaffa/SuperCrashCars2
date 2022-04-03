@@ -27,6 +27,9 @@ PowerUpType PowerUp::getType() {
 	return this->m_powerUpType;
 }
 
+PxVec3 PowerUp::getPosition() const {
+	return this->getRigidStatic()->getGlobalPose().p;
+}
 
 
 void PowerUp::render() {

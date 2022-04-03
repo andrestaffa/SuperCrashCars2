@@ -63,6 +63,7 @@ void PVehicle::initVehicleCollisionAttributes() {
 	this->vehicleAttr.collided = false;
 
 	this->vehicleAttr.targetVehicle = nullptr;
+	this->vehicleAttr.targetPowerup = nullptr;
 	this->vehicleAttr.reachedTarget = false;
 
 	this->vehicleAttr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
@@ -508,11 +509,36 @@ void PVehicle::applyHealthPowerUp() {
 
 #pragma region ai
 
-void PVehicle::chaseVehicle(PVehicle& vehicle) {
-	
-	this->vehicleAttr.targetVehicle = (PVehicle*)&vehicle;
+void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp* targetPowerUp) {
 
-	PxVec2 p = PxVec2(vehicle.getPosition().x, vehicle.getPosition().z) - PxVec2(this->getPosition().x, this->getPosition().z);
+	bool isPowerUp = false;
+	
+	if (targetVehicle) {
+		this->vehicleAttr.targetVehicle = (PVehicle*)targetVehicle;
+		this->vehicleAttr.targetPowerup = nullptr;
+		isPowerUp = false;
+	} else if (targetPowerUp) {
+		this->vehicleAttr.targetPowerup = (PowerUp*)targetPowerUp;
+		this->vehicleAttr.targetVehicle = nullptr;
+		isPowerUp = true;
+	}
+
+	// detecting edge
+	PxVec3 updatedPos = targetPos;
+	if (abs(this->getPosition().x) > 450.0f - 150.0f || abs(this->getPosition().z) > 450.0f - 150.0f) {
+		if (this->getVehicleInAir() && this->getRigidDynamic()->getLinearVelocity().magnitude() < 50.0f) {
+			PxMat44 transformMat = PxTransform(this->getTransform());
+			PxVec3 newFront = (PxVec3(0.f) - this->getPosition()).getNormalized();
+			transformMat[0][2] = newFront.x;
+			transformMat[1][2] = newFront.y;
+			transformMat[2][2] = newFront.z;
+			this->boost();
+		}
+		if (this->getRigidDynamic()->getLinearVelocity().magnitude() > 15.0f) this->brake(1);
+		updatedPos = PxVec3(0.0f);
+	}
+
+	PxVec2 p = PxVec2(updatedPos.x, updatedPos.z) - PxVec2(this->getPosition().x, this->getPosition().z);
 	glm::vec2 relativeVec = glm::vec2(p.x, p.y);
 
 	float angle = glm::orientedAngle(glm::normalize(glm::vec2(this->getFrontVec().x, this->getFrontVec().z)), glm::normalize(relativeVec));
@@ -522,11 +548,20 @@ void PVehicle::chaseVehicle(PVehicle& vehicle) {
 		this->accelerate(1.0f);
 	} else if (degrees < 0) {
 		this->turnLeft(1.0f);
-		this->accelerate(0.7f);
+		this->accelerate(0.5f);
 	} else if (degrees > 0) {
 		this->turnRight(1.0f);
-		this->accelerate(0.7f);
-	} 
+		this->accelerate(0.5f);
+	}
+
+	if (glm::length(relativeVec) < 20.f && !isPowerUp) this->boost();
+
+	// vehicle logic
+	if (!isPowerUp && targetVehicle && targetVehicle->m_state == VehicleState::eDEAD) this->vehicleAttr.reachedTarget = true;
+
+	// power up logic
+	if (isPowerUp && !targetPowerUp->active) this->vehicleAttr.reachedTarget = true;
+	if (glm::length(relativeVec) < 20.0f && isPowerUp) this->jump();
 
 }
 #pragma endregion
