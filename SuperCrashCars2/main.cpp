@@ -144,7 +144,7 @@ int main(int argc, char** argv) {
 
 	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 0, Utils::instance().pxToGlmVec3(player.getPosition()));
 	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 1, Utils::instance().pxToGlmVec3(enemy.getPosition()));
-
+	int tmp = 1;
 	// Menu
 	GameManager::get().initMenu();
 	
@@ -369,7 +369,24 @@ int main(int argc, char** argv) {
 				break; }
 
 			case Screen::ePLAYING:
-				glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
+				switch (tmp)
+				{
+				case 1:
+						glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT );
+						playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
+
+						tmp = 2;
+						break;
+				case 2:
+					glViewport(Utils::instance().SCREEN_WIDTH/2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
+					playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
+
+					tmp = 1;
+					break;
+				default:
+					break;
+				}
+				
 				//glViewport(0, 0, width / 2, height / 2);
 				//glLoadIdentity();
 				//gluLookAt(0.0, 0.0, -3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
@@ -378,9 +395,7 @@ int main(int argc, char** argv) {
 				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 				colorVar++;
 				
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-
+			
 				renderer.renderShadows(vehicleList, powerUps);
 
 				renderer.skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
