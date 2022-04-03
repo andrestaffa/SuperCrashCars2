@@ -31,6 +31,11 @@ enum class VehicleType {
 	eSHUCKLE = 2
 };
 
+enum class PlayerOrAI {
+	ePLAYER,
+	eAI
+};
+
 enum class VehicleState {
 	ePLAYING,
 	eRESPAWNING,
@@ -41,6 +46,10 @@ enum class VehicleState {
 struct VehicleCollisionAttributes {
 	float collisionCoefficient;
 	bool collided;
+	
+	void* targetVehicle;
+	bool reachedTarget;
+
 	PxVec3 forceToAdd;
 	PxVec3 collisionMidpoint;
 };
@@ -69,7 +78,7 @@ class PVehicle {
 
 public:
 
-	PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
+	PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, PlayerOrAI carType, const PxVec3& position = PxVec3(0.0f, 0.0f, 0.0f), const PxQuat& quat = PxQuat(PxPi, PxVec3(0.0f, 1.0f, 0.0f)));
 	~PVehicle();
 
 	void accelerate(float throttle);
@@ -87,6 +96,7 @@ public:
 	void flashWhite();
 	void regainFlash();
 	void reset();
+	void updateSound();
 
 	PxMat44 getTransform() const;
 	PxVec3 getPosition() const;
@@ -119,9 +129,12 @@ public:
 	VehicleState m_state;
 	time_point<steady_clock> deathTimestamp;
 	int carid;
+	PowerUpType m_powerUpPocket; // bag
 
 	// AI
 	void chaseVehicle(PVehicle& vehicle);
+
+	PlayerOrAI m_carType;
 
 private:
 	PxVehicleDrive4W* gVehicle4W = NULL;
@@ -133,7 +146,6 @@ private:
 
 	PhysicsManager& m_pm;
 	bool m_isFalling = false;
-	bool m_isReversing = false;
 
 	VehicleType m_vehicleType;
 
@@ -142,7 +154,8 @@ private:
 	Model m_chassis;
 	Model m_tires;
 
-	PowerUpType m_powerUpPocket; // bag
+
+
 
 	PxF32 gSteerVsForwardSpeedData[2 * 8] = {
 		0.0f,		0.75f,

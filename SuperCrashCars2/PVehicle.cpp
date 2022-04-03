@@ -2,7 +2,7 @@
 
 using namespace physx;
 
-PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, const PxVec3& position, const PxQuat& quat) : m_pm(pm), m_vehicleType(vehicleType) {
+PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, PlayerOrAI carType, const PxVec3& position, const PxQuat& quat) : m_pm(pm), m_vehicleType(vehicleType) {
 	//Create the batched scene queries for the suspension raycasts.
 	gVehicleSceneQueryData = VehicleSceneQueryData::allocate(1, PX_MAX_NB_WHEELS, 1, 1, WheelSceneQueryPreFilterBlocking, NULL, pm.gAllocator);
 	gBatchQuery = VehicleSceneQueryData::setUpBatchedSceneQuery(0, *gVehicleSceneQueryData, pm.gScene);
@@ -43,6 +43,7 @@ PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, c
 	m_shieldUseTimestamp = steady_clock::now();
 
 	this->carid = id;
+	this->m_carType = carType;
 
 	m_shieldSphere = Model("models/sphere/sphere.obj");
 	m_shieldSphere.setPosition(Utils::instance().pxToGlmVec3(this->getPosition()));
@@ -60,6 +61,10 @@ void PVehicle::initVehicleCollisionAttributes() {
 	this->vehicleAttr = VehicleCollisionAttributes();
 	this->vehicleAttr.collisionCoefficient = 1.0f;
 	this->vehicleAttr.collided = false;
+
+	this->vehicleAttr.targetVehicle = nullptr;
+	this->vehicleAttr.reachedTarget = false;
+
 	this->vehicleAttr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
 }
 void PVehicle::initVehicleModel() {
@@ -227,28 +232,37 @@ void PVehicle::releaseAllControls() {
 #pragma region movement
 void PVehicle::accelerate(float throttle) {
 	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f && this->m_vehicleType == VehicleType::eTOYOTA) return;
-	this->m_isReversing = false;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
 void PVehicle::reverse(float throttle) {
-	this->m_isReversing = true;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eREVERSE);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
 void PVehicle::brake(float throttle) {
-	PxVec3 velocity = this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity();
-	if (velocity.magnitude() <= 0.05f || this->m_isReversing) reverse(throttle);
-	else gVehicleInputData.setAnalogBrake(throttle);
+	gVehicleInputData.setAnalogBrake(throttle);
 }
 void PVehicle::turnLeft(float throttle) {
 	gVehicleInputData.setAnalogSteer(throttle);
+	this->rotateXAxis(-0.35f);
+	/*PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+	float mag = vel.magnitude();
+	PxVec3 front = Utils::instance().glmToPxVec3(this->getFrontVec());
+	this->getRigidDynamic()->setLinearVelocity(front * mag * 0.75f + vel * 0.25f);*/
+	this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 0.99f);
 }
 void PVehicle::turnRight(float throttle) {
 	gVehicleInputData.setAnalogSteer(-throttle);
+	this->rotateXAxis(0.35f);
+	/*PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+	float mag = vel.magnitude();
+	PxVec3 front = Utils::instance().glmToPxVec3(this->getFrontVec());
+	this->getRigidDynamic()->setLinearVelocity(front * mag * 0.75f + vel * 0.25f);*/
+	this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 0.99f);
 }
 void PVehicle::handbrake() {
 	gVehicleInputData.setAnalogHandbrake(1.0f);
+	this->getRigidDynamic()->setAngularVelocity(this->getRigidDynamic()->getAngularVelocity() * 1.01f);
 }
 void PVehicle::rotateYAxis(float amount) {
 	glm::vec3 rightVec = this->getRightVec();
@@ -283,6 +297,8 @@ void PVehicle::regainBoost() {
 void PVehicle::jump() {
 	if (this->vehicleParams.canJump) {
 		this->vehicleParams.canJump = false;
+		PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
+		if (vel.y < 0) this->getRigidDynamic()->setLinearVelocity(PxVec3(vel.x, 0.f, vel.z));
 		this->getRigidDynamic()->addForce(PxVec3(0.0, 15.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
 		this->vehicleParams.jumpCooldown = time(0);
 		AudioManager::get().playSound(SFX_JUMP_NORMAL, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
@@ -292,15 +308,7 @@ void PVehicle::regainJump() {
 	if (difftime(time(0), this->vehicleParams.jumpCooldown) > 1.0f && !this->getVehicleInAir()) this->vehicleParams.canJump = true;
 }
 
-void PVehicle::flashWhite() {
-	this->vehicleParams.flashWhite = 1.0f;
-	this->vehicleParams.flashDuration = time(0);
-}
 
-void PVehicle::regainFlash() {
-	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
-	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
-}
 
 #pragma endregion
 #pragma region getters
@@ -370,6 +378,16 @@ void PVehicle::reset() {
 	//this->m_lives = 3;
 }
 
+void PVehicle::flashWhite() {
+	this->vehicleParams.flashWhite = 1.0f;
+	this->vehicleParams.flashDuration = time(0);
+}
+
+void PVehicle::regainFlash() {
+	if (this->vehicleParams.flashWhite > 0.0f) this->vehicleParams.flashWhite -= 0.03;
+	if (this->vehicleParams.flashWhite < 0.0f) this->vehicleParams.flashWhite = 0.0f;
+}
+
 void PVehicle::updateState() {
 	time_point now = steady_clock::now();
 
@@ -402,7 +420,6 @@ void PVehicle::updateState() {
 		}
 		break;
 	case VehicleState::eOUTOFLIVES:
-		GameManager::get().screen = Screen::eGAMEOVER; 
 		GameManager::get().winner = this->carid;
 		break;
 	}
@@ -421,7 +438,15 @@ void PVehicle::updateState() {
 		if (duration_cast<seconds>(now - m_shieldUseTimestamp) > seconds(10)) m_shieldState = ShieldPowerUpState::eINACTIVE;
 		break;
 	} 
+
+	// update audio 
+	
+	// not ready yet
+
+	//AudioManager::get().updateCarPos(Utils::instance().pxToGlmVec3(this->getPosition()), this->carid);
+
 }
+
 
 #pragma region powerups
 void PVehicle::pickUpPowerUp(PowerUp* p) {
@@ -453,8 +478,11 @@ void PVehicle::pickUpPowerUp(PowerUp* p) {
 }
 
 void PVehicle::usePowerUp() {
+	PxVec3 vel = this->getRigidDynamic()->getLinearVelocity();
 	switch (this->m_powerUpPocket) {
 	case PowerUpType::eJUMP:
+
+		if (vel.y < 0) this->getRigidDynamic()->setLinearVelocity(PxVec3(vel.x, 0.f, vel.z));
 		this->getRigidDynamic()->addForce(PxVec3(0.0, 30.0f, 0.0), PxForceMode::eVELOCITY_CHANGE);
 		AudioManager::get().playSound(SFX_JUMP_MEGA, Utils::instance().pxToGlmVec3(this->getPosition()), 0.45f);
 		break;
@@ -464,8 +492,7 @@ void PVehicle::usePowerUp() {
 		m_shieldUseTimestamp = steady_clock::now();
 		this->m_powerUpPocket = PowerUpType::eSHIELD;
 		break;
-	default:
-		break;
+
 	}
 	this->m_powerUpPocket = PowerUpType::eEMPTY;
 
@@ -483,6 +510,8 @@ void PVehicle::applyHealthPowerUp() {
 
 void PVehicle::chaseVehicle(PVehicle& vehicle) {
 	
+	this->vehicleAttr.targetVehicle = (PVehicle*)&vehicle;
+
 	PxVec2 p = PxVec2(vehicle.getPosition().x, vehicle.getPosition().z) - PxVec2(this->getPosition().x, this->getPosition().z);
 	glm::vec2 relativeVec = glm::vec2(p.x, p.y);
 

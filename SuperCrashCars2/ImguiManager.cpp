@@ -97,7 +97,7 @@ void ImguiManager::renderPlayerHUD(const PVehicle& player){
 void ImguiManager::renderDamageHUD(const std::vector<PVehicle*>& carList) {
 	ImGui::Begin("damage/lives HUD:");
 
-	std::string printDamage = ("Damage: P1, P2 Lives: P1, P2\n        ");
+	std::string printDamage = ("Damage: P1, P2, P3, P4 Lives: P1, P2, P3, P4\n        ");
 	for (PVehicle* carPtr : carList) {
 		printDamage += fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
 		printDamage += " ";
