@@ -37,6 +37,8 @@ int main(int argc, char** argv) {
 	// OpenGL
 	glfwInit();
 	Window window(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, "Super Crash Cars 2");
+	//Window window(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT, "Super Crash Cars 2", glfwGetPrimaryMonitor(), NULL);
+
 	std::shared_ptr<InputManager> inputManager = std::make_shared<InputManager>(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	window.setCallbacks(inputManager);
 
@@ -368,7 +370,11 @@ int main(int argc, char** argv) {
 
 			case Screen::ePLAYING:
 				glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
-				
+				//glViewport(0, 0, width / 2, height / 2);
+				//glLoadIdentity();
+				//gluLookAt(0.0, 0.0, -3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+				//gluPerspective();
+				//glutWireTeapot(1);
 				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 				colorVar++;
 				
