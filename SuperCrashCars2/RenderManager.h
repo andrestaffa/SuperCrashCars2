@@ -64,7 +64,8 @@ public:
 
 	void renderCars(const std::vector<PVehicle*>& vehicleList);
 
-	void renderNormalObjects();
+	void renderNormalObjects(std::vector<Model>& trees, std::vector<Model>& grassPatches);
+	void generateLandscape(std::vector<Model>& trees, std::vector<Model>& grassPatches, Model& ground);
 
 	void renderTransparentObjects(const std::vector<PVehicle*>& vehicleList, PStatic& sphere, double os, Time& time);
 

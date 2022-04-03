@@ -52,8 +52,6 @@ int main(int argc, char** argv) {
 
 	Time time = Time();
 
-
-
 	// In-game UI
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	boost.Load("freetype/fonts/vemanem.ttf", 50);
@@ -93,10 +91,10 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.3f/60.0f);
-	PVehicle player = PVehicle(0, pm, VehicleType::eTOYOTA, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f));
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f));
-	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
-	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
+	PVehicle player = PVehicle(0, pm, VehicleType::eAVA, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f));
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f));
+	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
+	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-90.f, 10.f, -185.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(-267.0, 70.f, 60.f));
@@ -115,10 +113,15 @@ int main(int argc, char** argv) {
 	vehicleList.push_back(&enemy3);
 	powerUps.push_back(&powerUp1);
 	powerUps.push_back(&powerUp2);
-	powerUps.push_back(&powerUp3);
+	//powerUps.push_back(&powerUp3);
 	powerUps.push_back(&powerUp4);
 	powerUps.push_back(&powerUp5);
 	powerUps.push_back(&powerUp6);
+
+	// Create Grass
+	std::vector<Model> grassPatches;
+	std::vector<Model> trees;
+	renderer.generateLandscape(trees, grassPatches, pm.m_groundModel);
 
 	// AI toggle
 	bool ai_ON = true;
@@ -410,11 +413,10 @@ int main(int argc, char** argv) {
 				renderer.renderCars(vehicleList);
 				renderer.renderPowerUps(powerUps, os);
 
-				renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
+				renderer.renderNormalObjects(trees, grassPatches); // prepare to draw NORMAL objects, doesn't actually render anything.
+				
 				pm.drawGround();
-
 				renderer.renderTransparentObjects(vehicleList, sphere, os, time);
-
 				if (GameManager::get().paused) {
 					// if game is paused, we will render an overlay.
 					// render the PAUSE MENU HERE

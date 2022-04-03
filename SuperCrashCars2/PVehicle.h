@@ -26,9 +26,7 @@ using namespace std::chrono;
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
 
 enum class VehicleType {
-	eJEEP = 0,
-	eTOYOTA = 1,
-	eSHUCKLE = 2
+	eAVA = 1
 };
 
 enum class PlayerOrAI {

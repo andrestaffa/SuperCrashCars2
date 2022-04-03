@@ -71,35 +71,14 @@ void PVehicle::initVehicleCollisionAttributes() {
 void PVehicle::initVehicleModel() {
 	
 	switch (this->m_vehicleType) {
-		case VehicleType::eJEEP:
+		case VehicleType::eAVA:
 		{
-			this->m_chassis = Model("models/jeep/jeep.obj");
-			this->m_chassis.translate(glm::vec3(-0.0f, -1.0f, 0.0f));
-			this->m_chassis.scale(glm::vec3(1.5f, 1.5f, 1.2f));
-
-			this->m_tires = Model("models/wheel/wheel.obj");
-			this->m_tires.scale(glm::vec3(0.5f, 0.5f, 0.5f));
-			break;
-		}
-		case VehicleType::eTOYOTA:
-		{
-			this->m_chassis = Model("models/toyota/toyota.obj");
+			this->m_chassis = Model("models/ava_car/ava_car.obj");
 			this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
-			this->m_chassis.scale(glm::vec3(1.65f, 1.5f, 1.2f));
+			this->m_chassis.scale(glm::vec3(1.f));
 
 			this->m_tires = Model("models/wheel/wheel.obj");
-			this->m_tires.scale(glm::vec3(0.75f, 0.625f, 0.625f));
-
-			break;
-		}
-		case VehicleType::eSHUCKLE:
-		{
-			this->m_chassis = Model("models/shuckle/shuckle.obj");
-			this->m_chassis.translate(glm::vec3(0.125f, 2.5f, -0.20f));
-			this->m_chassis.scale(glm::vec3(1.65f, 1.5f, 1.2f));
-
-			this->m_tires = Model("models/wheel/wheel.obj");
-			this->m_tires.scale(glm::vec3(0.75f, 0.625f, 0.625f));
+			this->m_tires.scale(glm::vec3(0.6f));
 
 			break;
 		}
@@ -116,15 +95,9 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	PxF32 chassisMass = 1500.0f;
 	PxVec3 chassisDims = PxVec3(2.5f, 2.0f, 5.0f);
 
-	if (this->m_vehicleType == VehicleType::eJEEP) {
-		chassisMass = 1500.0f;
-		chassisDims = PxVec3(2.5f, 2.0f, 5.0f);
-	} else if (this->m_vehicleType == VehicleType::eTOYOTA) {
+	if (this->m_vehicleType == VehicleType::eAVA) {
 		chassisMass = 8000.0f;
 		chassisDims = PxVec3(3.0f, 2.0f, 7.5f);
-	} else if (this->m_vehicleType == VehicleType::eSHUCKLE) {
-		chassisMass = 2000.0f;
-		chassisDims = PxVec3(2.0f, -5.0f, 3.5f);
 	}
 
 	const PxVec3 chassisMOI
@@ -140,9 +113,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	const PxF32 wheelWidth = 0.4f;
 
 	PxF32 wheelMass = 20.0f;
-	if (this->m_vehicleType == VehicleType::eJEEP) wheelMass = 20.0f;
-	else if (this->m_vehicleType == VehicleType::eTOYOTA) wheelMass = 40.0f;
-	else if (this->m_vehicleType == VehicleType::eSHUCKLE) wheelMass = 15.0f;
+	if (this->m_vehicleType == VehicleType::eAVA) wheelMass = 40.0f;
 
 	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
 	const PxU32 nbWheels = 4;
@@ -232,7 +203,7 @@ void PVehicle::releaseAllControls() {
 #pragma endregion
 #pragma region movement
 void PVehicle::accelerate(float throttle) {
-	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f && this->m_vehicleType == VehicleType::eTOYOTA) return;
+	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f && this->m_vehicleType == VehicleType::eAVA) return;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
@@ -365,8 +336,10 @@ void PVehicle::render() {
 		// 3 -> back-left tire
 		// 4 -> body
 
-		if (i < 4) this->m_tires.draw(TM);
-		else  this->m_chassis.draw(TM);
+		/*if (i < 4) this->m_tires.draw(TM);
+		else  this->m_chassis.draw(TM);*/
+
+		if (i >= 4) this->m_chassis.draw(TM);
 
 	}
 }
