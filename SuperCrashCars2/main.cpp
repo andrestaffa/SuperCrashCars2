@@ -63,7 +63,6 @@ int main(int argc, char** argv) {
 
 	Time time = Time();
 
-
 	// In-game UI
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	boost.Load("freetype/fonts/vemanem.ttf", 50);
@@ -162,18 +161,14 @@ int main(int argc, char** argv) {
 	// Audio 
 	AudioManager::get().init(vehicleList);
 
-	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 0, Utils::instance().pxToGlmVec3(player.getPosition()));
-	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 1, Utils::instance().pxToGlmVec3(enemy.getPosition()));
 	// Menu
 	GameManager::get().initMenu();
 
 	std::string printDamage;
 	std::string printNumbers;
-	float dmgX, dmgY, numX, numY;
-	dmgX = dmgY = numX = numY = 0.f;
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	int playerNumber = 2;
-	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+	int playerNumber = 2; // NUMBER OF VIEWPORTS
+
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 
 		// always update the time and poll events
@@ -314,73 +309,84 @@ int main(int argc, char** argv) {
 		}
 
 		if (time.shouldRender) {
-			for (int currentViewport = 0; currentViewport < playerNumber; currentViewport++) {
-				if (renderer.switchViewport(playerNumber, currentViewport)) time.startRenderTimer();
+			time.startRenderTimer();
+			renderer.startFrame();
+			switch (GameManager::get().screen) {
+			case Screen::eMAINMENU: {
 
-				switch (GameManager::get().screen) {
-				case Screen::eMAINMENU: {
+				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
-					renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
-
-					switch (GameManager::get().mainMenuScreen) {
-					case MainMenuScreen::eMAIN_SCREEN: {
-						// Menu rendering
-						for (int i = 0; i < 5; i++) {
-							if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
-							else buttonColors.at(i) = regCol;
-						}
-						menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
-						menuTextWidth.at(0) = menuText.totalW;
-						menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(1) / 2), 200.f, 1.0f, buttonColors.at(1));
-						menuTextWidth.at(1) = menuText.totalW;
-						menuText.RenderText("OPTIONS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(2) / 2), 300.f, 1.0f, buttonColors.at(2));
-						menuTextWidth.at(2) = menuText.totalW;
-						menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(3) / 2), 400.f, 1.0f, buttonColors.at(3));
-						menuTextWidth.at(3) = menuText.totalW;
-						menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(4) / 2), 500.f, 1.0f, buttonColors.at(4));
-						menuTextWidth.at(4) = menuText.totalW;
-
-
-						break;
-					case MainMenuScreen::eHOWTOPLAY_SCREEN:
-						menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-
-						break;
-					case MainMenuScreen::eOPTIONS_SCREEN:
-						for (int i = 0; i < 3; i++) {
-							if ((int)GameManager::get().optionsButton == i) optionsButtonColors.at(i) = selCol;
-							else optionsButtonColors.at(i) = regCol;
-						}
-
-						menuText.RenderText("BGM: " + std::to_string(AudioManager::get().getBGMLevel()), Utils::instance().SCREEN_WIDTH / 4, 100.f, 1.0f, optionsButtonColors.at(0));
-						menuText.RenderText("SFX: " + std::to_string(AudioManager::get().getSFXLevel()), Utils::instance().SCREEN_WIDTH / 4, 200.f, 1.0f, optionsButtonColors.at(1));
-						menuText.RenderText("BACK", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, optionsButtonColors.at(2));
-
-
-						break;
-					case MainMenuScreen::eCREDITS_SCREEN:
-						menuText.RenderText("Haha credits", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-
-						break; }
+				switch (GameManager::get().mainMenuScreen) {
+				case MainMenuScreen::eMAIN_SCREEN: {
+					// Menu rendering
+					for (int i = 0; i < 5; i++) {
+						if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
+						else buttonColors.at(i) = regCol;
 					}
-					// imGUI section
-					imgui.initFrame();
-					imgui.renderMenu(ai_ON);
-					imgui.endFrame();
+					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
+					menuTextWidth.at(0) = menuText.totalW;
+					menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(1) / 2), 200.f, 1.0f, buttonColors.at(1));
+					menuTextWidth.at(1) = menuText.totalW;
+					menuText.RenderText("OPTIONS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(2) / 2), 300.f, 1.0f, buttonColors.at(2));
+					menuTextWidth.at(2) = menuText.totalW;
+					menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(3) / 2), 400.f, 1.0f, buttonColors.at(3));
+					menuTextWidth.at(3) = menuText.totalW;
+					menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(4) / 2), 500.f, 1.0f, buttonColors.at(4));
+					menuTextWidth.at(4) = menuText.totalW;
+
+
+					break;
+				case MainMenuScreen::eHOWTOPLAY_SCREEN:
+					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+
+					break;
+				case MainMenuScreen::eOPTIONS_SCREEN:
+					for (int i = 0; i < 3; i++) {
+						if ((int)GameManager::get().optionsButton == i) optionsButtonColors.at(i) = selCol;
+						else optionsButtonColors.at(i) = regCol;
+					}
+
+					menuText.RenderText("BGM: " + std::to_string(AudioManager::get().getBGMLevel()), Utils::instance().SCREEN_WIDTH / 4, 100.f, 1.0f, optionsButtonColors.at(0));
+					menuText.RenderText("SFX: " + std::to_string(AudioManager::get().getSFXLevel()), Utils::instance().SCREEN_WIDTH / 4, 200.f, 1.0f, optionsButtonColors.at(1));
+					menuText.RenderText("BACK", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, optionsButtonColors.at(2));
+
+
+					break;
+				case MainMenuScreen::eCREDITS_SCREEN:
+					menuText.RenderText("Haha credits", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 					break; }
-				case Screen::eLOADING: {
-					renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+				}
+				// imGUI section
+				imgui.initFrame();
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
 
-					// imGUI section
-					imgui.initFrame();
-					imgui.renderMenu(ai_ON);
-					imgui.endFrame();
+				break; }
+			case Screen::eLOADING: {
+				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
-					break; }
+				// imGUI section
+				imgui.initFrame();
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
 
-				case Screen::ePLAYING:{
-					//TODO base on i, choose different camera.
+				break; }
+
+			case Screen::ePLAYING: {
+				printNumbers = "      ";
+				for (PVehicle* carPtr : vehicleList) {
+					printNumbers += fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
+					printNumbers += " ";
+				}
+				printNumbers += "         ";
+				for (PVehicle* carPtr : vehicleList) {
+					printNumbers += std::to_string(carPtr->m_lives);
+					printNumbers += "    ";
+				}
+
+				for (int currentViewport = 0; currentViewport < playerNumber; currentViewport++) {
+					renderer.switchViewport(playerNumber, currentViewport);
 					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
 
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
@@ -405,23 +411,11 @@ int main(int argc, char** argv) {
 						pauseTextWidth.at(1) = menuText.totalW;
 					}
 
-					printDamage = ("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4");
-					printNumbers = "      ";
-					for (PVehicle* carPtr : vehicleList) {
-						printNumbers += fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
-						printNumbers += " ";
-					}
-					printNumbers += "         ";
-					for (PVehicle* carPtr : vehicleList) {
-						printNumbers += std::to_string(carPtr->m_lives);
-						printNumbers += "    ";
-					}
-
-					menuText.RenderText(printDamage, 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4", 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 					boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-					switch (player.getPocket()) {
+					switch (vehicleList.at(currentViewport)->getPocket()) {
 					case PowerUpType::eEMPTY:
 						currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
 						break;
@@ -433,34 +427,39 @@ int main(int argc, char** argv) {
 						break;
 
 					}
-					break; }
-				case Screen::eGAMEOVER: {
-					renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
-					menuText.RenderText("Game Over", Utils::instance().SCREEN_WIDTH / 3, 200, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-					menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-					menuText.RenderText("QUIT ", Utils::instance().SCREEN_WIDTH / 3, 400, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-
-					imgui.initFrame();
-					imgui.renderMenu(ai_ON);
-					imgui.endFrame();
-
-					break; }
-				}
-				if (currentViewport == playerNumber - 1) {
-
-					// imgui
-					imgui.initFrame();
-					imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
-					imgui.renderDamageHUD(vehicleList);
-					imgui.renderMenu(ai_ON);
-					imgui.endFrame();
-
-					renderer.endFrame();
-					time.endRenderTimer();
 
 				}
 
+
+				// imgui
+				imgui.initFrame();
+				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				imgui.renderDamageHUD(vehicleList);
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
+
+
+
+				break; }
+			case Screen::eGAMEOVER: {
+				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+				menuText.RenderText("Game Over", Utils::instance().SCREEN_WIDTH / 3, 200, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				menuText.RenderText("QUIT ", Utils::instance().SCREEN_WIDTH / 3, 400, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+
+				imgui.initFrame();
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
+
+				break; }
 			}
+
+			renderer.endFrame();
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT); // bring the viewport back to original
+			time.endRenderTimer();
+
+
+			
 		}
 
 	}

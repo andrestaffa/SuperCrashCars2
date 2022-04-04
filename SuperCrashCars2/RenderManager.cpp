@@ -55,7 +55,6 @@ bool RenderManager::switchViewport(int playerNumber, int i) { // returns true on
 	switch (i)
 	{
 	case 0:		
-		startFrame();
 		switch (playerNumber) {
 		case 1: //Full screen
 			glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
