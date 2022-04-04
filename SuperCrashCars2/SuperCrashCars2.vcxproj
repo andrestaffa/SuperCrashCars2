@@ -196,6 +196,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="GLDebug.h" />
     <ClInclude Include="GLHandles.h" />
+    <ClInclude Include="Image.h" />
     <ClInclude Include="imgui\imconfig.h" />
     <ClInclude Include="imgui\imgui.h" />
     <ClInclude Include="imgui\imgui_impl_glfw.h" />
@@ -248,6 +249,8 @@
     <None Include="fmodL.dll" />
     <None Include="shaders\car.frag" />
     <None Include="shaders\car.vert" />
+    <None Include="shaders\image.frag" />
+    <None Include="shaders\image.vert" />
     <None Include="shaders\light.frag" />
     <None Include="shaders\light.vert" />
     <None Include="shaders\powerUp.frag" />
