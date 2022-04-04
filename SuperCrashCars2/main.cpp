@@ -53,6 +53,7 @@ int main(int argc, char** argv) {
 	Time time = Time();
 
 
+
 	// In-game UI
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	boost.Load("freetype/fonts/vemanem.ttf", 50);
@@ -145,7 +146,7 @@ int main(int argc, char** argv) {
 
 	// Menu
 	GameManager::get().initMenu();
-	
+
 	std::string printDamage;
 	std::string printNumbers;
 	float dmgX, dmgY, numX, numY;
@@ -297,12 +298,11 @@ int main(int argc, char** argv) {
 				
 			switch (GameManager::get().screen) {
 			case Screen::eMAINMENU: {
-				
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
 				switch (GameManager::get().mainMenuScreen){
 				case MainMenuScreen::eMAIN_SCREEN:
-					glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+
 					// Menu rendering
 					for (int i = 0; i < 5; i++) {
 						if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
@@ -321,13 +321,13 @@ int main(int argc, char** argv) {
 
 
 					break;
-				case MainMenuScreen::eHOWTOPLAY_SCREEN:			
-					glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+				case MainMenuScreen::eHOWTOPLAY_SCREEN:
+
 					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 					break;
 				case MainMenuScreen::eOPTIONS_SCREEN:
-					glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+
 					for (int i = 0; i < 3; i++) {
 						if ((int)GameManager::get().optionsButton == i) optionsButtonColors.at(i) = selCol;
 						else optionsButtonColors.at(i) = regCol;
@@ -340,7 +340,7 @@ int main(int argc, char** argv) {
 
 					break;
 				case MainMenuScreen::eCREDITS_SCREEN:
-					glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+
 					menuText.RenderText("Haha credits", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 					break;
@@ -356,7 +356,7 @@ int main(int argc, char** argv) {
 
 				break; }
 			case Screen::eLOADING: {
-				glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
 				// imGUI section
@@ -367,8 +367,7 @@ int main(int argc, char** argv) {
 				break; }
 
 			case Screen::ePLAYING:
-				glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
-				
+
 				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 				colorVar++;
 				
@@ -447,7 +446,7 @@ int main(int argc, char** argv) {
 
 				break;
 			case Screen::eGAMEOVER:
-				glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 				menuText.RenderText("Game Over", Utils::instance().SCREEN_WIDTH / 3, 200, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1 ) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
