@@ -89,7 +89,7 @@ void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, con
 
 	// reset viewport
 	//glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glCullFace(GL_BACK);
 	glFrontFace(GL_CCW);
