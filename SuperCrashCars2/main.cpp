@@ -369,16 +369,29 @@ int main(int argc, char** argv) {
 				break; }
 
 			case Screen::ePLAYING:
+				switch (tmp)
+				{
+				case 1:
+						glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT );
+						playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
+
+						tmp = 2;
+						break;
+				case 2:
+					glViewport(Utils::instance().SCREEN_WIDTH/2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
+					playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
+
+					tmp = 1;
+					break;
+				default:
+					break;
+				}
 				
 				//glViewport(0, 0, width / 2, height / 2);
 				//glLoadIdentity();
 				//gluLookAt(0.0, 0.0, -3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 				//gluPerspective();
 				//glutWireTeapot(1);
-				glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-
-	
 				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 				colorVar++;
 				
@@ -453,86 +466,6 @@ int main(int argc, char** argv) {
 
 				}
 
-				glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-
-				glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-
-
-				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
-				colorVar++;
-
-
-				renderer.renderShadows(vehicleList, powerUps);
-
-				renderer.skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
-
-				renderer.renderCars(vehicleList);
-				renderer.renderPowerUps(powerUps, os);
-
-				renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
-				pm.drawGround();
-
-				renderer.renderTransparentObjects(vehicleList, sphere, os, time);
-
-				if (GameManager::get().paused) {
-					// if game is paused, we will render an overlay.
-					// render the PAUSE MENU HERE
-
-
-					for (int i = 0; i < 2; i++) {
-						if ((int)GameManager::get().pauseButton == i) pausedButtonColors.at(i) = selCol;
-						else pausedButtonColors.at(i) = regCol;
-					}
-
-
-					menuText.RenderText("PAUSED", Utils::instance().SCREEN_WIDTH / 5.0f, 75.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-
-					menuText.RenderText("RESUME", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 300.f, 1.0f, pausedButtonColors.at(0));
-					pauseTextWidth.at(0) = menuText.totalW;
-					menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 400.f, 1.0f, pausedButtonColors.at(1));
-					pauseTextWidth.at(1) = menuText.totalW;
-
-				}
-
-				// imgui
-				imgui.initFrame();
-				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
-				imgui.renderDamageHUD(vehicleList);
-				imgui.renderMenu(ai_ON);
-				imgui.endFrame();
-
-
-				printDamage = ("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4");
-				printNumbers = "      ";
-				for (PVehicle* carPtr : vehicleList) {
-					printNumbers += fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
-					printNumbers += " ";
-				}
-				printNumbers += "         ";
-				for (PVehicle* carPtr : vehicleList) {
-					printNumbers += std::to_string(carPtr->m_lives);
-					printNumbers += "    ";
-				}
-
-				menuText.RenderText(printDamage, 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-				menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-
-				boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-				switch (player.getPocket()) {
-				case PowerUpType::eEMPTY:
-					currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
-					break;
-				case PowerUpType::eJUMP:
-					currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-					break;
-
-				case PowerUpType::eSHIELD:
-					currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-					break;
-
-				}
 				break;
 			case Screen::eGAMEOVER:
 				glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
