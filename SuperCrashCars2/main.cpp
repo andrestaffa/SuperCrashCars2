@@ -43,10 +43,19 @@ int main(int argc, char** argv) {
 	window.setCallbacks(inputManager);
 
 	// Camera
-	Camera playerCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Camera p1Camera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Camera p2Camera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Camera p3Camera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Camera p4Camera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	std::vector<Camera*> cameraList;
+	cameraList.push_back(&p1Camera);
+	cameraList.push_back(&p2Camera);
+	cameraList.push_back(&p3Camera);
+	cameraList.push_back(&p4Camera);
+
 	Camera menuCamera = Camera(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 
-	RenderManager renderer(&window, &playerCamera, &menuCamera);
+	RenderManager renderer(&window, &cameraList, &menuCamera);
 
 	// OSCILATION 
 	int colorVar = 0;
@@ -304,19 +313,17 @@ int main(int argc, char** argv) {
 			time.endSimTimer(); // end sim timer !
 		}
 
-		for (int i = 0; i < playerNumber; i++) {
-			if (time.shouldRender) {
-				if (renderer.switchViewport(playerNumber, i)) time.startRenderTimer();
-#pragma region viewports
-		
-#pragma endregion
+		if (time.shouldRender) {
+			for (int currentViewport = 0; currentViewport < playerNumber; currentViewport++) {
+				if (renderer.switchViewport(playerNumber, currentViewport)) time.startRenderTimer();
+
 				switch (GameManager::get().screen) {
 				case Screen::eMAINMENU: {
 
 					renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
 					switch (GameManager::get().mainMenuScreen) {
-					case MainMenuScreen::eMAIN_SCREEN:
+					case MainMenuScreen::eMAIN_SCREEN: {
 						// Menu rendering
 						for (int i = 0; i < 5; i++) {
 							if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
@@ -354,12 +361,8 @@ int main(int argc, char** argv) {
 					case MainMenuScreen::eCREDITS_SCREEN:
 						menuText.RenderText("Haha credits", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
-						break;
+						break; }
 					}
-
-
-
-
 					// imGUI section
 					imgui.initFrame();
 					imgui.renderMenu(ai_ON);
@@ -376,52 +379,31 @@ int main(int argc, char** argv) {
 
 					break; }
 
-				case Screen::ePLAYING:
+				case Screen::ePLAYING:{
 					//TODO base on i, choose different camera.
-					playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
+					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
 
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
-
-
 					renderer.renderShadows(vehicleList, powerUps);
-
-					renderer.skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
-
+					renderer.skybox.draw(cameraList.at(currentViewport)->getPerspMat(), glm::mat4(glm::mat3(p1Camera.getViewMat())));
 					renderer.renderCars(vehicleList);
 					renderer.renderPowerUps(powerUps, os);
-
 					renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
 					pm.drawGround();
-
 					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
 
 					if (GameManager::get().paused) {
-						// if game is paused, we will render an overlay.
-						// render the PAUSE MENU HERE
-
 						for (int i = 0; i < 2; i++) {
 							if ((int)GameManager::get().pauseButton == i) pausedButtonColors.at(i) = selCol;
 							else pausedButtonColors.at(i) = regCol;
 						}
-
-
 						menuText.RenderText("PAUSED", Utils::instance().SCREEN_WIDTH / 5.0f, 75.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-
 						menuText.RenderText("RESUME", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 300.f, 1.0f, pausedButtonColors.at(0));
 						pauseTextWidth.at(0) = menuText.totalW;
 						menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 400.f, 1.0f, pausedButtonColors.at(1));
 						pauseTextWidth.at(1) = menuText.totalW;
-
 					}
-
-					// imgui
-					imgui.initFrame();
-					imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
-					imgui.renderDamageHUD(vehicleList);
-					imgui.renderMenu(ai_ON);
-					imgui.endFrame();
-
 
 					printDamage = ("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4");
 					printNumbers = "      ";
@@ -446,32 +428,36 @@ int main(int argc, char** argv) {
 					case PowerUpType::eJUMP:
 						currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
 						break;
-
 					case PowerUpType::eSHIELD:
 						currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
 						break;
 
 					}
-					break;
-				case Screen::eGAMEOVER:
+					break; }
+				case Screen::eGAMEOVER: {
 					renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 					menuText.RenderText("Game Over", Utils::instance().SCREEN_WIDTH / 3, 200, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-
 					menuText.RenderText("QUIT ", Utils::instance().SCREEN_WIDTH / 3, 400, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 					imgui.initFrame();
 					imgui.renderMenu(ai_ON);
-
-
-
 					imgui.endFrame();
 
-					break;
+					break; }
 				}
-				if (i == playerNumber - 1) {
+				if (currentViewport == playerNumber - 1) {
+
+					// imgui
+					imgui.initFrame();
+					imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+					imgui.renderDamageHUD(vehicleList);
+					imgui.renderMenu(ai_ON);
+					imgui.endFrame();
+
 					renderer.endFrame();
 					time.endRenderTimer();
+
 				}
 
 			}

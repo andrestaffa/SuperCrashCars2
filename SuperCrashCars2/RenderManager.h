@@ -28,11 +28,14 @@
 class RenderManager {
 
 public:
-	RenderManager(Window* window, Camera* camera, Camera* menuCamera);
+	RenderManager(Window* window, std::vector<Camera*> *cameraList, Camera* menuCamera);
 
 	Window* m_window;
-	Camera* m_camera;
+	//Camera* m_camera;
 	Camera* m_menuCamera;
+	std::vector<Camera*> *m_cameraList;
+
+	int m_currentViewportActive; // for camera selection
 
 	std::shared_ptr<ShaderProgram> defaultShader, depthShader, carShader, transparentShader, powerUpShader;
 
