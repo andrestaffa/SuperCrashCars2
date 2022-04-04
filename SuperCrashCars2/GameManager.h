@@ -14,7 +14,7 @@ enum class MainMenuButton
 {
 	eSTART,		// start button
 	eHOWTOPLAY, // button to screen where we explain how the game works
-	//eOPTIONS, // idek what options we should have yet
+	eOPTIONS,  // idek what options we should have yet
 	eCREDITS,	// button to credits screen
 	eQUIT		// button that quits game
 };
@@ -23,7 +23,14 @@ enum class MainMenuButton
 enum class MainMenuScreen {
 	eMAIN_SCREEN,
 	eHOWTOPLAY_SCREEN,
-	eCREDITS_SCREEN
+	eCREDITS_SCREEN,
+	eOPTIONS_SCREEN
+};
+
+enum class OptionsButton {
+	eBGM,
+	eSFX,
+	eBACK
 };
 
 // enum for which button is selected when in pause screen
@@ -49,16 +56,18 @@ public:
 	MainMenuButton menuButton = MainMenuButton::eSTART;
 	MainMenuScreen mainMenuScreen = MainMenuScreen::eMAIN_SCREEN;
 	PauseButton pauseButton = PauseButton::eRESUME;
+	OptionsButton optionsButton = OptionsButton::eBGM;
 	bool paused = false;
 	bool quitGame = false;
-	bool startFlag = false;
 
 	int winner;
 
 	void changeSelection(int plus);
+	void incrementSlider(int right);
 	void select();
 	void initMenu();
 	void togglePause();
+	std::string printButtonSelected();
 	std::string printMenu();
 
 private:

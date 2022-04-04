@@ -51,7 +51,7 @@ void main()
     vec3 normal = normalize(Normal);
     
     // ambient
-    vec3 ambient = 0.15 * lightColor;
+    vec3 ambient = 0.25 * lightColor;
     
     // diffuse
     vec3 lightDirection = normalize(lightPos - FragPos);

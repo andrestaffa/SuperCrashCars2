@@ -2,6 +2,9 @@
 
 #include "PStatic.h"
 
+#include <chrono>
+using namespace std::chrono;
+
 enum class PowerUpType {
 	eEMPTY = -1, // for when a car is holding no powerup
 	eBOOST = 0,
@@ -9,6 +12,13 @@ enum class PowerUpType {
 	eDAMAGE = 2, // ??
 	eSHIELD = 3,
 	eJUMP = 4
+};
+
+enum class ShieldPowerUpState { // states of a shield powerup
+	eINACTIVE = 0,
+	eACTIVE = 1,
+	eEXPIRING = 2,
+	eLAST_SECOND = 3
 };
 
 
@@ -22,11 +32,16 @@ public:
 	void render();
 
 	void destroy();
+	void collect();
+	void tryRespawn();
+	void forceRespawn();
 	PowerUpType getType();
 
-	bool triggered = false;
+	bool triggered, active;
+	time_point<steady_clock> triggeredTimestamp;	
 
 private:
 	PowerUpType m_powerUpType;
-
+	PxVec3 m_startingPosition;
+	
 };

@@ -31,7 +31,7 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 			attacker = car1;
 			victim = car0;
 		}
-		
+
 		// getting naive launch vector
 		PxVec3 attackerPos = attacker->getGlobalPose().p;
 		PxVec3 victimPos = victim->getGlobalPose().p;
@@ -39,24 +39,52 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 		launchVector = launchVector.getNormalized();
 
 		PVehicle* victimVehicle = (PVehicle*)victim->userData;
-		victimVehicle->vehicleAttr.collided = true;
+		PVehicle* attackerVehicle = (PVehicle*)attacker->userData;
+
+		if ((PVehicle*)attackerVehicle->vehicleAttr.targetVehicle) {
+			PVehicle* targetVehicle = (PVehicle*)attackerVehicle->vehicleAttr.targetVehicle;
+			if (targetVehicle == victimVehicle) {
+				attackerVehicle->vehicleAttr.reachedTarget = true;
+			}
+		}
 
 		//car1->setLinearVelocity(car1->getLinearVelocity() / 10.f);
 		//car0->addForce(launchVector * 300000, PxForceMode::eIMPULSE);
 		float attackerMag = attacker->getLinearVelocity().magnitude();
 		Log::debug("Attacker magnitude: {}", attackerMag);
 		victimVehicle->vehicleAttr.forceToAdd = PxVec3(0.0f);
-		// launch formula: base 100k + 20k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
+		// launch formula: base 80k + 30k, multiplied by the collisionCoeff, and multiplied by a number from 1 to *around* 4 based on the magnitude of the velocity of the attacker.
 		// *The max for the multiplier is not necessarily 4, but practically, the magnitudes of the cars rarely reach above 70 from my tests
 
 		float magMult = (1.f + 2.f * attackerMag / 70.f);
+		PxVec3 forceToAdd = PxVec3(launchVector * (80000.f + 30000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
 
-		victimVehicle->vehicleAttr.forceToAdd = PxVec3((launchVector + PxVec3(0.0f, 0.0f * (magMult - 1.f), 0.0f)) * (100000.f + 20000 * victimVehicle->vehicleAttr.collisionCoefficient * magMult));
-		victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + 0.5f;
+		victim->setAngularVelocity(victim->getAngularVelocity() * 0.1f);
+		attacker->setAngularVelocity(attacker->getAngularVelocity() * 0.1f);
+
+		if (victimVehicle->m_shieldState != ShieldPowerUpState::eINACTIVE) { // if victim has shielf up, force gets applied to the attacker !
+			attackerVehicle->vehicleAttr.forceToAdd = (-forceToAdd) * 2.f;
+			attackerVehicle->vehicleAttr.collisionCoefficient = attackerVehicle->vehicleAttr.collisionCoefficient + (0.1f + (attackerMag / 40.f));
+			attackerVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
+			attackerVehicle->vehicleAttr.collided = true;
+			victimVehicle->m_shieldState = ShieldPowerUpState::eINACTIVE;
+
+
+		}
+		else {
+			victimVehicle->vehicleAttr.forceToAdd = forceToAdd;
+			victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + (0.1f + (attackerMag / 80.f));
+			victimVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
+			victimVehicle->vehicleAttr.collided = true;
+
+		}
+
+
+
 	}
 }
 
-void EventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count) { 
+void EventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count) {
 
 	PVehicle* vehicle = dynamic_cast<PVehicle*>((PVehicle*)(pairs->otherActor->userData));
 	PowerUp* powerUp = dynamic_cast<PowerUp*>((PowerUp*)(pairs->triggerActor->userData));
