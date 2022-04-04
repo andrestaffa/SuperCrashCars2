@@ -47,6 +47,65 @@ void RenderManager::endFrame(){
 	m_window->swapBuffers();
 }
 
+bool RenderManager::switchViewport(int playerNumber, int i) { // returns true only on first viewport - used to trigger the timer.
+
+	switch (i)
+	{
+	case 0:		
+		startFrame();
+		switch (playerNumber) {
+		case 1: //Full screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+			break;
+		case 2: //Left Screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
+			break;
+		case 3: //Whole top part of the screen
+			glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		case 4:	//Top left of the screen
+			glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		}
+		return true; //time.startRenderTimer(); RETURN TRUE to trigger timer
+		break;
+	case 1:
+		switch (playerNumber) {
+		case 2: //Right screen
+
+			glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
+			break;
+		case 3: 			// Bottom left screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		case 4://Top right of the screen
+			glViewport(Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		}
+		break;
+	case 2:
+		switch (playerNumber) {
+		case 3: //Bottom right
+			glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		case 4:// Bottom left screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		}
+		break;
+	case 3:
+		//Bottom right
+		glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+		break;
+	}
+
+
+
+
+	
+	return false;
+}
+
 void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, const std::vector<PowerUp*>& powerUps) {
 
 
@@ -191,6 +250,8 @@ void RenderManager::useDefaultShader() {
 	Utils::instance().shader->setVector3("lightPos", lightPos);
 	Utils::instance().shader->setVector3("camPos", m_menuCamera->getPosition());
 }
+
+
 
 
 

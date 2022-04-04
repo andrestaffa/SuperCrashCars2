@@ -60,6 +60,7 @@ public:
 
 	void startFrame();
 	void endFrame();
+	bool switchViewport(int playerNumber, int i);
 	void renderShadows(const std::vector<PVehicle*>& vehicleList, const std::vector<PowerUp*>& powerUps);
 
 	void renderCars(const std::vector<PVehicle*>& vehicleList);

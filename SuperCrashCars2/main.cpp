@@ -163,7 +163,7 @@ int main(int argc, char** argv) {
 	float dmgX, dmgY, numX, numY;
 	dmgX = dmgY = numX = numY = 0.f;
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-	int playerNumber = 1;
+	int playerNumber = 2;
 	//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 
@@ -306,58 +306,9 @@ int main(int argc, char** argv) {
 
 		for (int i = 0; i < playerNumber; i++) {
 			if (time.shouldRender) {
+				if (renderer.switchViewport(playerNumber, i)) time.startRenderTimer();
 #pragma region viewports
-				if (i == 0) {
-					if (playerNumber == 1) {
-						//Full screen
-						glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-					}
-					else if (playerNumber == 2) {
-						//Left Screen
-						glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
-					}					
-					else if (playerNumber == 3) {
-						//Whole top part of the screen
-						glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT / 2);
-					}
-					else if (playerNumber == 4) {
-						//Top left of the screen
-						glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
-					}
-					
-					time.startRenderTimer();
-					renderer.startFrame();
-				}
-				else if (i == 1) {					
-					if (playerNumber == 2) {
-						//Right screen
-						glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT); 
-						
-					}
-					else if (playerNumber == 3) {
-						// Bottom left screen
-						glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
-					}
-					else if (playerNumber == 4) {
-						//Top right of the screen
-						glViewport(Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
-					}
-				} 
-				else if (i == 2) {
-
-					if (playerNumber == 3) {
-						//Bottom right
-						glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
-					}					
-					else if (playerNumber == 4) {
-						// Bottom left screen
-						glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
-					}
-				}
-				else if (i == 3) {
-					//Bottom right
-					glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
-				}
+		
 #pragma endregion
 				switch (GameManager::get().screen) {
 				case Screen::eMAINMENU: {
