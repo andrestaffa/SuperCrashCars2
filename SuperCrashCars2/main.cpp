@@ -140,9 +140,8 @@ int main(int argc, char** argv) {
 
 	// Audio 
 	AudioManager::get().init(vehicleList);
-
-	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 0, Utils::instance().pxToGlmVec3(player.getPosition()));
-	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 1, Utils::instance().pxToGlmVec3(enemy.getPosition()));
+	AudioManager::get().startCarSounds();
+	AudioManager::get().setCarSoundsPause(true);
 
 	// Menu
 	GameManager::get().initMenu();
@@ -200,6 +199,8 @@ int main(int argc, char** argv) {
 					powerUpPtr->forceRespawn();
 				}
 
+				AudioManager::get().setCarSoundsPause(false);
+
 				GameManager::get().screen = Screen::ePLAYING;
 
 				break; }
@@ -211,7 +212,7 @@ int main(int argc, char** argv) {
 				else { // in game
 
 					if (controller1.connected) controller1.uniController(true, player);
-					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
+
 
 					int deadCounter = 0;
 
@@ -367,12 +368,14 @@ int main(int argc, char** argv) {
 				break; }
 
 			case Screen::ePLAYING:
+				AudioManager::get().updateCarSounds();
+				AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
 				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 				colorVar++;
 				
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
+				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); 
+				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); 
 
 				renderer.renderShadows(vehicleList, powerUps);
 

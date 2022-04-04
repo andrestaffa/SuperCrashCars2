@@ -130,7 +130,7 @@ public:
 	time_point<steady_clock> deathTimestamp;
 	int carid;
 	PowerUpType m_powerUpPocket; // bag
-
+	bool accelerating;
 	// AI
 	void chaseVehicle(PVehicle& vehicle);
 

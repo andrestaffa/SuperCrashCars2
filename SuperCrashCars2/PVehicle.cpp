@@ -44,6 +44,7 @@ PVehicle::PVehicle(int id, PhysicsManager& pm, const VehicleType& vehicleType, P
 
 	this->carid = id;
 	this->m_carType = carType;
+	this->accelerating = false;
 
 	m_shieldSphere = Model("models/sphere/sphere.obj");
 	m_shieldSphere.setPosition(Utils::instance().pxToGlmVec3(this->getPosition()));

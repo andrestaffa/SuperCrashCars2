@@ -156,8 +156,17 @@ void GameManager::initMenu() {
 // toggles pause (only if in game)
 void GameManager::togglePause() {
 	if (GameManager::screen == Screen::ePLAYING) {
-		if (paused) this->paused = false;
-		else this->paused = true;
+		
+
+		if (paused) { 
+			this->paused = false;
+			AudioManager::get().setCarSoundsPause(false);
+		}
+		else { 
+			this->paused = true; 
+			AudioManager::get().setCarSoundsPause(true);
+
+		}
 	}
 }
 
