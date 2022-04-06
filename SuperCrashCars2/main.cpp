@@ -78,13 +78,17 @@ int main(int argc, char** argv) {
 
 	std::vector<glm::vec3> buttonColors;
 	std::vector<float> menuTextWidth;
-	for (int i = 0; i < 5; i++) { 
+	for (int i = 0; i < 6; i++) { 
 		buttonColors.push_back(regCol);
 		menuTextWidth.push_back(menuText.totalW);
 	}
 
-	std::vector<glm::vec3> optionsButtonColors;
+	std::vector<glm::vec3> playerSelectButtonColors;
+	for (int i = 0; i < 2; i++) {
+		playerSelectButtonColors.push_back(regCol);
+	}
 
+	std::vector<glm::vec3> optionsButtonColors;
 	for (int i = 0; i < 3; i++) {
 		optionsButtonColors.push_back(regCol);
 	}
@@ -167,7 +171,7 @@ int main(int argc, char** argv) {
 	std::string printDamage;
 	std::string printNumbers;
 
-	int playerNumber = 2; // NUMBER OF VIEWPORTS
+	//GameManager::get().playerNumber = 2; // NUMBER OF VIEWPORTS
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 
@@ -318,24 +322,34 @@ int main(int argc, char** argv) {
 
 				switch (GameManager::get().mainMenuScreen) {
 				case MainMenuScreen::eMAIN_SCREEN: {
-					// Menu rendering
-					for (int i = 0; i < 5; i++) {
+
+					for (int i = 0; i < 6; i++) {
 						if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
 						else buttonColors.at(i) = regCol;
 					}
-					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
-					menuTextWidth.at(0) = menuText.totalW;
-					menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(1) / 2), 200.f, 1.0f, buttonColors.at(1));
+					menuText.RenderText("SINGLEPLAYER", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
+					menuTextWidth.at(0) = menuText.totalW;					
+					menuText.RenderText("MULTIPLAYER", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(1) / 2), 200, 1.0f, buttonColors.at(1));
 					menuTextWidth.at(1) = menuText.totalW;
-					menuText.RenderText("OPTIONS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(2) / 2), 300.f, 1.0f, buttonColors.at(2));
+					menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(2) / 2), 300.f, 1.0f, buttonColors.at(2));
 					menuTextWidth.at(2) = menuText.totalW;
-					menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(3) / 2), 400.f, 1.0f, buttonColors.at(3));
+					menuText.RenderText("OPTIONS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(3) / 2), 400.f, 1.0f, buttonColors.at(3));
 					menuTextWidth.at(3) = menuText.totalW;
-					menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(4) / 2), 500.f, 1.0f, buttonColors.at(4));
+					menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(4) / 2), 500.f, 1.0f, buttonColors.at(4));
 					menuTextWidth.at(4) = menuText.totalW;
+					menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(5) / 2), 600.f, 1.0f, buttonColors.at(5));
+					menuTextWidth.at(5) = menuText.totalW;
 
+					break; }
+				case MainMenuScreen::eMULTIPLAYER_SCREEN: {
+					for (int i = 0; i < 2; i++) {
+						if ((int)GameManager::get().playerSelectButton == i) playerSelectButtonColors.at(i) = selCol;
+						else playerSelectButtonColors.at(i) = regCol;
+					}
+					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), Utils::instance().SCREEN_WIDTH / 4, 200, 1.0f, playerSelectButtonColors.at(0));
+					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, playerSelectButtonColors.at(1));
 
-					break;
+					break; }
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
 					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
@@ -355,7 +369,7 @@ int main(int argc, char** argv) {
 				case MainMenuScreen::eCREDITS_SCREEN:
 					menuText.RenderText("Haha credits", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
-					break; }
+					break; 
 				}
 				// imGUI section
 				imgui.initFrame();
@@ -385,8 +399,8 @@ int main(int argc, char** argv) {
 					printNumbers += "    ";
 				}
 
-				for (int currentViewport = 0; currentViewport < playerNumber; currentViewport++) {
-					renderer.switchViewport(playerNumber, currentViewport);
+				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
+					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
 					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
 
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
@@ -414,7 +428,7 @@ int main(int argc, char** argv) {
 					menuText.RenderText("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4", 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
-					boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
+					boost.RenderText(std::to_string(vehicleList.at(currentViewport)->vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
 					switch (vehicleList.at(currentViewport)->getPocket()) {
 					case PowerUpType::eEMPTY:
 						currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
