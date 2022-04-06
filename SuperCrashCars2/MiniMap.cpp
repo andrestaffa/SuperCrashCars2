@@ -6,7 +6,7 @@ MiniMap::MiniMap() {
 
 MiniMap::MiniMap(int playerId) {
 	playerId = this->playerId;
-	currentPos = 
+	//currentPos = 
 }
 
 void MiniMap::initialize() {
