@@ -20,8 +20,6 @@
 #include "Camera.h"
 #include "Skybox.h"
 #include "TextRenderer.h"
-#include "Texture.h"
-#include "Image.h"
 
 #include "PVehicle.h"
 #include "PDynamic.h"
@@ -56,10 +54,7 @@ int main(int argc, char** argv) {
 
 	Time time = Time();
 
-	// Image rendering
-	Image image = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	Texture texture("textures/singleplayer.png", GL_LINEAR); // Just a placeholder/test image
-	
+
 
 	// In-game UI
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
@@ -332,8 +327,7 @@ int main(int argc, char** argv) {
 					break;
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
 
-					//Placeholder for How To Play image, just set the texture to the image png
-					image.draw(texture, glm::vec2(200.f, 200.f), glm::vec2(500.f, 500.f), 0.f, glm::vec3(1.f, 1.f, 1.f));
+					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 					break;
 				case MainMenuScreen::eOPTIONS_SCREEN:
