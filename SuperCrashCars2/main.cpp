@@ -31,6 +31,8 @@
 
 #include "RenderManager.h"
 
+#include "MiniMap.h"
+
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
@@ -97,7 +99,7 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(1, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f));
 	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
 	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eTOYOTA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
-
+	
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-120.f, 80.f, 148.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(163.64, 80.f, -325.07f));
 	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(-87.f, 80.f, 182.f));
@@ -107,6 +109,8 @@ int main(int argc, char** argv) {
 	
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
 
+	MiniMap map1, map2, map3, map4;
+	map1 = MiniMap(GLFW_JOYSTICK_1);
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
 	vehicleList.push_back(&player);
