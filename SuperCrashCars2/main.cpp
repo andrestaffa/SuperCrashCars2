@@ -109,8 +109,8 @@ int main(int argc, char** argv) {
 	
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
 
-	MiniMap map1, map2, map3, map4;
-	map1 = MiniMap(GLFW_JOYSTICK_1);
+	//MiniMap map1, map2, map3, map4;
+	MiniMap map1(GLFW_JOYSTICK_1, player);
 	std::vector<PVehicle*> vehicleList;
 	std::vector<PowerUp*> powerUps;
 	vehicleList.push_back(&player);
@@ -447,7 +447,7 @@ int main(int argc, char** argv) {
 					break;
 
 				}
-
+				map1.displayMap(player, vehicleList);
 				break;
 			case Screen::eGAMEOVER:
 
