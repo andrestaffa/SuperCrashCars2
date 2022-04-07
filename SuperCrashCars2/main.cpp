@@ -54,8 +54,10 @@ int main(int argc, char** argv) {
 
 	Time time = Time();
 
-
-
+	// Image rendering
+	Image image = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Texture texture("textures/singleplayer.png", GL_LINEAR); // Just a placeholder/test image
+	
 	// In-game UI
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	boost.Load("freetype/fonts/vemanem.ttf", 50);
@@ -144,9 +146,6 @@ int main(int argc, char** argv) {
 
 	// Audio 
 	AudioManager::get().init(vehicleList);
-
-	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 0, Utils::instance().pxToGlmVec3(player.getPosition()));
-	//AudioManager::get().loadCarIdleSound(SFX_CAR_FAST, 0.2f, 1, Utils::instance().pxToGlmVec3(enemy.getPosition()));
 
 	// Menu
 	GameManager::get().initMenu();
@@ -304,11 +303,10 @@ int main(int argc, char** argv) {
 			case Screen::eMAINMENU: {
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
-				switch (GameManager::get().mainMenuScreen){
-				case MainMenuScreen::eMAIN_SCREEN:
+				switch (GameManager::get().mainMenuScreen) {
+				case MainMenuScreen::eMAIN_SCREEN: {
 
-					// Menu rendering
-					for (int i = 0; i < 5; i++) {
+					for (int i = 0; i < 6; i++) {
 						if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
 						else buttonColors.at(i) = regCol;
 					}
@@ -323,12 +321,18 @@ int main(int argc, char** argv) {
 					menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(4) / 2), 500.f, 1.0f, buttonColors.at(4));
 					menuTextWidth.at(4) = menuText.totalW;
 
-
+					break; }
+				case MainMenuScreen::eMULTIPLAYER_SCREEN: 
+					for (int i = 0; i < 2; i++) {
+						if ((int)GameManager::get().playerSelectButton == i) playerSelectButtonColors.at(i) = selCol;
+						else playerSelectButtonColors.at(i) = regCol;
+					}
+					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), Utils::instance().SCREEN_WIDTH / 4, 200, 1.0f, playerSelectButtonColors.at(0));
+					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, playerSelectButtonColors.at(1));
 					break;
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
-
-					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-
+					//Placeholder for How To Play image, just set the texture to the image png
+					image.draw(texture, glm::vec2(200.f, 200.f), glm::vec2(500.f, 500.f), 0.f, glm::vec3(1.f, 1.f, 1.f));
 					break;
 				case MainMenuScreen::eOPTIONS_SCREEN:
 
@@ -370,55 +374,7 @@ int main(int argc, char** argv) {
 
 				break; }
 
-			case Screen::ePLAYING:
-
-				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
-				colorVar++;
-				
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-				playerCamera.UpdateCameraPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec()); // only move cam once.
-
-				renderer.renderShadows(vehicleList, powerUps);
-
-				renderer.skybox.draw(playerCamera.getPerspMat(), glm::mat4(glm::mat3(playerCamera.getViewMat())));
-
-				renderer.renderCars(vehicleList);
-				renderer.renderPowerUps(powerUps, os);
-
-				renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
-				pm.drawGround();
-
-				renderer.renderTransparentObjects(vehicleList, sphere, os, time);
-
-				if (GameManager::get().paused) {
-					// if game is paused, we will render an overlay.
-					// render the PAUSE MENU HERE
-
-
-					for (int i = 0; i < 2; i++) {
-						if ((int)GameManager::get().pauseButton == i) pausedButtonColors.at(i) = selCol;
-						else pausedButtonColors.at(i) = regCol;
-					}
-
-
-					menuText.RenderText("PAUSED", Utils::instance().SCREEN_WIDTH / 5.0f, 75.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-
-					menuText.RenderText("RESUME", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 300.f, 1.0f, pausedButtonColors.at(0));
-					pauseTextWidth.at(0) = menuText.totalW;
-					menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 400.f, 1.0f, pausedButtonColors.at(1));
-					pauseTextWidth.at(1) = menuText.totalW;
-					
-				}
-
-				// imgui
-				imgui.initFrame();
-				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
-				imgui.renderDamageHUD(vehicleList);
-				imgui.renderMenu(ai_ON);
-				imgui.endFrame();
-
-
-				printDamage = ("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4");
+			case Screen::ePLAYING: {
 				printNumbers = "      ";
 				for (PVehicle* carPtr : vehicleList) {
 					printNumbers += fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
@@ -430,31 +386,63 @@ int main(int argc, char** argv) {
 					printNumbers += "    ";
 				}
 
-				menuText.RenderText(printDamage, 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-				menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
+					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
+					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
 
-				boost.RenderText(std::to_string(player.vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-				switch (player.getPocket()) {
-				case PowerUpType::eEMPTY:
-					currentPowerup.RenderText("Pocket: Empty", 7.547f,60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
-					break;
-				case PowerUpType::eJUMP:
-					currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-					break;
+					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
+					colorVar++;
+					renderer.renderShadows(vehicleList, powerUps);
+					renderer.skybox.draw(cameraList.at(currentViewport)->getPerspMat(), glm::mat4(glm::mat3(p1Camera.getViewMat())));
+					renderer.renderCars(vehicleList);
+					renderer.renderPowerUps(powerUps, os);
+					renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
+					pm.drawGround();
+					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
 
-				case PowerUpType::eSHIELD:
-					currentPowerup.RenderText("Pocket: Shield", 7.547f,60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-					break;
+					if (GameManager::get().paused) {
+						for (int i = 0; i < 2; i++) {
+							if ((int)GameManager::get().pauseButton == i) pausedButtonColors.at(i) = selCol;
+							else pausedButtonColors.at(i) = regCol;
+						}
+						menuText.RenderText("PAUSED", Utils::instance().SCREEN_WIDTH / 5.0f, 75.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
+						menuText.RenderText("RESUME", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 300.f, 1.0f, pausedButtonColors.at(0));
+						pauseTextWidth.at(0) = menuText.totalW;
+						menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 400.f, 1.0f, pausedButtonColors.at(1));
+						pauseTextWidth.at(1) = menuText.totalW;
+					}
+
+					menuText.RenderText("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4", 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+
+					boost.RenderText(std::to_string(vehicleList.at(currentViewport)->vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
+					switch (vehicleList.at(currentViewport)->getPocket()) {
+					case PowerUpType::eEMPTY:
+						currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
+						break;
+					case PowerUpType::eJUMP:
+						currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						break;
+					case PowerUpType::eSHIELD:
+						currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						break;
+
+					}
 
 				}
-				map1.displayMap(player, vehicleList);
-				break;
-			case Screen::eGAMEOVER:
 
+				// imgui
+				imgui.initFrame();
+				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				imgui.renderDamageHUD(vehicleList);
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
+
+				break; }
+			case Screen::eGAMEOVER: {
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 				menuText.RenderText("Game Over", Utils::instance().SCREEN_WIDTH / 3, 200, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1 ) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-				
+				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 				menuText.RenderText("QUIT ", Utils::instance().SCREEN_WIDTH / 3, 400, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 				imgui.initFrame();
