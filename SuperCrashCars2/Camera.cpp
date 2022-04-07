@@ -136,7 +136,7 @@ void Camera::updateTheta() {
 	}
 }
 
-void Camera::UpdateCameraPosition(glm::vec3 carPosition, glm::vec3 frontVector) {
+void Camera::updateCameraPosition(glm::vec3 carPosition, glm::vec3 frontVector) {
 	// calculate the new angle
 	m_camThetaGoal = (float)(M_PI)+glm::orientedAngle(glm::normalize(glm::vec2(frontVector.x, frontVector.z)), glm::vec2(1.0f, 0.0f)); 
 	// recalculate the rotation coeff every frame based on the Y value of front vec
