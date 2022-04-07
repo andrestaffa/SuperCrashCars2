@@ -344,7 +344,7 @@ int main(int argc, char** argv) {
 					menuTextWidth.at(5) = menuText.totalW;
 
 					break; }
-				case MainMenuScreen::eMULTIPLAYER_SCREEN: {
+				case MainMenuScreen::eMULTIPLAYER_SCREEN: 
 					for (int i = 0; i < 2; i++) {
 						if ((int)GameManager::get().playerSelectButton == i) playerSelectButtonColors.at(i) = selCol;
 						else playerSelectButtonColors.at(i) = regCol;
