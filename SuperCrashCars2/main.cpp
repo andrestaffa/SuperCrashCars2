@@ -168,6 +168,8 @@ int main(int argc, char** argv) {
 
 	// Audio 
 	AudioManager::get().init(vehicleList);
+	AudioManager::get().startCarSounds();
+	AudioManager::get().setCarSoundsPause(true);
 
 	// Menu
 	GameManager::get().initMenu();
@@ -224,7 +226,7 @@ int main(int argc, char** argv) {
 				for (PowerUp* powerUpPtr : powerUps) {
 					powerUpPtr->forceRespawn();
 				}
-
+				AudioManager::get().setCarSoundsPause(false);
 				GameManager::get().screen = Screen::ePLAYING;
 
 				break; }
@@ -236,7 +238,7 @@ int main(int argc, char** argv) {
 				else { // in game
 
 					if (controller1.connected) controller1.uniController(true, player);
-					AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
+
 
 					int deadCounter = 0;
 
@@ -403,10 +405,12 @@ int main(int argc, char** argv) {
 					printNumbers += std::to_string(carPtr->m_lives);
 					printNumbers += "    ";
 				}
+				AudioManager::get().updateCarSounds();
+				AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
 
 				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
-					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
+					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec());
 
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
