@@ -28,14 +28,11 @@
 class RenderManager {
 
 public:
-	RenderManager(Window* window, std::vector<Camera*> *cameraList, Camera* menuCamera);
+	RenderManager(Window* window, Camera* camera, Camera* menuCamera);
 
 	Window* m_window;
-	//Camera* m_camera;
+	Camera* m_camera;
 	Camera* m_menuCamera;
-	std::vector<Camera*> *m_cameraList;
-
-	int m_currentViewportActive; // for camera selection
 
 	std::shared_ptr<ShaderProgram> defaultShader, depthShader, carShader, transparentShader, powerUpShader;
 
@@ -63,7 +60,6 @@ public:
 
 	void startFrame();
 	void endFrame();
-	bool switchViewport(int playerNumber, int i);
 	void renderShadows(const std::vector<PVehicle*>& vehicleList, const std::vector<PowerUp*>& powerUps);
 
 	void renderCars(const std::vector<PVehicle*>& vehicleList);
