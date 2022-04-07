@@ -1,10 +1,12 @@
 #include "RenderManager.h"
 
-RenderManager::RenderManager(Window* window, Camera* camera, Camera* menuCamera) {
+RenderManager::RenderManager(Window* window, std::vector<Camera*>* cameraList, Camera* menuCamera){
 
 	m_window = window;
-	m_camera = camera;
+	//m_camera = camera;
 	m_menuCamera = menuCamera;
+	m_cameraList = cameraList;
+	m_currentViewportActive = 1;
 
 	defaultShader = std::make_shared<ShaderProgram>("shaders/shader_vertex.vert", "shaders/shader_fragment.frag");
 	depthShader = std::make_shared<ShaderProgram>("shaders/simpleDepth.vert", "shaders/simpleDepth.frag");
@@ -45,6 +47,65 @@ void RenderManager::startFrame(){
 void RenderManager::endFrame(){
 	glDisable(GL_FRAMEBUFFER_SRGB);
 	m_window->swapBuffers();
+	//glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+}
+
+bool RenderManager::switchViewport(int playerNumber, int i) { // returns true only on first viewport - used to trigger the timer.
+	m_currentViewportActive = i;
+	switch (i)
+	{
+	case 0:		
+		switch (playerNumber) {
+		case 1: //Full screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+			break;
+		case 2: //Left Screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
+			break;
+		case 3: //Whole top part of the screen
+			glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		case 4:	//Top left of the screen
+			glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		}
+		return true; //time.startRenderTimer(); RETURN TRUE to trigger timer
+		break;
+	case 1:
+		switch (playerNumber) {
+		case 2: //Right screen
+
+			glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
+			break;
+		case 3: 			// Bottom left screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		case 4://Top right of the screen
+			glViewport(Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		}
+		break;
+	case 2:
+		switch (playerNumber) {
+		case 3: //Bottom right
+			glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		case 4:// Bottom left screen
+			glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+			break;
+		}
+		break;
+	case 3:
+		//Bottom right
+		glViewport(Utils::instance().SCREEN_WIDTH / 2, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);
+		break;
+	}
+
+
+
+
+	
+	return false;
 }
 
 void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, const std::vector<PowerUp*>& powerUps) {
@@ -66,7 +127,7 @@ void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, con
 	Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	Utils::instance().shader->setVector4("lightColor", lightColor);
 	Utils::instance().shader->setVector3("lightPos", lightPos);
-	Utils::instance().shader->setVector3("camPos", m_camera->getPosition());
+	Utils::instance().shader->setVector3("camPos", m_cameraList->at(m_currentViewportActive)->getPosition());
 
 
 	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -104,8 +165,8 @@ void RenderManager::renderCars(const std::vector<PVehicle*>& vehicleList){
 	Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	Utils::instance().shader->setVector4("lightColor", lightColor);
 	Utils::instance().shader->setVector3("lightPos", lightPos);
-	Utils::instance().shader->setVector3("camPos", m_camera->getPosition());
-	m_camera->sendMatricesToShader();
+	Utils::instance().shader->setVector3("camPos", m_cameraList->at(m_currentViewportActive)->getPosition());
+	m_cameraList->at(m_currentViewportActive)->sendMatricesToShader();
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
@@ -126,8 +187,8 @@ void RenderManager::renderNormalObjects() {
 	Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	Utils::instance().shader->setVector4("lightColor", lightColor);
 	Utils::instance().shader->setVector3("lightPos", lightPos);
-	Utils::instance().shader->setVector3("camPos", m_camera->getPosition());
-	m_camera->sendMatricesToShader();
+	Utils::instance().shader->setVector3("camPos", m_cameraList->at(m_currentViewportActive)->getPosition());
+	m_cameraList->at(m_currentViewportActive)->sendMatricesToShader();
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
 }
@@ -141,8 +202,8 @@ void RenderManager::renderTransparentObjects(const std::vector<PVehicle*>& vehic
 	Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	Utils::instance().shader->setVector4("lightColor", lightColor);
 	Utils::instance().shader->setVector3("lightPos", lightPos);
-	Utils::instance().shader->setVector3("camPos", m_camera->getPosition());
-	m_camera->sendMatricesToShader();
+	Utils::instance().shader->setVector3("camPos", m_cameraList->at(m_currentViewportActive)->getPosition());
+	m_cameraList->at(m_currentViewportActive)->sendMatricesToShader();
 	for (PVehicle* carPtr : vehicleList) {
 		switch (carPtr->m_shieldState) {
 		case ShieldPowerUpState::eINACTIVE:
@@ -174,8 +235,8 @@ void RenderManager::renderPowerUps(const std::vector<PowerUp*>& powerUps, double
 	Utils::instance().shader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
 	Utils::instance().shader->setVector4("lightColor", lightColor);
 	Utils::instance().shader->setVector3("lightPos", lightPos);
-	Utils::instance().shader->setVector3("camPos", m_camera->getPosition());
-	m_camera->sendMatricesToShader();
+	Utils::instance().shader->setVector3("camPos", m_cameraList->at(m_currentViewportActive)->getPosition());
+	m_cameraList->at(m_currentViewportActive)->sendMatricesToShader();
 
 	for (PowerUp* powerUpPtr : powerUps) {
 		if (powerUpPtr->active) {
@@ -191,6 +252,8 @@ void RenderManager::useDefaultShader() {
 	Utils::instance().shader->setVector3("lightPos", lightPos);
 	Utils::instance().shader->setVector3("camPos", m_menuCamera->getPosition());
 }
+
+
 
 
 
