@@ -329,6 +329,9 @@
     <ClInclude Include="Time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="MiniMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -382,6 +385,12 @@
       <Filter>Resource Files</Filter>
     </None>
     <None Include="shaders\powerUp.vert">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\image.frag">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="shaders\image.vert">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
