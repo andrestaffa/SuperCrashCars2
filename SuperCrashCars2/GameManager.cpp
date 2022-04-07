@@ -10,10 +10,8 @@ void GameManager::changeSelection(int plus) {
 
 		switch (this->mainMenuScreen) {
 		case MainMenuScreen::eMAIN_SCREEN:
-			this->menuButton = (MainMenuButton)(((int)this->menuButton + plus + 6) % 6); 
-			break;
-		case MainMenuScreen::eMULTIPLAYER_SCREEN:
-			this->playerSelectButton = (PlayerSelectButton)(((int)this->playerSelectButton + plus + 2) % 2);
+			// in main screen, there is four buttons
+			this->menuButton = (MainMenuButton)(((int)this->menuButton + plus + 5) % 5); // there are four buttons in main menu so mod 4
 			break;
 		case MainMenuScreen::eHOWTOPLAY_SCREEN:
 			// do nothing, only one button
@@ -46,34 +44,28 @@ void GameManager::changeSelection(int plus) {
 }
 
 void GameManager::incrementSlider(int right) {
-	if (screen == Screen::eMAINMENU) {
-		if (mainMenuScreen == MainMenuScreen::eOPTIONS_SCREEN) {
-			switch (optionsButton)
-			{
-			case OptionsButton::eBGM:
-				AudioManager::get().incrementBGMVolume(right);
-				AudioManager::get().playSound(SFX_INCREMENT, 0.4f);
-				break;
-			case OptionsButton::eSFX:
-				AudioManager::get().incrementSFXVolume(right);
-				AudioManager::get().playSound(SFX_INCREMENT, 0.4f);
-				break;
-			case OptionsButton::eBACK: // nothing
-				break;
-			}
-		}
-		else if (mainMenuScreen == MainMenuScreen::eMULTIPLAYER_SCREEN && playerSelectButton == PlayerSelectButton::eSELECTING) {
-			playerNumber = (playerNumber - 2 + right + 3) % 3 + 2;
+	if (screen == Screen::eMAINMENU && mainMenuScreen == MainMenuScreen::eOPTIONS_SCREEN) {
+		switch (optionsButton)
+		{
+		case OptionsButton::eBGM:
+			AudioManager::get().incrementBGMVolume(right);
 			AudioManager::get().playSound(SFX_INCREMENT, 0.4f);
-
+			break;
+		case OptionsButton::eSFX:
+			AudioManager::get().incrementSFXVolume(right);
+			AudioManager::get().playSound(SFX_INCREMENT, 0.4f);
+			break;
+		case OptionsButton::eBACK: // nothing
+			break;
 		}
-
 
 	}
 }
 // this function "clicks" on the current button
 void GameManager::select() {
 	bool playSound = true;
+	
+	// we will play a sound here after the sound system is implemented
 
 	switch (this->screen) {
 	case Screen::eMAINMENU:
@@ -83,16 +75,9 @@ void GameManager::select() {
 			// in main screen, one of the four buttons is selected
 
 			switch (this->menuButton) {
-			case MainMenuButton::eSINGLEPLAYER:
+			case MainMenuButton::eSTART:
 				// start game (for now just instantly switches to rendering)
-				this->playerNumber = 1;
 				this->screen = Screen::eLOADING;
-
-				break;
-			case MainMenuButton::eMULTIPLAYER:
-				// start game (for now just instantly switches to rendering)
-				this->playerNumber = 2;
-				this->mainMenuScreen = MainMenuScreen::eMULTIPLAYER_SCREEN;
 
 				break;
 			case MainMenuButton::eHOWTOPLAY:
@@ -113,10 +98,6 @@ void GameManager::select() {
 				break;
 			}
 
-			break;
-		case MainMenuScreen::eMULTIPLAYER_SCREEN:
-			if (playerSelectButton == PlayerSelectButton::eSTART) this->screen = Screen::eLOADING;
-			else playSound = false;
 			break;
 		case MainMenuScreen::eHOWTOPLAY_SCREEN:
 			// quit the current screen, return to main screen of main menu
@@ -164,14 +145,12 @@ void GameManager::select() {
 void GameManager::initMenu() {
 	AudioManager::get().setListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	this->screen = Screen::eMAINMENU;
-	this->menuButton = MainMenuButton::eSINGLEPLAYER;
+	this->menuButton = MainMenuButton::eSTART;
 	this->mainMenuScreen = MainMenuScreen::eMAIN_SCREEN;
 	this->pauseButton = PauseButton::eRESUME;
 	this->optionsButton = OptionsButton::eBGM;
-	this->playerSelectButton = PlayerSelectButton::eSELECTING;
 	this->paused = false;
 	winner = -1;
-	playerNumber = 1;
 }
 
 // toggles pause (only if in game)
@@ -196,7 +175,7 @@ std::string GameManager::printMenu() {
 			str = str + "sub-screen Main, ";
 
 			switch (this->menuButton) {
-			case MainMenuButton::eSINGLEPLAYER:
+			case MainMenuButton::eSTART:
 				str = str + "button START selected ";
 
 				break;
