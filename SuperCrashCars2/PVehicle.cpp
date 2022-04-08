@@ -75,11 +75,12 @@ void PVehicle::initVehicleModel() {
 		case VehicleType::eAVA:
 		{
 			this->m_chassis = Model("models/ava_car/ava_car.obj");
-			this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
-			this->m_chassis.scale(glm::vec3(1.f));
+			//this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
+			this->m_chassis.translate(glm::vec3(0.0f, -1.25f, 0.0f));
+			this->m_chassis.scale(glm::vec3(0.95f, 1.f, 1.45f));
 
-			this->m_tires = Model("models/wheel/wheel.obj");
-			this->m_tires.scale(glm::vec3(0.6f));
+			this->m_tires = Model("models/wheel/ava_wheel.obj");
+			this->m_tires.scale(glm::vec3(0.95f));
 
 			break;
 		}
@@ -98,7 +99,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 
 	if (this->m_vehicleType == VehicleType::eAVA) {
 		chassisMass = 8000.0f;
-		chassisDims = PxVec3(3.0f, 2.0f, 7.5f);
+		chassisDims = PxVec3(4.0f, 2.0f, 7.5f);
 	}
 
 	const PxVec3 chassisMOI
@@ -337,10 +338,10 @@ void PVehicle::render() {
 		// 3 -> back-left tire
 		// 4 -> body
 
-		/*if (i < 4) this->m_tires.draw(TM);
-		else  this->m_chassis.draw(TM);*/
+		if (i < 4) this->m_tires.draw(TM);
+		else  this->m_chassis.draw(TM);
 
-		if (i >= 4) this->m_chassis.draw(TM);
+		//if (i >= 4) this->m_chassis.draw(TM);
 
 	}
 }

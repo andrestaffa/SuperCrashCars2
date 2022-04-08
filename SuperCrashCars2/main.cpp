@@ -140,7 +140,7 @@ int main(int argc, char** argv) {
 	// Create Grass
 	std::vector<Model> grassPatches;
 	std::vector<Model> trees;
-	renderer.generateLandscape(trees, grassPatches, pm.m_groundModel);
+	//renderer.generateLandscape(trees, grassPatches, pm.m_groundModel);
 
 	// AI toggle
 	bool ai_ON = true;
