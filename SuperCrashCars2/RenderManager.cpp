@@ -213,7 +213,7 @@ void RenderManager::generateLandscape(std::vector<Model>& trees, std::vector<Mod
 		}
 	}
 
-	counter = 0;
+	/*counter = 0;
 	Model grass = Model("models/grass/grass.obj");
 	for (const Mesh& mesh : ground.getMeshData()) {
 		for (const Vertex& vertex : mesh.m_vertices) {
@@ -226,7 +226,7 @@ void RenderManager::generateLandscape(std::vector<Model>& trees, std::vector<Mod
 			}
 			counter++;
 		}
-	}
+	}*/
 
 }
 

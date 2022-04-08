@@ -452,7 +452,7 @@ int main(int argc, char** argv) {
 					renderer.skybox.draw(cameraList.at(currentViewport)->getPerspMat(), glm::mat4(glm::mat3(p1Camera.getViewMat())));
 					renderer.renderCars(vehicleList);
 					renderer.renderPowerUps(powerUps, os);
-					renderer.renderNormalObjects(); // prepare to draw NORMAL objects, doesn't actually render anything.
+					renderer.renderNormalObjects(trees, grassPatches); // prepare to draw NORMAL objects, doesn't actually render anything.
 					pm.drawGround();
 					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
 
