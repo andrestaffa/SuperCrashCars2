@@ -1,7 +1,7 @@
 # Blender MTL File: 'car.blend'
-# Material Count: 3
+# Material Count: 2
 
-newmtl Tex_0001_0_png
+newmtl Tex_0001_0_png.002
 Ns 8.823530
 Ka 1.000000 1.000000 1.000000
 Kd 0.588000 0.588000 0.588000
@@ -12,7 +12,7 @@ d 1.000000
 illum 1
 map_Kd Tex_0001_0.png
 
-newmtl Tex_0003_0_png
+newmtl Tex_0005_0_png.002
 Ns 8.823530
 Ka 1.000000 1.000000 1.000000
 Kd 0.588000 0.588000 0.588000
@@ -21,16 +21,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.500000
 d 1.000000
 illum 1
-map_Kd Tex_0003_0.png
-
-newmtl Tex_0104_0_png
-Ns 8.823530
-Ka 1.000000 1.000000 1.000000
-Kd 0.588000 0.588000 0.588000
-Ks 0.000000 0.000000 0.000000
-Ke 0.000000 0.000000 0.000000
-Ni 1.500000
-d 0.000000
-illum 1
-map_Kd Tex_0104_0.png
-map_d Tex_0104_0.png
+map_Kd Tex_0005_0.png
