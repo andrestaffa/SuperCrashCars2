@@ -35,7 +35,7 @@ PhysicsManager::PhysicsManager(const PxF32 timestep) : timestep(timestep) {
 	PxVehicleSetUpdateMode(PxVehicleUpdateMode::eVELOCITY_CHANGE);
 
 	//Create a plane to drive on.
-	this->m_groundModel = Model("models/ground/ground.obj");
+	this->m_groundModel = Model("models/island/ground.obj");
 	std::vector<PxVec3> vertices;
 	std::vector<PxU32> indices;
 	for (const Mesh& mesh : this->m_groundModel.getMeshData()) {

@@ -179,7 +179,7 @@ void RenderManager::renderCars(const std::vector<PVehicle*>& vehicleList){
 }
 
 // only runs code to setup for rendering a 'normal object'. doesn't actually render anything itself to not pass around too many specific things
-void RenderManager::renderNormalObjects() {
+void RenderManager::renderNormalObjects(std::vector<Model>& trees, std::vector<Model>& grassPatches) {
 	// Other rendering
 	Utils::instance().shader = defaultShader;
 	Utils::instance().shader->use();
@@ -191,6 +191,43 @@ void RenderManager::renderNormalObjects() {
 	m_cameraList->at(m_currentViewportActive)->sendMatricesToShader();
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
+
+	for (Model& grass : grassPatches) grass.draw();
+	for (Model& tree : trees) tree.draw();
+}
+
+void RenderManager::generateLandscape(std::vector<Model>& trees, std::vector<Model>& grassPatches, Model& ground) {
+
+	int counter = 0;
+	Model tree = Model("models/tree/tree.obj");
+	for (const Mesh& mesh : ground.getMeshData()) {
+		for (const Vertex& vertex : mesh.m_vertices) {
+			if (counter % 750 == 0) {
+				const glm::vec3& position = vertex.Position;
+				Model tree_c = Model(tree);
+				tree_c.setPosition(glm::vec3(position.x, position.y, position.z));
+				tree_c.scale(glm::vec3(2.f));
+				trees.push_back(tree_c);
+			}
+			counter++;
+		}
+	}
+
+	/*counter = 0;
+	Model grass = Model("models/grass/grass.obj");
+	for (const Mesh& mesh : ground.getMeshData()) {
+		for (const Vertex& vertex : mesh.m_vertices) {
+			if (counter % 20 == 0) {
+				const glm::vec3& position = vertex.Position;
+				Model grass_c = Model(grass);
+				grass_c.setPosition(glm::vec3(position.x, position.y, position.z));
+				grass_c.scale(glm::vec3(1.75f));
+				grassPatches.push_back(grass_c);
+			}
+			counter++;
+		}
+	}*/
+
 }
 
 void RenderManager::renderTransparentObjects(const std::vector<PVehicle*>& vehicleList, PStatic& sphere, double os, Time& time) {

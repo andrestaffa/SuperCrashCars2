@@ -38,7 +38,9 @@ public:
 	PowerUpType getType();
 
 	bool triggered, active;
-	time_point<steady_clock> triggeredTimestamp;	
+	time_point<steady_clock> triggeredTimestamp;
+
+	PxVec3 getPosition() const;
 
 private:
 	PowerUpType m_powerUpType;

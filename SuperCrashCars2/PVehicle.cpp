@@ -64,6 +64,7 @@ void PVehicle::initVehicleCollisionAttributes() {
 	this->vehicleAttr.collided = false;
 
 	this->vehicleAttr.targetVehicle = nullptr;
+	this->vehicleAttr.targetPowerup = nullptr;
 	this->vehicleAttr.reachedTarget = false;
 
 	this->vehicleAttr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
@@ -71,35 +72,14 @@ void PVehicle::initVehicleCollisionAttributes() {
 void PVehicle::initVehicleModel() {
 	
 	switch (this->m_vehicleType) {
-		case VehicleType::eJEEP:
+		case VehicleType::eAVA:
 		{
-			this->m_chassis = Model("models/jeep/jeep.obj");
-			this->m_chassis.translate(glm::vec3(-0.0f, -1.0f, 0.0f));
-			this->m_chassis.scale(glm::vec3(1.5f, 1.5f, 1.2f));
-
-			this->m_tires = Model("models/wheel/wheel.obj");
-			this->m_tires.scale(glm::vec3(0.5f, 0.5f, 0.5f));
-			break;
-		}
-		case VehicleType::eTOYOTA:
-		{
-			this->m_chassis = Model("models/toyota/toyota.obj");
+			this->m_chassis = Model("models/ava_car/ava_car.obj");
 			this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
-			this->m_chassis.scale(glm::vec3(1.65f, 1.5f, 1.2f));
+			this->m_chassis.scale(glm::vec3(1.f));
 
 			this->m_tires = Model("models/wheel/wheel.obj");
-			this->m_tires.scale(glm::vec3(0.75f, 0.625f, 0.625f));
-
-			break;
-		}
-		case VehicleType::eSHUCKLE:
-		{
-			this->m_chassis = Model("models/shuckle/shuckle.obj");
-			this->m_chassis.translate(glm::vec3(0.125f, 2.5f, -0.20f));
-			this->m_chassis.scale(glm::vec3(1.65f, 1.5f, 1.2f));
-
-			this->m_tires = Model("models/wheel/wheel.obj");
-			this->m_tires.scale(glm::vec3(0.75f, 0.625f, 0.625f));
+			this->m_tires.scale(glm::vec3(0.6f));
 
 			break;
 		}
@@ -116,15 +96,9 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	PxF32 chassisMass = 1500.0f;
 	PxVec3 chassisDims = PxVec3(2.5f, 2.0f, 5.0f);
 
-	if (this->m_vehicleType == VehicleType::eJEEP) {
-		chassisMass = 1500.0f;
-		chassisDims = PxVec3(2.5f, 2.0f, 5.0f);
-	} else if (this->m_vehicleType == VehicleType::eTOYOTA) {
+	if (this->m_vehicleType == VehicleType::eAVA) {
 		chassisMass = 8000.0f;
 		chassisDims = PxVec3(3.0f, 2.0f, 7.5f);
-	} else if (this->m_vehicleType == VehicleType::eSHUCKLE) {
-		chassisMass = 2000.0f;
-		chassisDims = PxVec3(2.0f, -5.0f, 3.5f);
 	}
 
 	const PxVec3 chassisMOI
@@ -140,9 +114,7 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	const PxF32 wheelWidth = 0.4f;
 
 	PxF32 wheelMass = 20.0f;
-	if (this->m_vehicleType == VehicleType::eJEEP) wheelMass = 20.0f;
-	else if (this->m_vehicleType == VehicleType::eTOYOTA) wheelMass = 40.0f;
-	else if (this->m_vehicleType == VehicleType::eSHUCKLE) wheelMass = 15.0f;
+	if (this->m_vehicleType == VehicleType::eAVA) wheelMass = 40.0f;
 
 	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
 	const PxU32 nbWheels = 4;
@@ -232,7 +204,7 @@ void PVehicle::releaseAllControls() {
 #pragma endregion
 #pragma region movement
 void PVehicle::accelerate(float throttle) {
-	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f && this->m_vehicleType == VehicleType::eTOYOTA) return;
+	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f && this->m_vehicleType == VehicleType::eAVA) return;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
 }
@@ -365,8 +337,10 @@ void PVehicle::render() {
 		// 3 -> back-left tire
 		// 4 -> body
 
-		if (i < 4) this->m_tires.draw(TM);
-		else  this->m_chassis.draw(TM);
+		/*if (i < 4) this->m_tires.draw(TM);
+		else  this->m_chassis.draw(TM);*/
+
+		if (i >= 4) this->m_chassis.draw(TM);
 
 	}
 }
@@ -509,11 +483,36 @@ void PVehicle::applyHealthPowerUp() {
 
 #pragma region ai
 
-void PVehicle::chaseVehicle(PVehicle& vehicle) {
-	
-	this->vehicleAttr.targetVehicle = (PVehicle*)&vehicle;
+void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp* targetPowerUp) {
 
-	PxVec2 p = PxVec2(vehicle.getPosition().x, vehicle.getPosition().z) - PxVec2(this->getPosition().x, this->getPosition().z);
+	bool isPowerUp = false;
+	
+	if (targetVehicle) {
+		this->vehicleAttr.targetVehicle = (PVehicle*)targetVehicle;
+		this->vehicleAttr.targetPowerup = nullptr;
+		isPowerUp = false;
+	} else if (targetPowerUp) {
+		this->vehicleAttr.targetPowerup = (PowerUp*)targetPowerUp;
+		this->vehicleAttr.targetVehicle = nullptr;
+		isPowerUp = true;
+	}
+
+	// detecting edge
+	PxVec3 updatedPos = targetPos;
+	if (abs(this->getPosition().x) > 450.0f - 150.0f || abs(this->getPosition().z) > 450.0f - 150.0f) {
+		if (this->getVehicleInAir() && this->getRigidDynamic()->getLinearVelocity().magnitude() < 50.0f) {
+			PxMat44 transformMat = PxTransform(this->getTransform());
+			PxVec3 newFront = (PxVec3(0.f) - this->getPosition()).getNormalized();
+			transformMat[0][2] = newFront.x;
+			transformMat[1][2] = newFront.y;
+			transformMat[2][2] = newFront.z;
+			this->boost();
+		}
+		if (this->getRigidDynamic()->getLinearVelocity().magnitude() > 15.0f) this->brake(1);
+		updatedPos = PxVec3(0.0f);
+	}
+
+	PxVec2 p = PxVec2(updatedPos.x, updatedPos.z) - PxVec2(this->getPosition().x, this->getPosition().z);
 	glm::vec2 relativeVec = glm::vec2(p.x, p.y);
 
 	float angle = glm::orientedAngle(glm::normalize(glm::vec2(this->getFrontVec().x, this->getFrontVec().z)), glm::normalize(relativeVec));
@@ -523,11 +522,20 @@ void PVehicle::chaseVehicle(PVehicle& vehicle) {
 		this->accelerate(1.0f);
 	} else if (degrees < 0) {
 		this->turnLeft(1.0f);
-		this->accelerate(0.7f);
+		this->accelerate(0.5f);
 	} else if (degrees > 0) {
 		this->turnRight(1.0f);
-		this->accelerate(0.7f);
-	} 
+		this->accelerate(0.5f);
+	}
+
+	if (glm::length(relativeVec) < 20.f && !isPowerUp) this->boost();
+
+	// vehicle logic
+	if (!isPowerUp && targetVehicle && targetVehicle->m_state == VehicleState::eDEAD) this->vehicleAttr.reachedTarget = true;
+
+	// power up logic
+	if (isPowerUp && !targetPowerUp->active) this->vehicleAttr.reachedTarget = true;
+	if (glm::length(relativeVec) < 20.0f && isPowerUp) this->jump();
 
 }
 #pragma endregion

@@ -26,9 +26,7 @@ using namespace std::chrono;
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
 
 enum class VehicleType {
-	eJEEP = 0,
-	eTOYOTA = 1,
-	eSHUCKLE = 2
+	eAVA = 1
 };
 
 enum class PlayerOrAI {
@@ -48,6 +46,7 @@ struct VehicleCollisionAttributes {
 	bool collided;
 	
 	void* targetVehicle;
+	void* targetPowerup;
 	bool reachedTarget;
 
 	PxVec3 forceToAdd;
@@ -132,8 +131,7 @@ public:
 	PowerUpType m_powerUpPocket; // bag
 	bool accelerating;
 	// AI
-	void chaseVehicle(PVehicle& vehicle);
-
+	void driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp* targetPowerUp);
 	PlayerOrAI m_carType;
 
 private:

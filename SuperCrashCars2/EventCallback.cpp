@@ -68,18 +68,13 @@ void EventCallback::onContact(const PxContactPairHeader& pairHeader, const PxCon
 			attackerVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
 			attackerVehicle->vehicleAttr.collided = true;
 			victimVehicle->m_shieldState = ShieldPowerUpState::eINACTIVE;
-
-
-		}
-		else {
+		} else {
 			victimVehicle->vehicleAttr.forceToAdd = forceToAdd;
 			victimVehicle->vehicleAttr.collisionCoefficient = victimVehicle->vehicleAttr.collisionCoefficient + (0.1f + (attackerMag / 80.f));
 			victimVehicle->vehicleAttr.collisionMidpoint = (attackerPos + victimPos) / 2.0f;
 			victimVehicle->vehicleAttr.collided = true;
 
 		}
-
-
 
 	}
 }
@@ -91,8 +86,16 @@ void EventCallback::onTrigger(PxTriggerPair* pairs, PxU32 count) {
 
 	if (!(powerUp->getRigidStatic() && vehicle->getRigidDynamic())) return;
 
-	vehicle->pickUpPowerUp(powerUp);
+	if ((PowerUp*)vehicle->vehicleAttr.targetPowerup) {
+		PowerUp* targetPowerUp = (PowerUp*)vehicle->vehicleAttr.targetPowerup;
+		if (targetPowerUp == powerUp) {
+			vehicle->vehicleAttr.reachedTarget = true;
+		}
+	}
 
+	vehicle->pickUpPowerUp(powerUp);
 	powerUp->triggered = true;
+
+	
 
 }
