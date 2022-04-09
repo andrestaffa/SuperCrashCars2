@@ -72,9 +72,45 @@ void PVehicle::initVehicleCollisionAttributes() {
 void PVehicle::initVehicleModel() {
 	
 	switch (this->m_vehicleType) {
-		case VehicleType::eAVA:
+		case VehicleType::eAVA_GREEN:
 		{
-			this->m_chassis = Model("models/ava_car/ava_car.obj");
+			this->m_chassis = Model("models/ava_car_green/ava_car.obj");
+			//this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
+			this->m_chassis.translate(glm::vec3(0.0f, -1.25f, 0.0f));
+			this->m_chassis.scale(glm::vec3(0.95f, 1.f, 1.45f));
+
+			this->m_tires = Model("models/wheel/ava_wheel.obj");
+			this->m_tires.scale(glm::vec3(0.95f));
+
+			break;
+		}
+		case VehicleType::eAVA_BLUE:
+		{
+			this->m_chassis = Model("models/ava_car_blue/ava_car.obj");
+			//this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
+			this->m_chassis.translate(glm::vec3(0.0f, -1.25f, 0.0f));
+			this->m_chassis.scale(glm::vec3(0.95f, 1.f, 1.45f));
+
+			this->m_tires = Model("models/wheel/ava_wheel.obj");
+			this->m_tires.scale(glm::vec3(0.95f));
+
+			break;
+		}
+		case VehicleType::eAVA_RED:
+		{
+			this->m_chassis = Model("models/ava_car_red/ava_car.obj");
+			//this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
+			this->m_chassis.translate(glm::vec3(0.0f, -1.25f, 0.0f));
+			this->m_chassis.scale(glm::vec3(0.95f, 1.f, 1.45f));
+
+			this->m_tires = Model("models/wheel/ava_wheel.obj");
+			this->m_tires.scale(glm::vec3(0.95f));
+
+			break;
+		}
+		case VehicleType::eAVA_YELLOW:
+		{
+			this->m_chassis = Model("models/ava_car_yellow/ava_car.obj");
 			//this->m_chassis.translate(glm::vec3(-0.125f, -1.15f, 0.20f));
 			this->m_chassis.translate(glm::vec3(0.0f, -1.25f, 0.0f));
 			this->m_chassis.scale(glm::vec3(0.95f, 1.f, 1.45f));
@@ -97,10 +133,10 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	PxF32 chassisMass = 1500.0f;
 	PxVec3 chassisDims = PxVec3(2.5f, 2.0f, 5.0f);
 
-	if (this->m_vehicleType == VehicleType::eAVA) {
+	//if (this->m_vehicleType == VehicleType::eAVA_GREEN) { // all vehicles will be the same
 		chassisMass = 8000.0f;
 		chassisDims = PxVec3(4.0f, 2.0f, 7.5f);
-	}
+	//}
 
 	const PxVec3 chassisMOI
 	((chassisDims.y * chassisDims.y + chassisDims.z * chassisDims.z) * chassisMass / 12.0f,
@@ -115,7 +151,8 @@ VehicleDesc PVehicle::initVehicleDesc() {
 	const PxF32 wheelWidth = 0.4f;
 
 	PxF32 wheelMass = 20.0f;
-	if (this->m_vehicleType == VehicleType::eAVA) wheelMass = 40.0f;
+	//if (this->m_vehicleType == VehicleType::eAVA_GREEN) 
+		wheelMass = 40.0f;
 
 	const PxF32 wheelMOI = 0.5f * wheelMass * wheelRadius * wheelRadius;
 	const PxU32 nbWheels = 4;
@@ -205,7 +242,7 @@ void PVehicle::releaseAllControls() {
 #pragma endregion
 #pragma region movement
 void PVehicle::accelerate(float throttle) {
-	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f && this->m_vehicleType == VehicleType::eAVA) return;
+	if (this->gVehicle4W->getRigidDynamicActor()->getLinearVelocity().magnitude() >= 30.0f) return;
 	gVehicle4W->mDriveDynData.forceGearChange(PxVehicleGearsData::eFIRST);
 	gVehicleInputData.setAnalogAccel(throttle);
 }

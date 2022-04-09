@@ -26,7 +26,10 @@ using namespace std::chrono;
 #define PX_RELEASE(x)	if(x)	{ x->release(); x = NULL;	}
 
 enum class VehicleType {
-	eAVA = 1
+	eAVA_GREEN,
+	eAVA_BLUE,
+	eAVA_RED,
+	eAVA_YELLOW
 };
 
 enum class PlayerOrAI {

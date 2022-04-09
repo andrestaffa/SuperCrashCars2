@@ -110,10 +110,10 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.3f/60.0f);
-	PVehicle player = PVehicle(0, pm, VehicleType::eAVA, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f));
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f));
-	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
-	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
+	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f));
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f));
+	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
+	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-90.f, 10.f, -185.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(-267.0, 70.f, 60.f));
