@@ -110,10 +110,10 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.3f/60.0f);
-	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f));
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f));
-	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f));
-	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f));
+	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f)); // p1 green car
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, 230.f)); // p2 blue car
+	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 220.0f)); // p3 red car
+	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f)); // p4 yellow car
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-90.f, 10.f, -185.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(-267.0, 70.f, 60.f));
@@ -199,13 +199,37 @@ int main(int argc, char** argv) {
 			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
 				if (!controller1.connected) {
 					AudioManager::get().playSound(SFX_CONTROLLER_ON, 0.3f);
+					controller1 = InputController(GLFW_JOYSTICK_1);
 					controller1.connected = true;
+					Log::debug("Controller 1 Connecter in main");
+
 				}
 			}
 			else {
 				if (controller1.connected) {
 					AudioManager::get().playSound(SFX_CONTROLLER_OFF, 0.5f);
 					controller1.connected = false;
+					Log::debug("Controller 1 disconnected in main");
+
+				}
+
+			}
+
+			if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
+				if (!controller2.connected) {
+					AudioManager::get().playSound(SFX_CONTROLLER_ON, 0.3f);
+					controller1 = InputController(GLFW_JOYSTICK_2);
+
+					controller2.connected = true;
+					Log::debug("Controller 2 Connecter in main");
+				}
+			}
+			else {
+				if (controller2.connected) {
+					AudioManager::get().playSound(SFX_CONTROLLER_OFF, 0.5f);
+					controller2.connected = false;
+					Log::debug("Controller 2 connected in main");
+
 				}
 
 			}
