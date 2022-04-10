@@ -32,6 +32,7 @@
 #include "AudioManager.h"
 
 #include "RenderManager.h"
+#include "MiniMap.h"
 
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
@@ -72,9 +73,21 @@ int main(int argc, char** argv) {
 	currentPowerup.Load("freetype/fonts/bof.ttf", 40);
 
 	// Image rendering
-	Image image = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	std::vector<Image*> imageList;
+	Image image1 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image e0 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image e1 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image e2 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image e3 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image e4 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	
+	imageList.push_back(&e0);
+	imageList.push_back(&e1);
+	imageList.push_back(&e2);
+	imageList.push_back(&e3);
+	imageList.push_back(&e4);
 	Texture texture("textures/singleplayer.png", GL_LINEAR); // Just a placeholder/test image
-
+	Texture con("textures/controller.png", GL_LINEAR); // Just a placeholder/test image
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	menuText.Load("freetype/fonts/bof.ttf", 40);
@@ -177,10 +190,11 @@ int main(int argc, char** argv) {
 	std::string printDamage;
 	std::string printNumbers;
 
+	MiniMap map1(1, player);
 	//GameManager::get().playerNumber = 2; // NUMBER OF VIEWPORTS
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
-
+		
 		// always update the time and poll events
 		time.update();
 		glfwPollEvents();
@@ -354,12 +368,17 @@ int main(int argc, char** argv) {
 					}
 					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), Utils::instance().SCREEN_WIDTH / 4, 200, 1.0f, playerSelectButtonColors.at(0));
 					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, playerSelectButtonColors.at(1));
-
+					//image1.draw(con, glm::vec2(500.f, 800.f), glm::vec2(100, 100), 0, glm::vec3(0.f, 0.f, 0.f));
+					//e1.draw(con, glm::vec2(200.f, 600.f), glm::vec2(150, 100), 0, glm::vec3(1.f, 1.f, 1.f));
+					//e2.draw(con, glm::vec2(400.f, 600.f), glm::vec2(150, 100), 0, glm::vec3(1.f, 1.f, 1.f));
+					//e3.draw(con, glm::vec2(600.f, 600.f), glm::vec2(150, 100), 0, glm::vec3(1.f, 1.f, 1.f));
+					//e4.draw(con, glm::vec2(500.f, 600.f), glm::vec2(100, 100), 0, glm::vec3(0.f, 0.f, 0.f));
 					break; }
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
 					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					//Placeholder for How To Play image, just set the texture to the image png
-					image.draw(texture, glm::vec2(200.f, 200.f), glm::vec2(500.f, 500.f), 0.f, glm::vec3(1.f, 1.f, 1.f));
+					//image1.draw(texture, glm::vec2(200.f, 200.f), glm::vec2(500.f, 500.f), 180, glm::vec3(1.f, 1.f, 1.f));
+										
 
 					break;
 				case MainMenuScreen::eOPTIONS_SCREEN:
@@ -410,7 +429,8 @@ int main(int argc, char** argv) {
 				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
 					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
-
+																																																							 
+					map1.displayMap(player, vehicleList, &imageList);
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
 					renderer.renderShadows(vehicleList, powerUps);

@@ -2,20 +2,24 @@
 
 #include "Log.h"
 #include "PVehicle.h"
-
+#include "Texture.h"
+#include "Image.h"
+#include "GameManager.h"
+#include <string>
+#include <math.h>
+#define M_PI 3.14159265358979323846
 class MiniMap
 {
 public:
 	MiniMap();
 	MiniMap(int playerId, PVehicle& player);
 
-	void displayMap(PVehicle& player, const std::vector<PVehicle*>& vehicleList);
+	void displayMap(PVehicle& player, const std::vector<PVehicle*>& vehicleList, std::vector<Image*> *imageList);
 
 private:
 	int playerId;
 	PxVec3 currentPos;
 	glm::vec3 frontVec;
-
 	std::vector<glm::vec3> oppoPos;
 	std::vector<glm::vec3> relativePos;
 	std::vector<PxVec3> oppoFrontVec;
