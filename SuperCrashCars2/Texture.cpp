@@ -3,6 +3,7 @@
 #include "stb_image.h"
 
 #include <iostream>
+Texture::Texture() {}
 
 Texture::Texture(std::string path, GLint interpolation)
 	: textureID(), path(path), interpolation(interpolation)
