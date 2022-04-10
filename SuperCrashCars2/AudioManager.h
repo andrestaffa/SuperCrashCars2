@@ -21,7 +21,7 @@
 
 #define SFX_CAR_IDLE "audio/carsounds/car_long/idle.wav"
 #define SFX_CARWINDUP "audio/carsounds/car_long/windup.wav"
-#define SFX_CAR_FAST "audio/carsounds/car_long/maxspeed.wav"
+#define SFX_CAR_FAST "audio/carsounds/car_long/loop.wav"
 #define	SFX_CARWINDDOWN "audio/carsounds/car_long/winddown.wav"
 
 #define SFX_CAR_HIT "audio/sfx/hit.wav"
@@ -31,6 +31,13 @@
 #define	SFX_JUMP_MEGA "audio/sfx/megajump.wav"
 
 class PVehicle;
+
+enum class CarAudioState {
+	eIDLE,
+	eACCELERATING,
+	eLOOP,
+	eDECELERATING
+};
 
 class AudioManager{
 
@@ -53,7 +60,7 @@ public:
 	void incrementBGMVolume(int sign);
 	void incrementSFXVolume(int sign);
 	void loadBackgroundSound(std::string filePath);
-	void loadCarSound(std::string filePath);
+	void loadCarSound(std::string filePath, bool looping);
 	void playSound(std::string soundName, float soundVolume);
 	void playSound(std::string soundName, glm::vec3 position, float soundVolume);
 	void setMasterVolume(float newVolume);
@@ -74,9 +81,10 @@ public:
 
 	FMOD::System* system;
 	
-	void loadCarIdleSound(std::string soundName, float soundVolume, int carid, glm::vec3 position);
-	void updateCarPos(glm::vec3 position, int carid);
 
+	void startCarSounds();
+	void updateCarSounds();
+	void setCarSoundsPause(bool pause);
 
 private:
 	AudioManager() {}
@@ -89,13 +97,16 @@ private:
 	void loadSound(std::string filePath);
 
 
+
 	float clampVol(float vol);
 
 	bool muted, mutedSFX, mutedBGM;
 	const float BGM_VOL_INIT = 0.2f;
-	const float POSITION_SCALING = 0.05f;
+	const float POSITION_SCALING = 0.08f;
+	const float CAR_SOUNDS_VOLUME = 0.1f;
 
 	FMOD::Channel* carChannels[4]; // because of this, max out at 4 cars.
+	CarAudioState audioState[4]; // corresponds to the carids
 
 	std::vector<PVehicle*> m_vehicleList;
 	
