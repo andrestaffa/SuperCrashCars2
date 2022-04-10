@@ -491,8 +491,8 @@ int main(int argc, char** argv) {
 				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
 					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
-																																																							 
-					map1.displayMap(player, vehicleList, &imageList);
+					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
+					
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
 					renderer.renderShadows(vehicleList, powerUps);

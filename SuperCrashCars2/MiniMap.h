@@ -14,7 +14,7 @@ public:
 	MiniMap();
 	MiniMap(int playerId, PVehicle& player);
 
-	void displayMap(PVehicle& player, const std::vector<PVehicle*>& vehicleList, std::vector<Image*> *imageList);
+	void displayMap(PVehicle& player, const std::vector<PVehicle*>* vehicleList, std::vector<Image*> *imageList, int currentplayer);
 
 private:
 	int playerId;
