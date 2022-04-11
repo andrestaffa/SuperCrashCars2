@@ -273,6 +273,9 @@ int main(int argc, char** argv) {
 			switch (GameManager::get().screen) {
 			case Screen::eMAINMENU: {
 				if (controller1.connected) controller1.uniController(false, player);
+				if (controller2.connected) controller2.uniController(false, enemy);
+				if (controller3.connected) controller3.uniController(false, enemy2);
+				if (controller4.connected) controller4.uniController(false, enemy3);
 
 				break; }
 			case Screen::eLOADING: {
@@ -299,11 +302,16 @@ int main(int argc, char** argv) {
 
 				if (GameManager::get().paused) { // paused, read the inputs using the menu function
 					if (controller1.connected) controller1.uniController(false, player);
+					if (controller2.connected) controller2.uniController(false, enemy);
+					if (controller3.connected) controller3.uniController(false, enemy2);
+					if (controller4.connected) controller4.uniController(false, enemy3);
 				}
 				else { // in game
 
 					if (controller1.connected) controller1.uniController(true, player);
-					if (controller2.connected) controller2.uniController(true, enemy);
+					if (controller2.connected && enemy.m_carType == PlayerOrAI::ePLAYER) controller2.uniController(true, enemy);
+					if (controller3.connected && enemy.m_carType == PlayerOrAI::ePLAYER) controller3.uniController(true, enemy2);
+					if (controller4.connected && enemy.m_carType == PlayerOrAI::ePLAYER) controller4.uniController(true, enemy3);
 
 
 					int deadCounter = 0;
@@ -408,6 +416,9 @@ int main(int argc, char** argv) {
 				break; }
 			case Screen::eGAMEOVER: {
 				if (controller1.connected) controller1.uniController(false, player);
+				if (controller2.connected) controller2.uniController(false, enemy);
+				if (controller3.connected) controller3.uniController(false, enemy2);
+				if (controller4.connected) controller4.uniController(false, enemy3);
 				break; }
 			}
 			time.endSimTimer(); // end sim timer !

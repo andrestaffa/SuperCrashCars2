@@ -336,7 +336,7 @@ void InputController::NSInputInGame(PVehicle& p1) {
 		}
 	}
 	if (GLFW_PRESS == buttons[2]) p1.handbrake();
-
+	if (GLFW_PRESS == buttons[1]) p1.usePowerUp();
 	if (GLFW_PRESS == buttons[0]) p1.jump();
 	if (GLFW_PRESS == buttons[3]) {
 		// the first time boost trigger is registered is different from the rest
@@ -419,19 +419,13 @@ void InputController::uniController(bool isInGame, PVehicle& player) {
 	if (!isInGame) {
 		//PS4 controller
 		if (this->getButtonCount() == 18) this->PS4InputInMenu();
-		else if (this->getButtonCount() == 14) {
-			this->XboxInputInMenu();
-			//Log::info("XBOX");
-		}
+		else if (this->getButtonCount() == 14) this->XboxInputInMenu();
 		else if (this->getAxesCount() == 4) this->NSInputInMenu();
 
 	}
 	else {
 		if (this->getButtonCount() == 18) this->PS4InputInGame(player);		
-		else if (this->getButtonCount() == 14) {
-			this->XboxInputInGame(player);
-			//Log::info("XBOX");
-		}
+		else if (this->getButtonCount() == 14) this->XboxInputInGame(player);
 		else if (this->getAxesCount() == 4) this->NSInputInGame(player);
 	}
 }
