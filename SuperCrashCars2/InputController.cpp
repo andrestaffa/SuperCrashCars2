@@ -53,7 +53,7 @@ int InputController::getAxesCount() {
  * Button[0]--B, Button[1]--A, Button[2]--Y, Button[3]--X, Button[4]--L, Button[5]--R,
  * Button[6]--ZL, Button[7]--ZR, Button[8]--'-', Button[9]--'+', Button[10]--LSB, Button[11]--RSB,
  * Button[12]--Home, Button[13]--ScreenShot,Button[14]--???, Button[15]--???, Button[16]--Up,
- * Button[17]--Righ, Button[18]--Down, Button[19]--Left.
+ * Button[17]--Right, Button[18]--Down, Button[19]--Left.
  * axes[0]--Left Stick X Axis, axes[1]--Left Stick Y Axis,
  * axes[2]--Right Stick X Axis, axes[3]--Left Trigger.
  */
@@ -402,6 +402,22 @@ void InputController::NSInputInMenu() {
 		}
 	}
 	else if (downHeld) downHeld = false;
+
+	if (GLFW_PRESS == buttons[17]) { // "right" in menus
+		if (!rightHeld) {
+			rightHeld = true;
+			GameManager::get().incrementSlider(1);
+		}
+	}
+	else if (rightHeld) rightHeld = false;
+
+	if (GLFW_PRESS == buttons[19]) { // "left" in menus
+		if (!leftHeld) {
+			leftHeld = true;
+			GameManager::get().incrementSlider(-1);
+		}
+	}
+	else if (leftHeld) leftHeld = false;
 }
 
 void InputController::readInput() {
