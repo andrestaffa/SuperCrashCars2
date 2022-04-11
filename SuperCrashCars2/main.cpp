@@ -75,6 +75,9 @@ int main(int argc, char** argv) {
 	// Image rendering
 	std::vector<Image*> imageList;
 	Image image1 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image image2 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image image3 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	Image image4 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image e0 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image e1 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image e2 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
@@ -162,27 +165,7 @@ int main(int argc, char** argv) {
 
 	// Controller
 	InputController controller1, controller2, controller3, controller4;
-	//std::vector<InputController*> controllerList;
-	//controllerList.push_back(&controller1);
-	//controllerList.push_back(&controller2);
-	//controllerList.push_back(&controller3);
-	//controllerList.push_back(&controller4);
 
-	//for (auto controller : controllerList)
-	//{
-
-	//}
-
-	if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
-		Log::info("Controller 1 connected");
-		controller1 = InputController(GLFW_JOYSTICK_1);
-		controller1.connected = true;
-	}
-	if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
-		Log::info("Controller 2 connected");
-		controller2 = InputController(GLFW_JOYSTICK_2);
-		controller2.connected = true;
-	}
 	// ImGui
 	ImguiManager imgui(window);
 
@@ -234,7 +217,7 @@ int main(int argc, char** argv) {
 			if (glfwJoystickPresent(GLFW_JOYSTICK_2)) {
 				if (!controller2.connected) {
 					AudioManager::get().playSound(SFX_CONTROLLER_ON, 0.3f);
-					controller1 = InputController(GLFW_JOYSTICK_2);
+					controller2 = InputController(GLFW_JOYSTICK_2);
 
 					controller2.connected = true;
 					Log::debug("Controller 2 Connecter in main");
@@ -245,6 +228,43 @@ int main(int argc, char** argv) {
 					AudioManager::get().playSound(SFX_CONTROLLER_OFF, 0.5f);
 					controller2.connected = false;
 					Log::debug("Controller 2 connected in main");
+
+				}
+
+			}
+
+			if (glfwJoystickPresent(GLFW_JOYSTICK_3)) {
+				if (!controller3.connected) {
+					AudioManager::get().playSound(SFX_CONTROLLER_ON, 0.3f);
+					controller3 = InputController(GLFW_JOYSTICK_3);
+
+					controller3.connected = true;
+					Log::debug("Controller 3 Connecter in main");
+				}
+			}
+			else {
+				if (controller3.connected) {
+					AudioManager::get().playSound(SFX_CONTROLLER_OFF, 0.5f);
+					controller3.connected = false;
+					Log::debug("Controller 3 connected in main");
+
+				}
+
+			}
+			if (glfwJoystickPresent(GLFW_JOYSTICK_4)) {
+				if (!controller4.connected) {
+					AudioManager::get().playSound(SFX_CONTROLLER_ON, 0.3f);
+					controller4 = InputController(GLFW_JOYSTICK_4);
+
+					controller4.connected = true;
+					Log::debug("Controller 4 Connecter in main");
+				}
+			}
+			else {
+				if (controller4.connected) {
+					AudioManager::get().playSound(SFX_CONTROLLER_OFF, 0.5f);
+					controller4.connected = false;
+					Log::debug("Controller 4 connected in main");
 
 				}
 
@@ -283,6 +303,7 @@ int main(int argc, char** argv) {
 				else { // in game
 
 					if (controller1.connected) controller1.uniController(true, player);
+					if (controller2.connected) controller2.uniController(true, enemy);
 
 
 					int deadCounter = 0;
@@ -428,11 +449,19 @@ int main(int argc, char** argv) {
 					}
 					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), Utils::instance().SCREEN_WIDTH / 4, 200, 1.0f, playerSelectButtonColors.at(0));
 					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, playerSelectButtonColors.at(1));
-					//image1.draw(con, glm::vec2(500.f, 800.f), glm::vec2(100, 100), 0, glm::vec3(0.f, 0.f, 0.f));
-					//e1.draw(con, glm::vec2(200.f, 600.f), glm::vec2(150, 100), 0, glm::vec3(1.f, 1.f, 1.f));
-					//e2.draw(con, glm::vec2(400.f, 600.f), glm::vec2(150, 100), 0, glm::vec3(1.f, 1.f, 1.f));
-					//e3.draw(con, glm::vec2(600.f, 600.f), glm::vec2(150, 100), 0, glm::vec3(1.f, 1.f, 1.f));
-					//e4.draw(con, glm::vec2(500.f, 600.f), glm::vec2(100, 100), 0, glm::vec3(0.f, 0.f, 0.f));
+					for (int i = 0; i < GameManager::get().playerNumber; i++)
+					{
+						vehicleList[i]->setCar_tpye(PlayerOrAI::ePLAYER);
+						
+					}
+					for (int i = 3; i >= GameManager::get().playerNumber; i--)
+					{
+						vehicleList[i]->setCar_tpye(PlayerOrAI::eAI);
+					}
+					/*image1.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 245.f), 0, glm::vec3(1.f, 1.f, 1.f));
+					image2.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 445.f), 0, glm::vec3(1.f, 1.f, 1.f));
+					image3.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 645.f), 0, glm::vec3(1.f, 1.f, 1.f));
+					image4.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 845.f), 0, glm::vec3(1.f, 1.f, 1.f));*/
 					break; 
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
 					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));

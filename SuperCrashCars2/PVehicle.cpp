@@ -577,5 +577,8 @@ void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp
 
 }
 #pragma endregion
+void PVehicle::setCar_tpye(PlayerOrAI carType) {
+	this->m_carType = carType;
+}
 
 PVehicle::~PVehicle() {}

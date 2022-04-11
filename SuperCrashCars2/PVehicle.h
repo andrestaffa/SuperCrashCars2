@@ -119,6 +119,7 @@ public:
 	void pickUpPowerUp(PowerUp* p);
 	void usePowerUp();
 	void applyHealthPowerUp();
+	void setCar_tpye(PlayerOrAI carType);
 	ShieldPowerUpState m_shieldState;
 	time_point<steady_clock> m_shieldUseTimestamp;
 
