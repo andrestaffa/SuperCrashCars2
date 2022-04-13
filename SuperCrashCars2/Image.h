@@ -68,7 +68,7 @@ public:
         glActiveTexture(GL_TEXTURE0);
         texture.bind();
         glBindVertexArray(quadVAO);
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        //glEnable(GL_FRAMEBUFFER_SRGB);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }

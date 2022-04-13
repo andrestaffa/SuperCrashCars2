@@ -30,6 +30,7 @@ private:
 	std::vector<glm::vec3> relativePos;
 	std::vector<PxVec3> oppoFrontVec;
 	const std::vector<PVehicle> list;
+	std::vector<Texture*> textureList;
 
 	void updateMap(PVehicle& player, const std::vector<PVehicle*>& vehicleList);
 };

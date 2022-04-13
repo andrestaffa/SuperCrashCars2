@@ -572,7 +572,7 @@ int main(int argc, char** argv) {
 						break;
 
 					}
-					renderer.useDefaultShader();
+
 					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 				}
 
