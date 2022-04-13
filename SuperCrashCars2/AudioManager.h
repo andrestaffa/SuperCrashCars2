@@ -5,10 +5,12 @@
 
 #include <glm/glm.hpp>
 
+
 #include "Log.h"
 #include "Utils.h"
-//#include "PVehicle.h"
 
+#include <chrono>
+using namespace std::chrono;
 
 // music
 #define BGM_CLOUDS "audio/bgm/clouds.wav"
@@ -24,6 +26,10 @@
 #define SFX_CAR_FAST "audio/carsounds/car_long/loop.wav"
 #define	SFX_CARWINDDOWN "audio/carsounds/car_long/winddown.wav"
 
+#define	SFX_CAR_BOOST_START "audio/carsounds/boost/boost_start.wav"
+#define	SFX_CAR_BOOST_LOOP "audio/carsounds/boost/boost_loop.wav"
+#define	SFX_CAR_BOOST_END "audio/carsounds/boost/boost_end.wav"
+
 #define SFX_CAR_HIT "audio/sfx/hit.wav"
 #define	SFX_ITEM_COLLECT "audio/sfx/item.wav"
 #define SFX_DEATH "audio/sfx/death.wav"
@@ -32,11 +38,19 @@
 
 class PVehicle;
 
-enum class CarAudioState {
+enum class DrivingState {
 	eIDLE,
 	eACCELERATING,
 	eLOOP,
 	eDECELERATING
+};
+
+enum class BoostingState {
+	eNOT_BOOSTING,
+	eACCELERATING,
+	eACCELERATING_PAUSE,
+	eLOOP,
+	eLOOP_PAUSE,
 };
 
 class AudioManager{
@@ -105,9 +119,13 @@ private:
 	const float POSITION_SCALING = 0.08f;
 	const float CAR_SOUNDS_VOLUME = 0.1f;
 
-	FMOD::Channel* carChannels[4]; // because of this, max out at 4 cars.
-	CarAudioState audioState[4]; // corresponds to the carids
+	FMOD::Channel* carDrivingChannels[4]; // because of this, max out at 4 cars.
+	DrivingState audioState[4]; // corresponds to the carids
 
+	FMOD::Channel* boostEndChannels[4]; // corresponds to the carids
+	FMOD::Channel* carBoostChannels[4]; // because of this, max out at 4 cars.
+	BoostingState boostState[4]; // corresponds to the carids
+	time_point<steady_clock> boostTimestamp[4];
 	std::vector<PVehicle*> m_vehicleList;
 	
 };
