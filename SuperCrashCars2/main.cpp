@@ -454,12 +454,17 @@ int main(int argc, char** argv) {
 
 					break; }
 				case MainMenuScreen::eMULTIPLAYER_SCREEN:
+
 					for (int i = 0; i < 2; i++) {
 						if ((int)GameManager::get().playerSelectButton == i) playerSelectButtonColors.at(i) = selCol;
 						else playerSelectButtonColors.at(i) = regCol;
 					}
 					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), Utils::instance().SCREEN_WIDTH / 4, 200, 1.0f, playerSelectButtonColors.at(0));
 					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, playerSelectButtonColors.at(1));
+					image1.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 245.f), 0, glm::vec3(1.f, 1.f, 1.f));
+					image2.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 445.f), 0, glm::vec3(1.f, 1.f, 1.f));
+					image3.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 645.f), 0, glm::vec3(1.f, 1.f, 1.f));
+					image4.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 845.f), 0, glm::vec3(1.f, 1.f, 1.f));
 					for (int i = 0; i < GameManager::get().playerNumber; i++)
 					{
 						vehicleList[i]->setCar_tpye(PlayerOrAI::ePLAYER);
@@ -469,10 +474,7 @@ int main(int argc, char** argv) {
 					{
 						vehicleList[i]->setCar_tpye(PlayerOrAI::eAI);
 					}
-					/*image1.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 245.f), 0, glm::vec3(1.f, 1.f, 1.f));
-					image2.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 445.f), 0, glm::vec3(1.f, 1.f, 1.f));
-					image3.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 645.f), 0, glm::vec3(1.f, 1.f, 1.f));
-					image4.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 845.f), 0, glm::vec3(1.f, 1.f, 1.f));*/
+
 					break; 
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
 					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
@@ -536,12 +538,15 @@ int main(int argc, char** argv) {
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
 					renderer.renderShadows(vehicleList, powerUps);
-					renderer.skybox.draw(cameraList.at(currentViewport)->getPerspMat(), glm::mat4(glm::mat3(p1Camera.getViewMat())));
+					renderer.skybox.draw(cameraList.at(currentViewport)->getPerspMat(), glm::mat4(glm::mat3(cameraList.at(currentViewport)->getViewMat())));
 					renderer.renderCars(vehicleList);
 					renderer.renderPowerUps(powerUps, os);
 					renderer.renderNormalObjects(trees, grassPatches); // prepare to draw NORMAL objects, doesn't actually render anything.
 					pm.drawGround();
 					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
+
+					renderer.useDefaultShader();
+					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 
 
 					if (GameManager::get().paused) {
@@ -573,7 +578,7 @@ int main(int argc, char** argv) {
 
 					}
 
-					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
+					//map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 				}
 
 

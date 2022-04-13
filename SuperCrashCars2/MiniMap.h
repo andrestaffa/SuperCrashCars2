@@ -22,7 +22,7 @@ private:
 	Texture blue = Texture("textures/blue.png", GL_LINEAR);
 	Texture red = Texture("textures/red.png", GL_LINEAR);
 	Texture yellow = Texture("textures/yellow.png", GL_LINEAR);
-	Texture maptex = Texture("models/island/MariSS27.png", GL_LINEAR);
+	Texture maptex = Texture("textures/minimap.png", GL_LINEAR);
 	int playerId;
 	PxVec3 currentPos;
 	glm::vec3 frontVec;
