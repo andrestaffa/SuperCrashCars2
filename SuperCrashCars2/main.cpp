@@ -531,7 +531,7 @@ int main(int argc, char** argv) {
 				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
 					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
-					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
+					//map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 					
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
@@ -542,6 +542,7 @@ int main(int argc, char** argv) {
 					renderer.renderNormalObjects(trees, grassPatches); // prepare to draw NORMAL objects, doesn't actually render anything.
 					pm.drawGround();
 					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
+
 
 					if (GameManager::get().paused) {
 						for (int i = 0; i < 2; i++) {
@@ -571,7 +572,8 @@ int main(int argc, char** argv) {
 						break;
 
 					}
-
+					renderer.useDefaultShader();
+					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 				}
 
 
