@@ -31,16 +31,17 @@ public:
 	void NSInputInGame(PVehicle& p1);
 	void NSInputInMenu();
 	void uniController(bool isInGame, PVehicle& player);
-
+	bool selHeld, startHeld, xHeld, upHeld, downHeld, rightHeld, leftHeld = 0;
 	bool connected; // for audio and menu
 private:
 
-	bool selHeld, startHeld, xHeld, upHeld, downHeld, rightHeld, leftHeld = 0;
+
 
 	int id;
 	int axesCount;
 	const float* axis;
 	int buttonCount;
+	bool ready;
 	const unsigned char* buttons;
 	const char* name;
 

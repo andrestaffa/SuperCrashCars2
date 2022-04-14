@@ -36,7 +36,7 @@ public:
 	void updateCameraPosition(glm::vec3 newPosition, glm::vec3 frontVector);
 
 	void sendMatricesToShader();
-
+	float m_fov;
 
 
 private:
@@ -48,7 +48,7 @@ private:
 	glm::vec3 m_up;
 
 	float m_aspectRatio;
-	float m_fov;
+
 
 	float m_yaw;
 	float m_pitch;

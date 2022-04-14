@@ -34,6 +34,8 @@
 #include "RenderManager.h"
 #include "MiniMap.h"
 
+
+
 int main(int argc, char** argv) {
 	Log::info("Starting Game...");
 
@@ -124,6 +126,10 @@ int main(int argc, char** argv) {
 		pauseTextWidth.push_back(menuText.totalW);
 	}
 
+	std::vector<glm::vec3> controllerColors = { glm::vec3(1), glm::vec3(0.0f, 0.7f, 0.2f), glm::vec3(0.0f, 0.2f, 0.7f), glm::vec3(0.7f, 0.1f, 0.2f), glm::vec3(0.7f, 0.7f, 0.2f) };
+	// grey is 0, then the IDs
+
+
 	// Anti-Aliasing (Not working)
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
@@ -136,8 +142,8 @@ int main(int argc, char** argv) {
 	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(0.0f, 80.0f, 210.0f)); // p4 yellow car
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-90.f, 10.f, -185.0f));
-	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(-267.0, 70.f, 60.f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/health.obj"), PowerUpType::eHEALTH, PxVec3(152.f, 77.f + 10.f, -326.f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-267.0, 70.f, 60.f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(152.f, 77.f + 10.f, -326.f));
 	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(200.f, 7.f, 0.0f));
 	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(60.f, 30.f, -2.f));
 	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-250.f, 35.f, -102.5f));
@@ -297,6 +303,15 @@ int main(int argc, char** argv) {
 				for (PowerUp* powerUpPtr : powerUps) {
 					powerUpPtr->forceRespawn();
 				}
+				for (int i = 0; i < GameManager::get().playerNumber; i++)
+				{
+					vehicleList[i]->setCar_tpye(PlayerOrAI::ePLAYER);
+
+				}
+				for (int i = 3; i >= GameManager::get().playerNumber; i--)
+				{
+					vehicleList[i]->setCar_tpye(PlayerOrAI::eAI);
+				}
 				AudioManager::get().setCarSoundsPause(false);
 				AudioManager::get().startGame();
 				GameManager::get().screen = Screen::ePLAYING;
@@ -314,8 +329,8 @@ int main(int argc, char** argv) {
 
 					if (controller1.connected) controller1.uniController(true, player);
 					if (controller2.connected && enemy.m_carType == PlayerOrAI::ePLAYER) controller2.uniController(true, enemy);
-					if (controller3.connected && enemy.m_carType == PlayerOrAI::ePLAYER) controller3.uniController(true, enemy2);
-					if (controller4.connected && enemy.m_carType == PlayerOrAI::ePLAYER) controller4.uniController(true, enemy3);
+					if (controller3.connected && enemy2.m_carType == PlayerOrAI::ePLAYER) controller3.uniController(true, enemy2);
+					if (controller4.connected && enemy3.m_carType == PlayerOrAI::ePLAYER) controller4.uniController(true, enemy3);
 
 
 					int deadCounter = 0;
@@ -356,6 +371,7 @@ int main(int argc, char** argv) {
 
 						if (carPtr->m_state == VehicleState::eOUTOFLIVES) deadCounter++;
 
+						cameraList.at(carPtr->carid)->m_fov = 80 + (carPtr->getRigidDynamic()->getLinearVelocity().magnitude() / 9.f);
 
 					}
 
@@ -467,19 +483,17 @@ int main(int argc, char** argv) {
 					}
 					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), Utils::instance().SCREEN_WIDTH / 4, 200, 1.0f, playerSelectButtonColors.at(0));
 					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, playerSelectButtonColors.at(1));
-					image1.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 245.f), 0, glm::vec3(1.f, 1.f, 1.f));
-					image2.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 445.f), 0, glm::vec3(1.f, 1.f, 1.f));
-					image3.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 645.f), 0, glm::vec3(1.f, 1.f, 1.f));
-					image4.draw(con, glm::vec2(150.f, 100.f), glm::vec2(490.f, 845.f), 0, glm::vec3(1.f, 1.f, 1.f));
-					for (int i = 0; i < GameManager::get().playerNumber; i++)
-					{
-						vehicleList[i]->setCar_tpye(PlayerOrAI::ePLAYER);
-						
-					}
-					for (int i = 3; i >= GameManager::get().playerNumber; i--)
-					{
-						vehicleList[i]->setCar_tpye(PlayerOrAI::eAI);
-					}
+
+
+
+
+
+
+					if (controller1.connected) image1.draw(con, glm::vec2(Utils::instance().SCREEN_WIDTH / 9 - (Utils::instance().SCREEN_WIDTH / 15), (Utils::instance().SCREEN_HEIGHT / 3) * 2), glm::vec2(320.f, 160.f), 0, controllerColors.at(controller1.startHeld * 1));
+					if (controller2.connected) image1.draw(con, glm::vec2(Utils::instance().SCREEN_WIDTH / 9 * 3 - (Utils::instance().SCREEN_WIDTH / 15), (Utils::instance().SCREEN_HEIGHT / 3) * 2), glm::vec2(320.f, 160.f), 0, controllerColors.at(controller2.startHeld * 2));
+					if (controller3.connected && GameManager::get().playerNumber > 2) image1.draw(con, glm::vec2(Utils::instance().SCREEN_WIDTH / 9 * 5 - (Utils::instance().SCREEN_WIDTH / 15), (Utils::instance().SCREEN_HEIGHT / 3) * 2), glm::vec2(320.f, 160.f), 0, controllerColors.at(controller3.startHeld * 3));
+					if (controller4.connected && GameManager::get().playerNumber > 3) image1.draw(con, glm::vec2(Utils::instance().SCREEN_WIDTH / 9 * 7 - (Utils::instance().SCREEN_WIDTH / 15), (Utils::instance().SCREEN_HEIGHT / 3) * 2), glm::vec2(320.f, 160.f), 0, controllerColors.at(controller4.startHeld * 4));
+
 
 					break; 
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
@@ -587,11 +601,11 @@ int main(int argc, char** argv) {
 
 
 				// imgui
-				imgui.initFrame();
-				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
-				imgui.renderDamageHUD(vehicleList);
-				imgui.renderMenu(ai_ON);
-				imgui.endFrame();
+				//imgui.initFrame();
+				//imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				//imgui.renderDamageHUD(vehicleList);
+				//imgui.renderMenu(ai_ON);
+				//imgui.endFrame();
 
 
 

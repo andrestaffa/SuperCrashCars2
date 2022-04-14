@@ -11,8 +11,8 @@ class Utils {
 public:
 	static Utils& instance() { static Utils shared; return shared; }
 
-	const int SCREEN_WIDTH = 1280;
-	const int SCREEN_HEIGHT = 720;
+	const int SCREEN_WIDTH = 1600; // change to 1920
+	const int SCREEN_HEIGHT = 900; // change to 1000
 	
 	std::shared_ptr<ShaderProgram> shader = nullptr;
 
