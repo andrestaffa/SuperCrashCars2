@@ -89,7 +89,7 @@ int main(int argc, char** argv) {
 	imageList.push_back(&e2);
 	imageList.push_back(&e3);
 	imageList.push_back(&e4);
-	Texture texture("textures/singleplayer.png", GL_LINEAR); // Just a placeholder/test image
+	Texture texture("textures/howtoplay.png", GL_LINEAR); // Just a placeholder/test image
 	Texture con("textures/controller.png", GL_LINEAR); // Just a placeholder/test image
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
@@ -480,9 +480,7 @@ int main(int argc, char** argv) {
 
 					break; 
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
-					menuText.RenderText("This is how to play", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-					//Placeholder for How To Play image, just set the texture to the image png
-					//image1.draw(texture, glm::vec2(200.f, 200.f), glm::vec2(500.f, 500.f), 180, glm::vec3(1.f, 1.f, 1.f));
+					image1.draw(texture, glm::vec2(0.f, 0.f), glm::vec2(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT), 0, glm::vec3(1.f, 1.f, 1.f));
 										
 
 					break;
