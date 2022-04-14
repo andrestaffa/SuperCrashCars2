@@ -74,6 +74,7 @@ int main(int argc, char** argv) {
 
 	// Image rendering
 	std::vector<Image*> imageList;
+	Image mainMenu = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image image1 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image image2 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image image3 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
@@ -89,8 +90,9 @@ int main(int argc, char** argv) {
 	imageList.push_back(&e2);
 	imageList.push_back(&e3);
 	imageList.push_back(&e4);
-	Texture texture("textures/howtoplay.png", GL_LINEAR); // Just a placeholder/test image
-	Texture con("textures/controller.png", GL_LINEAR); // Just a placeholder/test image
+	Texture menu("textures/menu.png", GL_LINEAR);
+	Texture texture("textures/howtoplay.png", GL_LINEAR);
+	Texture con("textures/controller.png", GL_LINEAR);
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	menuText.Load("freetype/fonts/bof.ttf", 40);
@@ -442,18 +444,19 @@ int main(int argc, char** argv) {
 						if ((int)GameManager::get().menuButton == i) buttonColors.at(i) = selCol;
 						else buttonColors.at(i) = regCol;
 					}
-					menuText.RenderText("SINGLEPLAYER", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(0) / 2), 100.f, 1.0f, buttonColors.at(0));
+					menuText.RenderText("SINGLEPLAYER", 20.f, 100.f, 0.5f, buttonColors.at(0));
 					menuTextWidth.at(0) = menuText.totalW;
-					menuText.RenderText("MULTIPLAYER", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(1) / 2), 200, 1.0f, buttonColors.at(1));
+					menuText.RenderText("MULTIPLAYER", 20.f, 150.f, 0.5f, buttonColors.at(1));
 					menuTextWidth.at(1) = menuText.totalW;
-					menuText.RenderText("HOW TO PLAY", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(2) / 2), 300.f, 1.0f, buttonColors.at(2));
+					menuText.RenderText("HOW TO PLAY", 20.f, 200.f, 0.5f, buttonColors.at(2));
 					menuTextWidth.at(2) = menuText.totalW;
-					menuText.RenderText("OPTIONS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(3) / 2), 400.f, 1.0f, buttonColors.at(3));
+					menuText.RenderText("OPTIONS", 20.f, 250.f, 0.5f, buttonColors.at(3));
 					menuTextWidth.at(3) = menuText.totalW;
-					menuText.RenderText("CREDITS", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(4) / 2), 500.f, 1.0f, buttonColors.at(4));
+					menuText.RenderText("CREDITS", 20.f, 300.f, 0.5f, buttonColors.at(4));
 					menuTextWidth.at(4) = menuText.totalW;
-					menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (menuTextWidth.at(5) / 2), 600.f, 1.0f, buttonColors.at(5));
+					menuText.RenderText("QUIT", 20.f, 350.f, 0.5f, buttonColors.at(5));
 					menuTextWidth.at(5) = menuText.totalW;
+					mainMenu.draw(menu, glm::vec2(0.f, 0.f), glm::vec2(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT), 0, glm::vec3(1.f, 1.f, 1.f));
 
 					break; }
 				case MainMenuScreen::eMULTIPLAYER_SCREEN:
