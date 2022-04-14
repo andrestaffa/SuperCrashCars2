@@ -10,6 +10,7 @@
 #include <glm/glm.hpp>
 
 #include <memory>
+#include "Utils.h"
 
 
 // Class that specifies the interface for the most common GLFW callbacks
@@ -22,7 +23,11 @@ public:
 	virtual void mouseButtonCallback(int button, int action, int mods) {}
 	virtual void cursorPosCallback(double xpos, double ypos) {}
 	virtual void scrollCallback(double xoffset, double yoffset) {}
-	virtual void windowSizeCallback(int width, int height) { glViewport(0, 0, width, height); }
+	virtual void windowSizeCallback(int width, int height) { 
+		Utils::instance().SCREEN_HEIGHT = height;
+		Utils::instance().SCREEN_WIDTH = width;
+		
+ }
 };
 
 
