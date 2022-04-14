@@ -30,8 +30,9 @@ void MiniMap::updateMap(PVehicle& player, const std::vector<PVehicle*>& vehicleL
 
 
 void MiniMap::displayMap(PVehicle& player, const std::vector<PVehicle*>* vehicleList, std::vector<Image*> *imageList, int currentPlayer) {
-	float startPosX = Utils::instance().SCREEN_WIDTH - 110.f;
-	float startPosY = Utils::instance().SCREEN_HEIGHT - 630.f;
+	float startPosX = Utils::instance().SCREEN_WIDTH - 140;
+	float startPosY = Utils::instance().SCREEN_HEIGHT - 950.f;
+
 
 	//Single player
 	for (size_t i = 0; i < 4; i++){
@@ -48,6 +49,6 @@ void MiniMap::displayMap(PVehicle& player, const std::vector<PVehicle*>* vehicle
 		else imageList->at(i)->draw(*(textureList.at(i)), mappos, glm::vec2(10.f, 10.f), 360 - 90 * (vehicleList->at(i)->getFrontVec().z + 1.f), glm::vec3(1.f, 1.f, 1.f));
 
 	}
-	imageList->at(4)->draw(maptex, glm::vec2(startPosX - 90, 0), glm::vec2(200.f, 200.f), 0.f, glm::vec3(1.f, 1.f, 1.f));
+	imageList->at(4)->draw(maptex, glm::vec2(startPosX - 130, 0), glm::vec2(270.f, 270.f), 0.f, glm::vec3(1.f, 1.f, 1.f));
 	return;
 }
