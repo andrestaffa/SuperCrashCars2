@@ -147,13 +147,17 @@ void GameManager::select() {
 			togglePause();
 			break;
 		case PauseButton::eQUITGAME:
+			AudioManager::get().gameOver();
 			// quit game, so go back to main menu.
+			AudioManager::get().backToMainMenu();
 			initMenu();
 			break;
 		}
 		break;
 	case Screen::eGAMEOVER:
 		// do nothing, only quit button
+		AudioManager::get().setCarSoundsPause(true);
+		AudioManager::get().backToMainMenu();
 		initMenu();
 		break;
 	}
@@ -177,8 +181,17 @@ void GameManager::initMenu() {
 // toggles pause (only if in game)
 void GameManager::togglePause() {
 	if (GameManager::screen == Screen::ePLAYING) {
-		if (paused) this->paused = false;
-		else this->paused = true;
+		
+
+		if (paused) { 
+			this->paused = false;
+			AudioManager::get().setCarSoundsPause(false);
+		}
+		else { 
+			this->paused = true; 
+			AudioManager::get().setCarSoundsPause(true);
+
+		}
 	}
 }
 

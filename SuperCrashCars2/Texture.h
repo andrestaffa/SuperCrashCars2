@@ -9,6 +9,7 @@
 
 class Texture {
 public:
+	Texture();
 	Texture(std::string path, GLint interpolation);
 
 	// Because we're using the TextureHandle to do RAII for the texture for us

@@ -53,7 +53,7 @@ int InputController::getAxesCount() {
  * Button[0]--B, Button[1]--A, Button[2]--Y, Button[3]--X, Button[4]--L, Button[5]--R,
  * Button[6]--ZL, Button[7]--ZR, Button[8]--'-', Button[9]--'+', Button[10]--LSB, Button[11]--RSB,
  * Button[12]--Home, Button[13]--ScreenShot,Button[14]--???, Button[15]--???, Button[16]--Up,
- * Button[17]--Righ, Button[18]--Down, Button[19]--Left.
+ * Button[17]--Right, Button[18]--Down, Button[19]--Left.
  * axes[0]--Left Stick X Axis, axes[1]--Left Stick Y Axis,
  * axes[2]--Right Stick X Axis, axes[3]--Left Trigger.
  */
@@ -135,7 +135,11 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 	else if (startHeld) startHeld = false;
 
 	if (axis[4] != -1) p1.reverse((axis[4] + 1) / 2 * 0.65f);
-	if (axis[5] != -1) p1.accelerate((axis[5] + 1) / 2);
+	if (axis[5] != -1) 	{	
+		p1.accelerate((axis[4] + 1) / 2);
+		p1.accelerating = true;
+	}
+	else p1.accelerating = false;
 }
 
 void InputController::PS4InputInGame(PVehicle& p1) {
@@ -182,7 +186,11 @@ void InputController::PS4InputInGame(PVehicle& p1) {
 	else if (startHeld) startHeld = false;
 
 	if (axis[3] != -1) p1.reverse((axis[3] + 1) / 2 * 0.65f);
-	if (axis[4] != -1) p1.accelerate((axis[4] + 1) / 2);
+	if (axis[4] != -1) {
+		p1.accelerate((axis[4] + 1) / 2);
+		p1.accelerating = true;
+	}
+	else p1.accelerating = false;
 }
 
 void InputController::XboxInputInMenu() {
@@ -328,7 +336,7 @@ void InputController::NSInputInGame(PVehicle& p1) {
 		}
 	}
 	if (GLFW_PRESS == buttons[2]) p1.handbrake();
-
+	if (GLFW_PRESS == buttons[1]) p1.usePowerUp();
 	if (GLFW_PRESS == buttons[0]) p1.jump();
 	if (GLFW_PRESS == buttons[3]) {
 		// the first time boost trigger is registered is different from the rest
@@ -394,6 +402,22 @@ void InputController::NSInputInMenu() {
 		}
 	}
 	else if (downHeld) downHeld = false;
+
+	if (GLFW_PRESS == buttons[17]) { // "right" in menus
+		if (!rightHeld) {
+			rightHeld = true;
+			GameManager::get().incrementSlider(1);
+		}
+	}
+	else if (rightHeld) rightHeld = false;
+
+	if (GLFW_PRESS == buttons[19]) { // "left" in menus
+		if (!leftHeld) {
+			leftHeld = true;
+			GameManager::get().incrementSlider(-1);
+		}
+	}
+	else if (leftHeld) leftHeld = false;
 }
 
 void InputController::readInput() {
@@ -411,19 +435,13 @@ void InputController::uniController(bool isInGame, PVehicle& player) {
 	if (!isInGame) {
 		//PS4 controller
 		if (this->getButtonCount() == 18) this->PS4InputInMenu();
-		else if (this->getButtonCount() == 14) {
-			this->XboxInputInMenu();
-			//Log::info("XBOX");
-		}
+		else if (this->getButtonCount() == 14) this->XboxInputInMenu();
 		else if (this->getAxesCount() == 4) this->NSInputInMenu();
 
 	}
 	else {
 		if (this->getButtonCount() == 18) this->PS4InputInGame(player);		
-		else if (this->getButtonCount() == 14) {
-			this->XboxInputInGame(player);
-			//Log::info("XBOX");
-		}
+		else if (this->getButtonCount() == 14) this->XboxInputInGame(player);
 		else if (this->getAxesCount() == 4) this->NSInputInGame(player);
 	}
 }

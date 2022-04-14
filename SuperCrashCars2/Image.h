@@ -22,7 +22,7 @@ public:
             0.0f, 1.0f, 0.0f, 0.0f,
             1.0f, 1.0f, 1.0f, 0.0f,
             1.0f, 0.0f, 1.0f, 1.0f,
-
+             
             0.0f, 1.0f, 0.0f, 0.0f,
             1.0f, 0.0f, 1.0f, 1.0f,
             0.0f, 0.0f, 0.0f, 1.0f
@@ -64,11 +64,12 @@ public:
 
         shader.setMat4("model", model);
         shader.setVector3("spriteColor", color);
-
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glActiveTexture(GL_TEXTURE0);
         texture.bind();
         glBindVertexArray(quadVAO);
-        glEnable(GL_FRAMEBUFFER_SRGB);
+        //glEnable(GL_FRAMEBUFFER_SRGB);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         glBindVertexArray(0);
     }

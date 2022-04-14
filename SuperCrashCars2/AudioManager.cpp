@@ -24,17 +24,28 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 	this->mutedBGM = false;
 	this->mutedSFX = false;
 
-	loadBackgroundSound(BGM_CLOUDS);
+	loadBackgroundSound(BGM_CLOUDS, true);
+
+	loadBackgroundSound(BGM_INTRO, false);
+	loadBackgroundSound(BGM_INTRO_SHORT, false);
+	loadBackgroundSound(BGM_LOOP, true);
+	loadBackgroundSound(BGM_PIANO_INTRO, false);
+	loadBackgroundSound(BGM_PIANO_LOOP, true);
+	loadBackgroundSound(BGM_BATTLE, true);
 
 	loadSound(SFX_MENUBUTTON);
 	loadSound(SFX_CONTROLLER_ON);
 	loadSound(SFX_CONTROLLER_OFF);
 	loadSound(SFX_INCREMENT);
 
-	loadCarSound(SFX_CAR_IDLE);
-	loadCarSound(SFX_CARWINDUP);
-	loadCarSound(SFX_CAR_FAST);
-	loadCarSound(SFX_CARWINDDOWN); 
+	loadCarSound(SFX_CAR_IDLE, true);
+	loadCarSound(SFX_CARWINDUP, false);
+	loadCarSound(SFX_CAR_FAST, true);
+	loadCarSound(SFX_CARWINDDOWN, false);	
+
+	loadCarSound(SFX_CAR_BOOST_START, false);
+	loadCarSound(SFX_CAR_BOOST_LOOP, true);
+	loadCarSound(SFX_CAR_BOOST_END, false);
 
 	loadSound(SFX_CAR_HIT);
 	loadSound(SFX_ITEM_COLLECT);
@@ -42,14 +53,14 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 	loadSound(SFX_JUMP_MEGA);
 	loadSound(SFX_DEATH);
 
-	//loadCarIdleSound(SFX_CAR_FAST, 0.2f, 0, Utils::instance().pxToGlmVec3(vehicleList.at(0)->getPosition()));
-	//loadCarIdleSound(SFX_CAR_FAST, 0.2f, 1, Utils::instance().pxToGlmVec3(vehicleList.at(1)->getPosition()));
-
 	m_vehicleList = vehicleList;
 
 	setListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	playBackgroundMusic(BGM_CLOUDS);
+	playBackgroundMusic(BGM_INTRO);
+
+	bgmState = BGMState::MENU_INTRO;
+
 }
 
 
@@ -64,10 +75,13 @@ void AudioManager::playBackgroundMusic(std::string filePath)
 }
 
 
-void AudioManager::loadBackgroundSound(std::string filePath)
+void AudioManager::loadBackgroundSound(std::string filePath, bool looping)
 {
+	FMOD_MODE mode;
+	if (looping) mode = FMOD_LOOP_NORMAL;
+	else mode = FMOD_LOOP_OFF;
 	FMOD::Sound* sound;
-	FMOD_RESULT result = system->createSound(filePath.c_str(), FMOD_2D | FMOD_LOOP_NORMAL, nullptr, &sound);
+	FMOD_RESULT result = system->createSound(filePath.c_str(), FMOD_2D | mode, nullptr, &sound);
 
 	if (result != FMOD_OK) {
 		Log::error("Failed to load sound file, {}", filePath);
@@ -79,9 +93,13 @@ void AudioManager::loadBackgroundSound(std::string filePath)
 	mSounds[filePath] = sound;
 }	
 
-void AudioManager::loadCarSound(std::string filePath) {
+void AudioManager::loadCarSound(std::string filePath, bool looping) {
+	FMOD_MODE mode;
+	if (looping) mode = FMOD_LOOP_NORMAL;
+	else mode = FMOD_LOOP_OFF;
+
 	FMOD::Sound* sound;
-	FMOD_RESULT result = system->createSound(filePath.c_str(), FMOD_3D | FMOD_LOOP_NORMAL, nullptr, &sound);
+	FMOD_RESULT result = system->createSound(filePath.c_str(), FMOD_3D | mode | FMOD_3D_LINEARROLLOFF, nullptr, &sound);
 
 	FMOD::SoundGroup* carSounds;
 	system->createSoundGroup("sounds", &carSounds);
@@ -92,7 +110,7 @@ void AudioManager::loadCarSound(std::string filePath) {
 		Log::error(FMOD_ErrorString(result));
 		return;
 	}
-
+	sound->set3DMinMaxDistance(1.f * POSITION_SCALING, 30.f *POSITION_SCALING);
 	// save sound pointer to map
 	mSounds[filePath] = sound;
 }
@@ -115,44 +133,277 @@ void AudioManager::loadSound(std::string filePath) {
 	mSounds[filePath] = sound;
 }
 
-void AudioManager::loadCarIdleSound(std::string soundName, float soundVolume, int carid, glm::vec3 position) {
-	FMOD::Sound* thisSound = mSounds[soundName.c_str()];
-	FMOD_RESULT result = system->playSound(thisSound, nullptr, true, &carChannels[carid]);
+void AudioManager::startCarSounds() {
+	int carid;
+	glm::vec3 position;
+	FMOD::Sound* thisSound = mSounds[std::string(SFX_CAR_IDLE).c_str()];
+	FMOD_RESULT result;
+	for (PVehicle* carPtr : m_vehicleList) {
+		carid = carPtr->carid;
+		thisSound = mSounds[std::string(SFX_CAR_IDLE).c_str()];
+		result = system->playSound(thisSound, nullptr, true, &carDrivingChannels[carid]);
 
-
-	// set position
-	position *= POSITION_SCALING;
-	FMOD_VECTOR fmodPos = {
-		position.x,
-		position.y,
-		position.z
-	};
-
-	FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
-
-	carChannels[carid]->set3DAttributes(&fmodPos, &vel);
-
-
-	result = carChannels[carid]->setVolume(this->masterVolume * SFXVolume * (float)(!mutedSFX) * soundVolume);
-	result = carChannels[carid]->setPaused(false);
-}
-
-void AudioManager::updateCarPos(glm::vec3 position, int carid) {
-
-	position *= POSITION_SCALING;
-	FMOD_VECTOR fmodPos = {
-		position.x,
-		position.y,
-		position.z
-	};
-
-	FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
-
-	carChannels[carid]->set3DAttributes(&fmodPos, &vel );
-
+		// set position
+		position = Utils::instance().pxToGlmVec3(carPtr->getPosition());
+		position *= POSITION_SCALING;
+		FMOD_VECTOR fmodPos = { position.x, position.y,	position.z };
+		FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
+		carDrivingChannels[carid]->set3DAttributes(&fmodPos, &vel);
+		audioState[carid] = DrivingState::eIDLE;
+		result = carDrivingChannels[carid]->setVolume(this->masterVolume * SFXVolume * (float)(!mutedSFX) * CAR_SOUNDS_VOLUME);
+		result = carDrivingChannels[carid]->setPaused(false);
+	}
 
 
 }
+
+void AudioManager::setCarSoundsPause(bool pause) {
+	int carid;
+	for (PVehicle* carPtr : m_vehicleList) {
+		carid = carPtr->carid;
+		boostEndChannels[carid]->setPaused(pause);
+		carBoostChannels[carid]->setPaused(pause);
+		carDrivingChannels[carid]->setPaused(pause);
+	}
+}
+
+void AudioManager::updateCarSounds() {
+	unsigned int soundPosition;
+	bool isPlaying;
+	int carid;
+	glm::vec3 position;
+	FMOD_RESULT result;
+	for (PVehicle* carPtr : m_vehicleList) {
+		carid = carPtr->carid;
+		if (carPtr->accelerating && !carPtr->getVehicleInAir()) {
+			switch (audioState[carid]){
+			case DrivingState::eIDLE:
+				audioState[carid] = DrivingState::eACCELERATING;
+				result = system->playSound(mSounds[std::string(SFX_CARWINDUP).c_str()], nullptr, true, &carDrivingChannels[carid]);
+				break;
+			case DrivingState::eACCELERATING:
+				carDrivingChannels[carid]->isPlaying(&isPlaying);
+				if (!isPlaying) { // if finished accelerating, switch to loop
+					audioState[carid] = DrivingState::eLOOP;
+					result = system->playSound(mSounds[std::string(SFX_CAR_FAST).c_str()], nullptr, true, &carDrivingChannels[carid]);
+				}
+				break;
+			case DrivingState::eLOOP:
+				break;
+			case DrivingState::eDECELERATING:
+				carDrivingChannels[carid]->getPosition(&soundPosition, FMOD_TIMEUNIT_PCM);
+				audioState[carid] = DrivingState::eACCELERATING;
+				result = system->playSound(mSounds[std::string(SFX_CARWINDUP).c_str()], nullptr, true, &carDrivingChannels[carid]);
+				carDrivingChannels[carid]->setPosition(55957 - soundPosition, FMOD_TIMEUNIT_PCM);
+
+				break;
+			default:
+				break;
+			}
+		}
+		else {
+			switch (audioState[carid]) {
+			case DrivingState::eIDLE:
+				break;
+			case DrivingState::eACCELERATING:
+				carDrivingChannels[carid]->getPosition(&soundPosition, FMOD_TIMEUNIT_PCM);
+				audioState[carid] = DrivingState::eDECELERATING;
+				result = system->playSound(mSounds[std::string(SFX_CARWINDDOWN).c_str()], nullptr, true, &carDrivingChannels[carid]);
+				carDrivingChannels[carid]->setPosition(55957 - soundPosition, FMOD_TIMEUNIT_PCM);
+				break;
+			case DrivingState::eLOOP:
+				audioState[carid] = DrivingState::eDECELERATING;
+				result = system->playSound(mSounds[std::string(SFX_CARWINDDOWN).c_str()], nullptr, true, &carDrivingChannels[carid]);
+				break;
+			case DrivingState::eDECELERATING:
+				carDrivingChannels[carid]->isPlaying(&isPlaying);
+				if (!isPlaying) { // if finished accelerating, switch to loop
+					audioState[carid] = DrivingState::eIDLE;
+					result = system->playSound(mSounds[std::string(SFX_CAR_IDLE).c_str()], nullptr, true, &carDrivingChannels[carid]);
+				}
+
+				break;
+			default:
+				break;
+			}
+		}
+
+		// if boost controller button is held and the boost meter is more than 100
+		if (carPtr->vehicleParams.boosting && carPtr->vehicleParams.boost) {
+			boostEndChannels[carid]->stop();
+			switch (boostState[carid]) {
+			case BoostingState::eNOT_BOOSTING:
+				boostState[carid] = BoostingState::eACCELERATING;
+				result = system->playSound(mSounds[std::string(SFX_CAR_BOOST_START).c_str()], nullptr, true, &carBoostChannels[carid]);
+				 
+				break;
+			case BoostingState::eACCELERATING:
+				carBoostChannels[carid]->isPlaying(&isPlaying);
+				if (!isPlaying) { // if finished accelerating, switch to loop
+					boostState[carid] = BoostingState::eLOOP;
+					result = system->playSound(mSounds[std::string(SFX_CAR_BOOST_LOOP).c_str()], nullptr, true, &carBoostChannels[carid]);
+				}
+				break;
+			case BoostingState::eACCELERATING_PAUSE:
+				boostState[carid] = BoostingState::eACCELERATING;
+				carBoostChannels[carid]->setPaused(false);
+
+				break;
+			case BoostingState::eLOOP:
+				break;
+			case BoostingState::eLOOP_PAUSE:
+				boostState[carid] = BoostingState::eLOOP;
+
+
+				break;
+			}
+		
+		}
+		else {
+			switch (boostState[carid]) {
+			case BoostingState::eNOT_BOOSTING:
+
+				break;
+			case BoostingState::eACCELERATING:
+					boostState[carid] = BoostingState::eACCELERATING_PAUSE;
+					boostTimestamp[carid] = steady_clock::now();
+					carBoostChannels[carid]->setPaused(true);
+					result = system->playSound(mSounds[std::string(SFX_CAR_BOOST_END).c_str()], nullptr, true, &boostEndChannels[carid]);
+				
+				break;
+			case BoostingState::eACCELERATING_PAUSE:
+				carBoostChannels[carid]->isPlaying(&isPlaying);
+
+				if (isPlaying) {
+					boostState[carid] = BoostingState::eNOT_BOOSTING;
+				}
+				break;
+			case BoostingState::eLOOP:
+				boostState[carid] = BoostingState::eLOOP_PAUSE;
+				boostTimestamp[carid] = steady_clock::now();
+				carBoostChannels[carid]->setPaused(true);
+				result = system->playSound(mSounds[std::string(SFX_CAR_BOOST_END).c_str()], nullptr, true, &boostEndChannels[carid]);
+				break;
+			case BoostingState::eLOOP_PAUSE:
+				boostEndChannels[carid]->isPlaying(&isPlaying);
+
+				if (!isPlaying) {
+					boostState[carid] = BoostingState::eNOT_BOOSTING;
+				}
+
+				break;
+			}
+		}
+
+
+		// update the channel positions
+		position = Utils::instance().pxToGlmVec3(carPtr->getPosition());
+		position *= POSITION_SCALING;
+		FMOD_VECTOR fmodPos = { position.x, position.y,	position.z };
+		FMOD_VECTOR vel = { 0.f, 0.f, 0.f };
+		carDrivingChannels[carid]->set3DAttributes(&fmodPos, &vel);	
+		boostEndChannels[carid]->set3DAttributes(&fmodPos, &vel);
+		carBoostChannels[carid]->set3DAttributes(&fmodPos, &vel);
+		result = carDrivingChannels[carid]->setVolume(this->masterVolume * SFXVolume * (float)(!mutedSFX) * CAR_SOUNDS_VOLUME);
+		result = boostEndChannels[carid]->setVolume(this->masterVolume * SFXVolume * (float)(!mutedSFX) * CAR_SOUNDS_VOLUME);
+		result = carBoostChannels[carid]->setVolume(this->masterVolume * SFXVolume * (float)(!mutedSFX) * CAR_SOUNDS_VOLUME);
+		result = carDrivingChannels[carid]->setPaused(false);
+		result = boostEndChannels[carid]->setPaused(false);
+		if ((boostState[carid] != BoostingState::eACCELERATING_PAUSE) && (boostState[carid] != BoostingState::eLOOP_PAUSE)) {
+			result = carBoostChannels[carid]->setPaused(false);
+		}
+
+
+
+	}
+
+
+}
+
+void AudioManager::updateBGM() {
+	bool isPlaying;
+	backgroundChannel->isPlaying(&isPlaying);
+	switch (bgmState){
+	case BGMState::MENU_INTRO:
+		if (!isPlaying) {
+			playBackgroundMusic(BGM_LOOP);
+			bgmState = BGMState::MENU_LOOP;
+		}
+		break;
+	case BGMState::MENU_LOOP:
+		break;
+	case BGMState::INGAME:
+		break;
+	case BGMState::GAMEOVER_INTRO:
+		if (!isPlaying) { 
+			playBackgroundMusic(BGM_PIANO_LOOP);
+			bgmState = BGMState::GAMEOVER_LOOP;
+		}
+		break;
+	case BGMState::GAMEOVER_LOOP:
+		break;
+	default:
+		break;
+	}
+}
+
+void AudioManager::flipBGM() {
+	unsigned int soundPosition;
+	FMOD_RESULT result;
+	backgroundChannel->getPosition(&soundPosition, FMOD_TIMEUNIT_PCM);
+	backgroundChannel->stop();
+
+	switch (bgmState) {
+	case BGMState::MENU_INTRO:
+		playBackgroundMusic(BGM_PIANO_INTRO);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;	
+	case BGMState::MENU_LOOP:
+		playBackgroundMusic(BGM_PIANO_LOOP);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;
+	case BGMState::GAMEOVER_INTRO:
+		playBackgroundMusic(BGM_INTRO_SHORT);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;
+	case BGMState::GAMEOVER_LOOP:
+		playBackgroundMusic(BGM_LOOP);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;
+	default:
+		Log::debug("Calling flipBgm() in game");
+		// should not happen
+		break;
+	}
+}
+
+void AudioManager::startGame() {
+	bgmState = BGMState::INGAME;
+	backgroundChannel->stop();
+	playBackgroundMusic(BGM_BATTLE);
+
+}
+
+void AudioManager::gameOver() {
+	bgmState = BGMState::GAMEOVER_INTRO;
+	backgroundChannel->stop();
+	setCarSoundsPause(true);
+
+	playBackgroundMusic(BGM_PIANO_INTRO);
+}
+
+void AudioManager::backToMainMenu() {
+	flipBGM();
+
+	if (bgmState == BGMState::GAMEOVER_INTRO) {
+		bgmState = BGMState::MENU_INTRO;
+	}
+	else {
+		bgmState = BGMState::MENU_LOOP;
+	}
+}
+
+
 
 void AudioManager::playSound(std::string soundName, float soundVolume) {
 	FMOD::Sound* sound = mSounds[soundName];

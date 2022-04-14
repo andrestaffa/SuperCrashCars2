@@ -130,7 +130,7 @@ void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, con
 	Utils::instance().shader->setVector3("camPos", m_cameraList->at(m_currentViewportActive)->getPosition());
 
 
-	//glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+	glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
 	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glActiveTexture(GL_TEXTURE0);
@@ -149,6 +149,7 @@ void RenderManager::renderShadows(const std::vector<PVehicle*>& vehicleList, con
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	// reset viewport
+	switchViewport(GameManager::get().playerNumber, m_currentViewportActive); // change back to the current viewport
 	//glViewport(0, 0, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -179,7 +180,7 @@ void RenderManager::renderCars(const std::vector<PVehicle*>& vehicleList){
 }
 
 // only runs code to setup for rendering a 'normal object'. doesn't actually render anything itself to not pass around too many specific things
-void RenderManager::renderNormalObjects() {
+void RenderManager::renderNormalObjects(std::vector<Model>& trees, std::vector<Model>& grassPatches) {
 	// Other rendering
 	Utils::instance().shader = defaultShader;
 	Utils::instance().shader->use();
@@ -191,6 +192,43 @@ void RenderManager::renderNormalObjects() {
 	m_cameraList->at(m_currentViewportActive)->sendMatricesToShader();
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, depthMap);
+
+	for (Model& grass : grassPatches) grass.draw();
+	for (Model& tree : trees) tree.draw();
+}
+
+void RenderManager::generateLandscape(std::vector<Model>& trees, std::vector<Model>& grassPatches, Model& ground) {
+
+	int counter = 0;
+	Model tree = Model("models/tree/tree.obj");
+	for (const Mesh& mesh : ground.getMeshData()) {
+		for (const Vertex& vertex : mesh.m_vertices) {
+			if (counter % 750 == 0) {
+				const glm::vec3& position = vertex.Position;
+				Model tree_c = Model(tree);
+				tree_c.setPosition(glm::vec3(position.x, position.y, position.z));
+				tree_c.scale(glm::vec3(2.f));
+				trees.push_back(tree_c);
+			}
+			counter++;
+		}
+	}
+
+	counter = 0;
+	Model grass = Model("models/grass/grass.obj");
+	for (const Mesh& mesh : ground.getMeshData()) {
+		for (const Vertex& vertex : mesh.m_vertices) {
+			if (counter % 20 == 0) {
+				const glm::vec3& position = vertex.Position;
+				Model grass_c = Model(grass);
+				grass_c.setPosition(glm::vec3(position.x, position.y, position.z));
+				grass_c.scale(glm::vec3(1.75f));
+				grassPatches.push_back(grass_c);
+			}
+			counter++;
+		}
+	}
+
 }
 
 void RenderManager::renderTransparentObjects(const std::vector<PVehicle*>& vehicleList, PStatic& sphere, double os, Time& time) {
