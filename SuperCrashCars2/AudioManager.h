@@ -15,6 +15,13 @@ using namespace std::chrono;
 // music
 #define BGM_CLOUDS "audio/bgm/clouds.wav"
 
+#define BGM_INTRO "audio/bgm/mainv7_intro.wav"
+#define BGM_INTRO_SHORT "audio/bgm/mainv7_intro_short.wav"
+#define BGM_LOOP "audio/bgm/mainv7_loop.wav"
+#define BGM_PIANO_INTRO "audio/bgm/mainv7_piano_intro.wav"
+#define BGM_PIANO_LOOP "audio/bgm/mainv7_piano_loop.wav"
+#define BGM_BATTLE "audio/bgm/battlev2.wav"
+
 // sfx
 #define SFX_MENUBUTTON "audio/sfx/buttonclick.wav"
 #define SFX_CONTROLLER_ON "audio/sfx/controller_on.wav"
@@ -53,6 +60,14 @@ enum class BoostingState {
 	eLOOP_PAUSE,
 };
 
+enum class BGMState {
+	MENU_INTRO,
+	MENU_LOOP,
+	INGAME,
+	GAMEOVER_INTRO,
+	GAMEOVER_LOOP
+};
+
 class AudioManager{
 
 public:
@@ -73,7 +88,7 @@ public:
 	void refreshBGMVolume();
 	void incrementBGMVolume(int sign);
 	void incrementSFXVolume(int sign);
-	void loadBackgroundSound(std::string filePath);
+	void loadBackgroundSound(std::string filePath, bool looping);
 	void loadCarSound(std::string filePath, bool looping);
 	void playSound(std::string soundName, float soundVolume);
 	void playSound(std::string soundName, glm::vec3 position, float soundVolume);
@@ -82,6 +97,15 @@ public:
 	void setSFXVolume(float newVolume);
 	void toggleBGMMute();
 	void toggleSFXMute();
+
+	void updateBGM();
+	void flipBGM();
+
+	void startGame();
+
+	void gameOver();
+
+	void backToMainMenu();
 
 	bool getBGMMute();
 	bool getSFXMute();
@@ -94,7 +118,7 @@ public:
 	
 
 	FMOD::System* system;
-	
+	BGMState bgmState;
 
 	void startCarSounds();
 	void updateCarSounds();
@@ -115,7 +139,7 @@ private:
 	float clampVol(float vol);
 
 	bool muted, mutedSFX, mutedBGM;
-	const float BGM_VOL_INIT = 0.2f;
+	const float BGM_VOL_INIT = 0.14f;
 	const float POSITION_SCALING = 0.08f;
 	const float CAR_SOUNDS_VOLUME = 0.1f;
 

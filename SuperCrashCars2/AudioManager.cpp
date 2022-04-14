@@ -24,7 +24,14 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 	this->mutedBGM = false;
 	this->mutedSFX = false;
 
-	loadBackgroundSound(BGM_CLOUDS);
+	loadBackgroundSound(BGM_CLOUDS, true);
+
+	loadBackgroundSound(BGM_INTRO, false);
+	loadBackgroundSound(BGM_INTRO_SHORT, false);
+	loadBackgroundSound(BGM_LOOP, true);
+	loadBackgroundSound(BGM_PIANO_INTRO, false);
+	loadBackgroundSound(BGM_PIANO_LOOP, true);
+	loadBackgroundSound(BGM_BATTLE, true);
 
 	loadSound(SFX_MENUBUTTON);
 	loadSound(SFX_CONTROLLER_ON);
@@ -46,12 +53,14 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 	loadSound(SFX_JUMP_MEGA);
 	loadSound(SFX_DEATH);
 
-
 	m_vehicleList = vehicleList;
 
 	setListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	playBackgroundMusic(BGM_CLOUDS);
+	playBackgroundMusic(BGM_INTRO);
+
+	bgmState = BGMState::MENU_INTRO;
+
 }
 
 
@@ -66,10 +75,13 @@ void AudioManager::playBackgroundMusic(std::string filePath)
 }
 
 
-void AudioManager::loadBackgroundSound(std::string filePath)
+void AudioManager::loadBackgroundSound(std::string filePath, bool looping)
 {
+	FMOD_MODE mode;
+	if (looping) mode = FMOD_LOOP_NORMAL;
+	else mode = FMOD_LOOP_OFF;
 	FMOD::Sound* sound;
-	FMOD_RESULT result = system->createSound(filePath.c_str(), FMOD_2D | FMOD_LOOP_NORMAL, nullptr, &sound);
+	FMOD_RESULT result = system->createSound(filePath.c_str(), FMOD_2D | mode, nullptr, &sound);
 
 	if (result != FMOD_OK) {
 		Log::error("Failed to load sound file, {}", filePath);
@@ -149,6 +161,8 @@ void AudioManager::setCarSoundsPause(bool pause) {
 	int carid;
 	for (PVehicle* carPtr : m_vehicleList) {
 		carid = carPtr->carid;
+		boostEndChannels[carid]->setPaused(pause);
+		carBoostChannels[carid]->setPaused(pause);
 		carDrivingChannels[carid]->setPaused(pause);
 	}
 }
@@ -282,8 +296,6 @@ void AudioManager::updateCarSounds() {
 		}
 
 
-
-
 		// update the channel positions
 		position = Utils::instance().pxToGlmVec3(carPtr->getPosition());
 		position *= POSITION_SCALING;
@@ -306,8 +318,89 @@ void AudioManager::updateCarSounds() {
 	}
 
 
+}
 
+void AudioManager::updateBGM() {
+	bool isPlaying;
+	backgroundChannel->isPlaying(&isPlaying);
+	switch (bgmState){
+	case BGMState::MENU_INTRO:
+		if (!isPlaying) {
+			playBackgroundMusic(BGM_LOOP);
+			bgmState = BGMState::MENU_LOOP;
+		}
+		break;
+	case BGMState::MENU_LOOP:
+		break;
+	case BGMState::INGAME:
+		break;
+	case BGMState::GAMEOVER_INTRO:
+		if (!isPlaying) { 
+			playBackgroundMusic(BGM_PIANO_LOOP);
+			bgmState = BGMState::GAMEOVER_LOOP;
+		}
+		break;
+	case BGMState::GAMEOVER_LOOP:
+		break;
+	default:
+		break;
+	}
+}
 
+void AudioManager::flipBGM() {
+	unsigned int soundPosition;
+	FMOD_RESULT result;
+	backgroundChannel->getPosition(&soundPosition, FMOD_TIMEUNIT_PCM);
+	backgroundChannel->stop();
+
+	switch (bgmState) {
+	case BGMState::MENU_INTRO:
+		playBackgroundMusic(BGM_PIANO_INTRO);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;	
+	case BGMState::MENU_LOOP:
+		playBackgroundMusic(BGM_PIANO_LOOP);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;
+	case BGMState::GAMEOVER_INTRO:
+		playBackgroundMusic(BGM_INTRO_SHORT);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;
+	case BGMState::GAMEOVER_LOOP:
+		playBackgroundMusic(BGM_LOOP);
+		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
+		break;
+	default:
+		Log::debug("Calling flipBgm() in game");
+		// should not happen
+		break;
+	}
+}
+
+void AudioManager::startGame() {
+	bgmState = BGMState::INGAME;
+	backgroundChannel->stop();
+	playBackgroundMusic(BGM_BATTLE);
+
+}
+
+void AudioManager::gameOver() {
+	bgmState = BGMState::GAMEOVER_INTRO;
+	backgroundChannel->stop();
+	setCarSoundsPause(true);
+
+	playBackgroundMusic(BGM_PIANO_INTRO);
+}
+
+void AudioManager::backToMainMenu() {
+	flipBGM();
+
+	if (bgmState == BGMState::GAMEOVER_INTRO) {
+		bgmState = BGMState::MENU_INTRO;
+	}
+	else {
+		bgmState = BGMState::MENU_LOOP;
+	}
 }
 
 

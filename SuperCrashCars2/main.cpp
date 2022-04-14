@@ -193,6 +193,7 @@ int main(int argc, char** argv) {
 		if (time.shouldSimulate) {
 			time.startSimTimer();
 			AudioManager::get().update();
+			AudioManager::get().updateBGM();
 			// check controller connected; when we have more controllers we will make it into a loop
 			// should probably put this away into the controller class
 			if (glfwJoystickPresent(GLFW_JOYSTICK_1)) {
@@ -295,6 +296,7 @@ int main(int argc, char** argv) {
 					powerUpPtr->forceRespawn();
 				}
 				AudioManager::get().setCarSoundsPause(false);
+				AudioManager::get().startGame();
 				GameManager::get().screen = Screen::ePLAYING;
 
 				break; }
@@ -359,6 +361,7 @@ int main(int argc, char** argv) {
 						for (PVehicle* carPtr : vehicleList) {
 							if (carPtr->m_state != VehicleState::eOUTOFLIVES) GameManager::get().winner = carPtr->carid;
 						}
+						AudioManager::get().gameOver();
 						GameManager::get().screen = Screen::eGAMEOVER;
 					}
 

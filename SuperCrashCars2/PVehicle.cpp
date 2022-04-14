@@ -538,7 +538,8 @@ void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp
 	// detecting edge
 	PxVec3 updatedPos = targetPos;
 	if (abs(this->getPosition().x) > 450.0f - 150.0f || abs(this->getPosition().z) > 450.0f - 150.0f) {
-		if (this->getVehicleInAir() && this->getRigidDynamic()->getLinearVelocity().magnitude() < 50.0f) {
+		//if (this->getVehicleInAir() && this->getRigidDynamic()->getLinearVelocity().magnitude() < 50.0f) {
+		if (this->getVehicleInAir()) {
 			PxMat44 transformMat = PxTransform(this->getTransform());
 			PxVec3 newFront = (PxVec3(0.f) - this->getPosition()).getNormalized();
 			transformMat[0][2] = newFront.x;

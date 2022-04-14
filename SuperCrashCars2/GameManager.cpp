@@ -147,13 +147,17 @@ void GameManager::select() {
 			togglePause();
 			break;
 		case PauseButton::eQUITGAME:
+			AudioManager::get().gameOver();
 			// quit game, so go back to main menu.
+			AudioManager::get().backToMainMenu();
 			initMenu();
 			break;
 		}
 		break;
 	case Screen::eGAMEOVER:
 		// do nothing, only quit button
+		AudioManager::get().setCarSoundsPause(true);
+		AudioManager::get().backToMainMenu();
 		initMenu();
 		break;
 	}
