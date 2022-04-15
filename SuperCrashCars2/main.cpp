@@ -604,8 +604,11 @@ int main(int argc, char** argv) {
 
 					break;
 				case MainMenuScreen::eCREDITS_SCREEN:
-					menuText.RenderText("Haha credits", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-
+					menuText.RenderText("Wacky Rotation Studios", Utils::instance().SCREEN_WIDTH / 3, 300.f, 1.0f, glm::vec3(1.f, 122.f, 5.f));
+					menuText.RenderText("Andre Staffa", Utils::instance().SCREEN_WIDTH / 3, 400.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText("Taras Leshchenko", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText("Huanjun Zhao", Utils::instance().SCREEN_WIDTH / 3, 600.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText("Evan Wong", Utils::instance().SCREEN_WIDTH / 3, 700.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					break;
 				}
 				
