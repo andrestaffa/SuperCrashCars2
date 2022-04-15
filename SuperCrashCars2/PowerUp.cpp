@@ -19,6 +19,11 @@ PowerUp::PowerUp(PhysicsManager& pm, const Model& model, const PowerUpType& powe
 	for (unsigned int i = 0; i < nbShapes; i++) {
 		shapes[i]->setFlag(PxShapeFlag::eSIMULATION_SHAPE, false);
 		shapes[i]->setFlag(PxShapeFlag::eTRIGGER_SHAPE, true);
+		
+		PxConvexMeshGeometry c;
+		shapes[i]->getConvexMeshGeometry(c);
+		c.scale.scale = PxVec3(1.6f);
+		shapes[i]->setGeometry(c);
 	}
 
 }
