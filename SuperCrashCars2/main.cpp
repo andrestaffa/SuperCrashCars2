@@ -237,6 +237,9 @@ int main(int argc, char** argv) {
 	AudioManager::get().startCarSounds();
 	AudioManager::get().setCarSoundsPause(true);
 
+	std::vector<PVehicle*> winnerList = {&enemy};
+	PVehicle* winnerCar = &enemy;
+
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 
@@ -433,6 +436,7 @@ int main(int argc, char** argv) {
 								winnerList.clear();
 								winnerList.push_back(vehicleList.at(GameManager::get().winner));
 								winnerCar = vehicleList.at(GameManager::get().winner);
+								winnerCar->vehicleAttr.collisionCoefficient = 0.0f;
 							}
 						}
 
@@ -448,6 +452,7 @@ int main(int argc, char** argv) {
 						winnerList.clear();
 						winnerList.push_back(vehicleList.at(GameManager::get().winner));
 						winnerCar = vehicleList.at(GameManager::get().winner);
+						winnerCar->vehicleAttr.collisionCoefficient = 0.0f;	
 						//vehicleList.at(GameManager::get().winner)
 						GameManager::get().screen = Screen::eGAMEOVER;
 					}
@@ -565,6 +570,8 @@ int main(int argc, char** argv) {
 					menuTextWidth.at(5) = menuText.totalW;
 					mainMenu.draw(menu, glm::vec2(944, 635), glm::vec2(1.492f * 557.f, 1.492 * 284.f), 0, glm::vec3(1.f, 1.f, 1.f));
 
+					
+
 					break; }
 				case MainMenuScreen::eMULTIPLAYER_SCREEN:
 					singlePlayerIndicator = false;
@@ -604,11 +611,13 @@ int main(int argc, char** argv) {
 
 					break;
 				case MainMenuScreen::eCREDITS_SCREEN:
-					menuText.RenderText("Wacky Rotation Studios", Utils::instance().SCREEN_WIDTH / 3, 300.f, 1.0f, glm::vec3(1.f, 122.f, 5.f));
 					menuText.RenderText("Andre Staffa", Utils::instance().SCREEN_WIDTH / 3, 400.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					menuText.RenderText("Taras Leshchenko", Utils::instance().SCREEN_WIDTH / 3, 500.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					menuText.RenderText("Huanjun Zhao", Utils::instance().SCREEN_WIDTH / 3, 600.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-					menuText.RenderText("Evan Wong", Utils::instance().SCREEN_WIDTH / 3, 700.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText("Callaghan Davitt", Utils::instance().SCREEN_WIDTH / 3, 700.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText("Evan Wong", Utils::instance().SCREEN_WIDTH / 3, 800.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					menuText.RenderText("Wacky Rotation Studios 2022. All Rights Reserved.", Utils::instance().SCREEN_WIDTH / 3, 1000.f, 1.0f, glm::vec3(1.f, 170.f, 5.f));
+					menuText.RenderText("V1.0", 15.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1, glm::vec3(0.f));
 					break;
 				}
 				
