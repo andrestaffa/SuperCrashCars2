@@ -51,6 +51,7 @@ struct VehicleCollisionAttributes {
 	void* targetVehicle;
 	void* targetPowerup;
 	bool reachedTarget;
+	time_point<steady_clock> targetTimestamp;
 
 	PxVec3 forceToAdd;
 	PxVec3 collisionMidpoint;
