@@ -25,10 +25,10 @@ void Time::update() {
 	renderAccum += deltaTime;
 	physicsAccum += deltaTime;
 	lastTime = currentTime;
-	// 16666.. microseconds = 16.666 ms is one frame at 60fps
-	if (renderAccum > microseconds(16666)) {
+	// 16666.. microseconds = 16.666 ms is one frame at 60fps OR 30fps 33.333 ms for 30fps
+	if (renderAccum > microseconds(FPSArray[multiplayer])) {
 		shouldRender = true;
-		renderAccum = renderAccum % microseconds(16666);
+		renderAccum = renderAccum % microseconds(FPSArray[multiplayer]);
 	}
 	//simulate physics at 120fps
 	if (physicsAccum > microseconds(8333)) {
@@ -85,6 +85,16 @@ void Time::resetStats() {
 
 time_point<steady_clock> Time::getTime() {
 	return steady_clock::now();
+}
+
+void Time::toMultiplayerMode()
+{
+	multiplayer = 1;
+}
+
+void Time::toSinglePlayerMode()
+{
+	multiplayer = 0;
 }
 
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "AudioManager.h"
 
+
 // the major states game could be in anytime
 enum class Screen {
 	eMAINMENU,		// currently in main menu
@@ -32,6 +33,7 @@ enum class MainMenuScreen {
 enum class OptionsButton {
 	eBGM,
 	eSFX,
+	eFPS,
 	eBACK
 };
 enum class PlayerSelectButton {
@@ -67,6 +69,8 @@ public:
 	bool paused = false;
 	bool quitGame = false;
 
+	bool multiplayer60FPS = false;
+
 	int winner;
 	int playerNumber;
 
@@ -75,6 +79,7 @@ public:
 	void select();
 	void initMenu();
 	void togglePause();
+	std::string getMultiplayerFPS();
 	std::string printMenu();
 
 private:

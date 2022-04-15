@@ -22,7 +22,7 @@ void GameManager::changeSelection(int plus) {
 			// do nothing, only one button 
 			break;
 		case MainMenuScreen::eOPTIONS_SCREEN: // in option screen
-			this->optionsButton = (OptionsButton)(((int)this->optionsButton + plus + 3) % 3);
+			this->optionsButton = (OptionsButton)(((int)this->optionsButton + plus + 4) % 4);
 			break;
 
 		}
@@ -56,6 +56,11 @@ void GameManager::incrementSlider(int right) {
 				break;
 			case OptionsButton::eSFX:
 				AudioManager::get().incrementSFXVolume(right);
+				AudioManager::get().playSound(SFX_INCREMENT, 0.4f);
+				break;
+			case OptionsButton::eFPS:
+				if (!multiplayer60FPS) multiplayer60FPS = true;
+				else multiplayer60FPS = false;
 				AudioManager::get().playSound(SFX_INCREMENT, 0.4f);
 				break;
 			case OptionsButton::eBACK: // nothing
@@ -196,6 +201,11 @@ void GameManager::togglePause() {
 }
 
 ////////////////////// display functions
+
+std::string GameManager::getMultiplayerFPS() {
+	if (multiplayer60FPS) return std::string("60");
+	else return std::string("30");
+}
 
 std::string GameManager::printMenu() {
 	std::string str = "Current State:\n";

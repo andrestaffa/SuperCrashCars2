@@ -124,7 +124,7 @@ int main(int argc, char** argv) {
 	}
 
 	std::vector<glm::vec3> optionsButtonColors;
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 4; i++) {
 		optionsButtonColors.push_back(regCol);
 	}
 
@@ -347,6 +347,10 @@ int main(int argc, char** argv) {
 				AudioManager::get().startGame();
 				GameManager::get().screen = Screen::ePLAYING;
 
+
+				if (GameManager::get().playerNumber > 1 && !GameManager::get().multiplayer60FPS) time.toMultiplayerMode();
+				else time.toSinglePlayerMode();
+
 				break; }
 			case Screen::ePLAYING: {
 
@@ -404,7 +408,14 @@ int main(int argc, char** argv) {
 
 						carPtr->updateState(); // to check for car death
 
-						if (carPtr->m_state == VehicleState::eOUTOFLIVES) deadCounter++;
+						if (carPtr->m_state == VehicleState::eOUTOFLIVES) {
+							deadCounter++;
+							if (singlePlayerIndicator && player.m_state == VehicleState::eOUTOFLIVES) { // if single player died first
+								AudioManager::get().gameOver();
+								GameManager::get().screen = Screen::eGAMEOVER;
+								GameManager::get().winner = 3; // set winner to 3 but not actually 3 because we are ending the game early
+							}
+						}
 
 						cameraList.at(carPtr->carid)->m_fov = 80 + (carPtr->getRigidDynamic()->getLinearVelocity().magnitude() / 9.f);
 
@@ -557,14 +568,15 @@ int main(int argc, char** argv) {
 
 					break;
 				case MainMenuScreen::eOPTIONS_SCREEN:
-					for (int i = 0; i < 3; i++) {
+					for (int i = 0; i < 4; i++) {
 						if ((int)GameManager::get().optionsButton == i) optionsButtonColors.at(i) = selCol;
 						else optionsButtonColors.at(i) = regCol;
 					}
 
 					menuText.RenderText("BGM: " + std::to_string(AudioManager::get().getBGMLevel()), 165, 310, 1.0f, optionsButtonColors.at(0));
-					menuText.RenderText("SFX: " + std::to_string(AudioManager::get().getSFXLevel()),165, 310 + 105, 1.0f, optionsButtonColors.at(1));
-					menuText.RenderText("BACK", 165, 310 + 105 + 105, 1.0f, optionsButtonColors.at(2));
+					menuText.RenderText("SFX: " + std::to_string(AudioManager::get().getSFXLevel()), 165, 310 + 105, 1.0f, optionsButtonColors.at(1));
+					menuText.RenderText("Multiplayer FPS:  " + GameManager::get().getMultiplayerFPS() ,165, 310 + 105 * 2, 1.0f, optionsButtonColors.at(2));
+					menuText.RenderText("BACK", 165, 310 + 105 * 3, 1.0f, optionsButtonColors.at(3));
 
 
 					break;

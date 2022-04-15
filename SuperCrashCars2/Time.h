@@ -26,6 +26,8 @@ public:
 	bool shouldRender = false;
 	bool shouldSimulate = false;
 
+	bool multiplayer; // if singleplayer, 0, multiplayer 1
+
 	// oscillation stuff
 	time_point<steady_clock> startOfProgram;
 
@@ -40,6 +42,11 @@ public:
 	void displayDeltaTime();
 	void resetStats();
 	time_point<steady_clock> getTime();
+
+	void toMultiplayerMode();
+	void toSinglePlayerMode();
+
+	const int FPSArray[2] = { 16666, 33332};
 
 private:
 	
