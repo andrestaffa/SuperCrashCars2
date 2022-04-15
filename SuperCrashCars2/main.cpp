@@ -106,7 +106,6 @@ int main(int argc, char** argv) {
 	Texture shield("textures/shield.png", GL_LINEAR);
 
 
-
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	menuText.Load("freetype/fonts/poppins.ttf", 40);
@@ -146,7 +145,7 @@ int main(int argc, char** argv) {
 
 
 
-	// Anti-Aliasing (Not working)
+	// Anti-Aliasing 
 	unsigned int samples = 8;
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
@@ -156,6 +155,10 @@ int main(int argc, char** argv) {
 	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 25.f, -240.f)); // p2 blue car
 	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(240.0f, 25.0f, 0.0f)); // p3 red car
 	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(-240.0f, 25.0f, 0.0f)); // p4 yellow car
+
+	std::vector<PVehicle*> winnerList;
+	PVehicle* winnerCar = &enemy;
+
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(130.f, 40.f, 170.f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(145.f, 10.f, 20.f));
@@ -233,6 +236,7 @@ int main(int argc, char** argv) {
 	AudioManager::get().init(vehicleList);
 	AudioManager::get().startCarSounds();
 	AudioManager::get().setCarSoundsPause(true);
+
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 
@@ -426,6 +430,9 @@ int main(int argc, char** argv) {
 								AudioManager::get().gameOver();
 								GameManager::get().screen = Screen::eGAMEOVER;
 								GameManager::get().winner = 3; // set winner to 3 but not actually 3 because we are ending the game early
+								winnerList.clear();
+								winnerList.push_back(vehicleList.at(GameManager::get().winner));
+								winnerCar = vehicleList.at(GameManager::get().winner);
 							}
 						}
 
@@ -438,6 +445,10 @@ int main(int argc, char** argv) {
 							if (carPtr->m_state != VehicleState::eOUTOFLIVES) GameManager::get().winner = carPtr->carid;
 						}
 						AudioManager::get().gameOver();
+						winnerList.clear();
+						winnerList.push_back(vehicleList.at(GameManager::get().winner));
+						winnerCar = vehicleList.at(GameManager::get().winner);
+						//vehicleList.at(GameManager::get().winner)
 						GameManager::get().screen = Screen::eGAMEOVER;
 					}
 
@@ -597,33 +608,7 @@ int main(int argc, char** argv) {
 
 					break;
 				}
-				 //imGUI section
-				//imgui.initFrame();
-				//imgui.renderMenu(ai_ON);
-
-
-
-
-				//ImGui::Begin("Sliders:");
-
-				//// slider for player mass
-				//ImGui::SliderFloat("X",&x, 0, 1920.f);
-
-				//// slider for enemy mass
-				//ImGui::SliderFloat("Y", &y, 0, 1080);
-
-				//// slider for player mass
-				//ImGui::SliderFloat("xgap", &xgap, 0, 1000);
-
-				//// slider for enemy mass
-				//ImGui::SliderFloat("Ygap", &ygap, 0, 600);
-
-				//// slider for enemy mass
-
-				//ImGui::End();
-
-				//imgui.endFrame();
-
+				
 				break; }
 			case Screen::eLOADING: {
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
@@ -687,10 +672,10 @@ int main(int argc, char** argv) {
 							if ((int)GameManager::get().pauseButton == i) pausedButtonColors.at(i) = selCol;
 							else pausedButtonColors.at(i) = regCol;
 						}
-						menuText.RenderText("PAUSED",35 ,144, 2,  glm::vec3(0.992f, 0.164f, 0.129f));
-						menuText.RenderText("RESUME",35, 254, 1.5f, pausedButtonColors.at(0));
+						menuText.RenderText("PAUSED",30 ,44 -20, 2,  glm::vec3(0.992f, 0.164f, 0.129f));
+						menuText.RenderText("RESUME",30, 154 - 20, 1.5f, pausedButtonColors.at(0));
 						pauseTextWidth.at(0) = menuText.totalW;
-						menuText.RenderText("QUIT", 35, 254 + 91, 1.5f, pausedButtonColors.at(1));
+						menuText.RenderText("QUIT", 30, 154 + 91 - 20, 1.5f, pausedButtonColors.at(1));
 						pauseTextWidth.at(1) = menuText.totalW;
 					}
 
@@ -728,11 +713,9 @@ int main(int argc, char** argv) {
 
 				}
 
-
-
-
 				break; }
-			case Screen::eGAMEOVER: {
+			case Screen::eGAMEOVER: {	
+
 				renderer.m_currentViewportActive = 4;
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
@@ -741,17 +724,18 @@ int main(int argc, char** argv) {
 				renderer.renderNormalObjects(trees, grassPatches); // prepare to draw NORMAL objects, doesn't actually render anything.
 				pm.drawGround();
 
+				if (winnerList.size() > 0)
+				{
+					winnerCar->getRigidDynamic()->setGlobalPose(PxTransform(PxVec3(-242.f, 300.f, 380.f), PxQuat(PxPi, PxVec3(0.f, 0.f, 0.f))));
+					renderer.renderCars(winnerList);
+				}
+
+		
 				renderer.renderTransparentObjects(vehicleList, sphere, os, time);
 
-				bottom.draw();
-				bottom1.draw();
-				bottom2.draw();
 				bottom3.draw();
-				bottom4.draw();
 				toruses.draw();
 
-				spike1.draw();
-				spike2.draw();
 				spike3.draw();
 				spike4.draw();
 
@@ -759,33 +743,6 @@ int main(int argc, char** argv) {
 				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins",123, 323 + 120, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 				menuText.RenderText("QUIT ", 123, 323 + 120 * 2, 1.0f, selCol);
 
-			/*	imgui.initFrame();
-				imgui.renderMenu(ai_ON);*/
-
-
-				//imGUI section
-				//imgui.initFrame();
-				//imgui.renderMenu(ai_ON);
-
-				//ImGui::Begin("Sliders:");
-
-				// slider for player mass
-				//ImGui::SliderFloat("X", &x, 0, 1920.f);
-
-				// slider for enemy mass
-				//ImGui::SliderFloat("Y", &y, 0, 1080);
-
-				// slider for player mass
-				//ImGui::SliderFloat("xgap", &xgap, 0, 1000);
-
-				//// slider for enemy mass
-				//ImGui::SliderFloat("Ygap", &ygap, 0, 600);
-
-				//// slider for enemy mass
-
-				//ImGui::End();
-
-				//imgui.endFrame();
 
 				break; }
 			}
