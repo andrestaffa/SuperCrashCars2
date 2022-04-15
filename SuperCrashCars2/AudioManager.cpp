@@ -388,12 +388,24 @@ void AudioManager::gameOver() {
 	bgmState = BGMState::GAMEOVER_INTRO;
 	backgroundChannel->stop();
 	setCarSoundsPause(true);
+	for (int i = 0; i < 4; i++) {
+		carDrivingChannels[i]->stop();
+		boostEndChannels[i]->stop(); // corresponds to the carids
+		carBoostChannels[i]->stop(); // because of this, max out at 4 cars.
+	}
 
 	playBackgroundMusic(BGM_PIANO_INTRO);
 }
 
 void AudioManager::backToMainMenu() {
 	flipBGM();
+
+	for (int i = 0; i < 4; i++) {
+		carDrivingChannels[i]->stop();
+		boostEndChannels[i]->stop(); // corresponds to the carids
+		carBoostChannels[i]->stop(); // because of this, max out at 4 cars.
+	}
+
 
 	if (bgmState == BGMState::GAMEOVER_INTRO) {
 		bgmState = BGMState::MENU_INTRO;

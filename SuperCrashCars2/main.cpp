@@ -540,7 +540,7 @@ int main(int argc, char** argv) {
 					menuTextWidth.at(4) = menuText.totalW;
 					menuText.RenderText("QUIT", 50, 283 + 114 * 5, 1.2f, buttonColors.at(5));
 					menuTextWidth.at(5) = menuText.totalW;
-					//mainMenu.draw(menu, glm::vec2(0.f, 0.f), glm::vec2(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT), 0, glm::vec3(1.f, 1.f, 1.f));
+					mainMenu.draw(menu, glm::vec2(944, 635), glm::vec2(1.492f * 557.f, 1.492 * 284.f), 0, glm::vec3(1.f, 1.f, 1.f));
 
 					break; }
 				case MainMenuScreen::eMULTIPLAYER_SCREEN:
