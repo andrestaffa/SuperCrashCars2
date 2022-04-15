@@ -372,6 +372,9 @@ int main(int argc, char** argv) {
 
 				break; }
 			case Screen::ePLAYING: {
+				AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
+
+				AudioManager::get().updateCarSounds();
 
 				if (GameManager::get().paused) { // paused, read the inputs using the menu function
 					if (controller1.connected) controller1.uniController(false, player);
@@ -643,8 +646,7 @@ int main(int argc, char** argv) {
 					printNumbers += std::to_string(carPtr->m_lives);
 					printNumbers += "    ";
 				}
-				AudioManager::get().updateCarSounds();
-				AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
+
 
 				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);

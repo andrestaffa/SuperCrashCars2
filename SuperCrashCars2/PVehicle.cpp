@@ -513,7 +513,7 @@ void PVehicle::usePowerUp() {
 }
 
 void PVehicle::applyHealthPowerUp() {
-	this->vehicleAttr.collisionCoefficient -= 1.0f;
+	this->vehicleAttr.collisionCoefficient -= 0.3f;
 	if (this->vehicleAttr.collisionCoefficient < 0.f) {
 		this->vehicleAttr.collisionCoefficient = 0.f;
 	}
