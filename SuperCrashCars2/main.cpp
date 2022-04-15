@@ -95,8 +95,6 @@ int main(int argc, char** argv) {
 	Texture menu("textures/menuFIXED.png", GL_LINEAR);
 	Texture texture("textures/howtoplayFIXED.png", GL_LINEAR);
 	Texture con("textures/controller.png", GL_LINEAR);
-	Texture star("textures/star.png", GL_LINEAR);
-	Texture shield("textures/shield.png", GL_LINEAR);
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	menuText.Load("freetype/fonts/bof.ttf", 40);
@@ -190,7 +188,7 @@ int main(int argc, char** argv) {
 	std::string printDamage;
 	std::string printNumbers;
 
-	MiniMap map(1, player);
+	MiniMap map1(1, player);
 	//GameManager::get().playerNumber = 2; // NUMBER OF VIEWPORTS
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
@@ -487,6 +485,12 @@ int main(int argc, char** argv) {
 						else playerSelectButtonColors.at(i) = regCol;
 					}
 					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), Utils::instance().SCREEN_WIDTH / 4, 200, 1.0f, playerSelectButtonColors.at(0));
+					menuText.RenderText("START", Utils::instance().SCREEN_WIDTH / 4, 300.f, 1.0f, playerSelectButtonColors.at(1));
+
+
+
+
+
 
 					if (controller1.connected) image1.draw(con, glm::vec2(Utils::instance().SCREEN_WIDTH / 9 - (Utils::instance().SCREEN_WIDTH / 15), (Utils::instance().SCREEN_HEIGHT / 3) * 2), glm::vec2(320.f, 160.f), 0, controllerColors.at(controller1.startHeld * 1));
 					if (controller2.connected) image1.draw(con, glm::vec2(Utils::instance().SCREEN_WIDTH / 9 * 3 - (Utils::instance().SCREEN_WIDTH / 15), (Utils::instance().SCREEN_HEIGHT / 3) * 2), glm::vec2(320.f, 160.f), 0, controllerColors.at(controller2.startHeld * 2));
@@ -549,7 +553,8 @@ int main(int argc, char** argv) {
 
 				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
-					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once
+					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
+					//map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
@@ -562,7 +567,7 @@ int main(int argc, char** argv) {
 					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
 
 					renderer.useDefaultShader();
-					map.displayMap(player, &vehicleList, &imageList, currentViewport);
+					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 
 
 					if (GameManager::get().paused) {
@@ -583,20 +588,29 @@ int main(int argc, char** argv) {
 					boost.RenderText(std::to_string(vehicleList.at(currentViewport)->vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
 					switch (vehicleList.at(currentViewport)->getPocket()) {
 					case PowerUpType::eEMPTY:
-						//currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
+						currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
 						break;
 					case PowerUpType::eJUMP:
-						//currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-						image1.draw(star, glm::vec2(Utils::instance().SCREEN_WIDTH-100.f, Utils::instance().SCREEN_HEIGHT -100.f), glm::vec2(100.f, 100.f), 0, glm::vec3(1.f,1.f, 0));
+						currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
 						break;
 					case PowerUpType::eSHIELD:
-						image1.draw(shield, glm::vec2(Utils::instance().SCREEN_WIDTH - 100.f, Utils::instance().SCREEN_HEIGHT - 100.f), glm::vec2(100.f, 100.f), 0, glm::vec3(0.5f, 0.f, 0.15f));
-						//currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
 						break;
 
 					}
 
+					//map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 				}
+
+
+				// imgui
+				//imgui.initFrame();
+				//imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				//imgui.renderDamageHUD(vehicleList);
+				//imgui.renderMenu(ai_ON);
+				//imgui.endFrame();
+
+
 
 				break; }
 			case Screen::eGAMEOVER: {
