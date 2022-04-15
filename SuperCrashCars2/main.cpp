@@ -594,11 +594,11 @@ int main(int argc, char** argv) {
 						break;
 					case PowerUpType::eJUMP:
 						//currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-						image1.draw(star, glm::vec2(Utils::instance().SCREEN_WIDTH - 100.f, Utils::instance().SCREEN_HEIGHT - 100.f), glm::vec2(100.f, 100.f), 0, glm::vec3(1.f, 1.f, 0));
+						image1.draw(star, glm::vec2(Utils::instance().SCREEN_WIDTH - 250.f, Utils::instance().SCREEN_HEIGHT - 250.f), glm::vec2(250.f, 250.f), 0, glm::vec3(1.f, 1.f, 0));
 						break;
 					case PowerUpType::eSHIELD:
 						//currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
-						image1.draw(shield, glm::vec2(Utils::instance().SCREEN_WIDTH - 100.f, Utils::instance().SCREEN_HEIGHT - 100.f), glm::vec2(100.f, 100.f), 0, glm::vec3(1.0f, 0.5f, 0.31f));
+						image1.draw(shield, glm::vec2(Utils::instance().SCREEN_WIDTH - 250.f, Utils::instance().SCREEN_HEIGHT - 250.f), glm::vec2(250.f, 250.f), 0, glm::vec3(1.0f, 0.5f, 0.31f));
 						break;
 
 					}
