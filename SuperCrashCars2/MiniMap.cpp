@@ -39,8 +39,11 @@ void MiniMap::displayMap(PVehicle& player, const std::vector<PVehicle*>* vehicle
 		float mapposX = Utils::instance().pxToGlmVec3(vehicleList->at(i)->getPosition()).x / 5;
 		float mapposY = Utils::instance().pxToGlmVec3(vehicleList->at(i)->getPosition()).z / 5;
 		glm::vec2 mappos = { startPosX + mapposX, startPosY + mapposY };
-
-
+		//Check boundary
+		if (mappos.x < (Utils::instance().SCREEN_WIDTH - 270) || mappos.y > Utils::instance().SCREEN_HEIGHT - 810.f)
+		{
+			continue;
+		}
 		if ((vehicleList->at(i)->getFrontVec().x) > 0)
 		{
 			imageList->at(i)->draw(*(textureList.at(i)), mappos, glm::vec2(10.f, 10.f), 90 * (vehicleList->at(i)->getFrontVec().z + 1.f), glm::vec3(1.f, 1.f, 1.f));

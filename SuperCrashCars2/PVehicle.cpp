@@ -68,6 +68,7 @@ void PVehicle::initVehicleCollisionAttributes() {
 	this->vehicleAttr.reachedTarget = false;
 
 	this->vehicleAttr.forceToAdd = PxVec3(0.0f, 0.0f, 0.0f);
+	this->vehicleAttr.targetTimestamp = steady_clock::now();
 }
 void PVehicle::initVehicleModel() {
 	
@@ -570,7 +571,7 @@ void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp
 	if (glm::length(relativeVec) < 20.f && !isPowerUp) this->boost();
 
 	// vehicle logic
-	if (!isPowerUp && targetVehicle && targetVehicle->m_state == VehicleState::eDEAD) this->vehicleAttr.reachedTarget = true;
+	if (!isPowerUp && targetVehicle && (targetVehicle->m_state == VehicleState::eDEAD || targetVehicle->m_state == VehicleState::eOUTOFLIVES) ) this->vehicleAttr.reachedTarget = true;
 
 	// power up logic
 	if (isPowerUp && !targetPowerUp->active) this->vehicleAttr.reachedTarget = true;
