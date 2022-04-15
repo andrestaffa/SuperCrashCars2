@@ -523,7 +523,7 @@ void PVehicle::applyHealthPowerUp() {
 #pragma region ai
 
 void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp* targetPowerUp) {
-
+	//this->vehicleParams.boost = 100;
 	bool isPowerUp = false;
 	
 	if (targetVehicle) {
@@ -538,16 +538,24 @@ void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp
 
 	// detecting edge
 	PxVec3 updatedPos = targetPos;
-	if (abs(this->getPosition().x) > 250.f || abs(this->getPosition().z) > 250.f) {
+	if (abs(this->getPosition().x) > 230.f || abs(this->getPosition().z) > 230.f) {
 		//if (this->getVehicleInAir() && this->getRigidDynamic()->getLinearVelocity().magnitude() < 50.0f) {
-		if (this->getVehicleInAir()) {
+
 			PxMat44 transformMat = PxTransform(this->getTransform());
-			PxVec3 newFront = (PxVec3(0.f) - this->getPosition()).getNormalized();
+			PxVec3 newFront = (PxVec3(0.f, 40, 0.f) - this->getPosition()).getNormalized();
 			transformMat[0][2] = newFront.x;
 			transformMat[1][2] = newFront.y;
 			transformMat[2][2] = newFront.z;
-			this->boost();
-		}
+
+
+			//this->boost();
+			if (this->vehicleParams.boost > 0) {
+				this->getRigidDynamic()->addForce(PxVec3(newFront.x, newFront.y, newFront.z) * 0.5f, PxForceMode::eVELOCITY_CHANGE);
+				this->vehicleParams.boost--;
+			}
+
+
+		
 		if (this->getRigidDynamic()->getLinearVelocity().magnitude() > 15.0f) this->brake(1);
 		updatedPos = PxVec3(0.0f);
 	}
@@ -568,7 +576,7 @@ void PVehicle::driveTo(const PxVec3& targetPos, PVehicle* targetVehicle, PowerUp
 		this->accelerate(0.5f);
 	}
 
-	if (glm::length(relativeVec) < 20.f && !isPowerUp) this->boost();
+	if (glm::length(relativeVec) < 20.f && !isPowerUp && (this->vehicleParams.boost > 40)) this->boost();
 
 	// vehicle logic
 	if (!isPowerUp && targetVehicle && (targetVehicle->m_state == VehicleState::eDEAD || targetVehicle->m_state == VehicleState::eOUTOFLIVES) ) this->vehicleAttr.reachedTarget = true;

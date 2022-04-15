@@ -74,8 +74,7 @@ int main(int argc, char** argv) {
 	Time time = Time();
 
 	// In-game UI
-	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	boost.Load("freetype/fonts/vemanem.ttf", 100);
+
 	TextRenderer currentPowerup(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	currentPowerup.Load("freetype/fonts/poppins.ttf", 40);
 
@@ -151,21 +150,19 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.3f / 60.0f);
-	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 25.f, 240.0f)); // p1 green car
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 25.f, -240.f)); // p2 blue car
-	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(240.0f, 25.0f, 0.0f)); // p3 red car
-	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(-240.0f, 25.0f, 0.0f)); // p4 yellow car
+	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 25.f, 200.0f)); // p1 green car
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 25.f, -200.f)); // p2 blue car
+	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(200.0f, 25.0f, 0.0f)); // p3 red car
+	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(-200.0f, 25.0f, 0.0f)); // p4 yellow car
 
-	std::vector<PVehicle*> winnerList;
-	PVehicle* winnerCar = &enemy;
+	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(70.f, 20.f, 110.f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(115.f, 10.f, 20.f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-120.f, 25.f, -111.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(77.f, 20.f, -113.f));
+	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 20.f, 0.f));
+	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-169.f, 32.f, 33.f));
+	PowerUp powerUp7 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 90.f, 0.f));
 
-
-	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(130.f, 40.f, 170.f));
-	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(145.f, 10.f, 20.f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-220.f, 25.f, -171.f));
-	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(97.f, 30.f, -223.f));
-	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 15.f, 0.f));
-	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-179.f, 35.f, 33.f));
 
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
 
@@ -181,7 +178,10 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp4);
 	powerUps.push_back(&powerUp5);
 	powerUps.push_back(&powerUp6);
+	powerUps.push_back(&powerUp7);
 
+	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
+	boost.Load("freetype/fonts/vemanem.ttf", 100);
 
 	// Create Grass
 	std::vector<Model> grassPatches;
