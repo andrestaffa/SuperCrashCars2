@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
 
 	// In-game UI
 	TextRenderer boost(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	boost.Load("freetype/fonts/vemanem.ttf", 50);
+	boost.Load("freetype/fonts/vemanem.ttf", 100);
 	TextRenderer currentPowerup(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	currentPowerup.Load("freetype/fonts/bof.ttf", 40);
+	currentPowerup.Load("freetype/fonts/poppins.ttf", 40);
 
 
 
@@ -109,7 +109,7 @@ int main(int argc, char** argv) {
 
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	menuText.Load("freetype/fonts/bof.ttf", 40);
+	menuText.Load("freetype/fonts/poppins.ttf", 40);
 
 	static glm::vec3 regCol = glm::vec3(160.f / 255.f, 0.f / 255.f, 75.f / 255.f); // colors
 	static glm::vec3 selCol = glm::vec3(222 / 255.f, 70 / 255.f, 80 / 255.f); //
@@ -157,12 +157,12 @@ int main(int argc, char** argv) {
 	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(240.0f, 80.0f, 0.0f)); // p3 red car
 	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(-240.0f, 80.0f, 0.0f)); // p4 yellow car
 
-	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-90.f, 10.f, -185.0f));
-	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-267.0, 70.f, 60.f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(152.f, 77.f + 10.f, -326.f));
-	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(200.f, 7.f, 0.0f));
-	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(60.f, 30.f, -2.f));
-	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-250.f, 35.f, -102.5f));
+	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(130.f, 40.f, 170.f));
+	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(145.f, 10.f, 20.f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-220.f, 25.f, -171.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(97.f, 30.f, -223.f));
+	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 15.f, 0.f));
+	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-179.f, 35.f, 33.f));
 
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
 
@@ -699,17 +699,17 @@ int main(int argc, char** argv) {
 
 					for (PVehicle* carPtr : vehicleList) {
 						for (int i = 0; i < carPtr->m_lives; i++) {
-							image1.draw(white_heart, glm::vec2(15 + (carPtr->carid * 180.f) + (i * 38), 72), glm::vec2(30, 30), 0, playerColors.at(carPtr->carid)); //x = 160 OG
+							image1.draw(white_heart, glm::vec2(635.f + (carPtr->carid * 180.f) + (i * 38), 20 + 72 - 14), glm::vec2(30, 30), 0, playerColors.at(carPtr->carid)); //x = 160 OG
 							//image1.draw(white_heart, glm::vec2(x + (carPtr->carid * xgap) + (i * ygap), y), glm::vec2(30, 30), 0, playerColors.at(carPtr->carid)); // x 15 y 141 xgap 163 ygap 38
 						}
 						//fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
-						menuText.RenderText(fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient * 19.f) + "%", 15 + (carPtr->carid * 180.f), 14.439, 1.131, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+						menuText.RenderText(fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient * 19.f) + "%", 635.f + (carPtr->carid * 180.f), 20, 1.131, glm::vec3(0.f, 0.f, 0.f));
 						//menuText.RenderText(fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient) + "%", 15 + (carPtr->carid * x), 400.f, 1.131, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					}
 
 					//menuText.RenderText(printNumbers, x, y, xgap, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
-					boost.RenderText(std::to_string(vehicleList.at(currentViewport)->vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
+					boost.RenderText(std::to_string(vehicleList.at(currentViewport)->vehicleParams.boost), 15.f, Utils::instance().SCREEN_HEIGHT - 85.0f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
 					switch (vehicleList.at(currentViewport)->getPocket()) {
 					case PowerUpType::eEMPTY:
 						//currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
@@ -730,38 +730,35 @@ int main(int argc, char** argv) {
 
 
 				// imgui
-				//imgui.initFrame();
-				//imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
-				//imgui.renderDamageHUD(vehicleList);
-				//imgui.renderMenu(ai_ON);
-				//imgui.endFrame();
-
-								 //imGUI section
 				imgui.initFrame();
+				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				imgui.renderDamageHUD(vehicleList);
 				imgui.renderMenu(ai_ON);
-
-
-
-
-				ImGui::Begin("Sliders:");
-
-				// slider for player mass
-				ImGui::SliderFloat("X",&x, 0, 1920.f);
-
-				// slider for enemy mass
-				ImGui::SliderFloat("Y", &y, 0, 1080);
-
-				// slider for player mass
-				ImGui::SliderFloat("xgap", &xgap, 0, 3);
-
-				// slider for enemy mass
-				ImGui::SliderFloat("Ygap", &ygap, 0, 600);
-
-				// slider for enemy mass
-
-				ImGui::End();
-
 				imgui.endFrame();
+
+				//imGUI section
+				//imgui.initFrame();
+				//imgui.renderMenu(ai_ON);
+
+				//ImGui::Begin("Sliders:");
+
+				//// slider for player mass
+				//ImGui::SliderFloat("X",&x, 0, 1920.f);
+
+				//// slider for enemy mass
+				//ImGui::SliderFloat("Y", &y, 0, 1080);
+
+				//// slider for player mass
+				//ImGui::SliderFloat("xgap", &xgap, 0, 3);
+
+				//// slider for enemy mass
+				//ImGui::SliderFloat("Ygap", &ygap, 0, 600);
+
+				//// slider for enemy mass
+
+				//ImGui::End();
+
+				//imgui.endFrame();
 
 				break; }
 			case Screen::eGAMEOVER: {
