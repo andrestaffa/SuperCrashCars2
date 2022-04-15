@@ -74,6 +74,8 @@ int main(int argc, char** argv) {
 	TextRenderer currentPowerup(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	currentPowerup.Load("freetype/fonts/bof.ttf", 40);
 
+	Model bottom = Model("models/ground/iceberg.obj");
+
 	// Image rendering
 	std::vector<Image*> imageList;
 	Image mainMenu = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
@@ -561,8 +563,9 @@ int main(int argc, char** argv) {
 					renderer.renderPowerUps(powerUps, os);
 					renderer.renderNormalObjects(trees, grassPatches); // prepare to draw NORMAL objects, doesn't actually render anything.
 					pm.drawGround();
-					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
 
+					renderer.renderTransparentObjects(vehicleList, sphere, os, time);
+					bottom.draw();
 					renderer.useDefaultShader();
 					map1.displayMap(player, &vehicleList, &imageList, currentViewport);
 
