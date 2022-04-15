@@ -220,6 +220,8 @@ int main(int argc, char** argv) {
 	float xgap = 0;
 	float ygap = 0;
 
+	time_point now = steady_clock::now();
+
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 
 		// always update the time and poll events
@@ -363,6 +365,7 @@ int main(int argc, char** argv) {
 
 
 					int deadCounter = 0;
+					now = steady_clock::now();
 
 					for (PVehicle* carPtr : vehicleList) {
 						if (carPtr->vehicleAttr.collided) {
@@ -373,7 +376,8 @@ int main(int argc, char** argv) {
 							AudioManager::get().playSound(SFX_CAR_HIT, Utils::instance().pxToGlmVec3(carPtr->vehicleAttr.collisionMidpoint), 0.3f);
 						}
 
-						if (carPtr->vehicleAttr.reachedTarget && carPtr->m_carType == PlayerOrAI::eAI) {
+						if (carPtr->m_carType == PlayerOrAI::eAI && (carPtr->vehicleAttr.reachedTarget || duration_cast<seconds>(now - carPtr->vehicleAttr.targetTimestamp) > seconds(15)) ) {
+							carPtr->vehicleAttr.targetTimestamp = now;
 							int halfChance = Utils::instance().random(0, 2);
 							if (halfChance == 0 || halfChance == 1) {
 								int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
@@ -537,7 +541,7 @@ int main(int argc, char** argv) {
 
 					menuText.RenderText("Select number of players: " + std::to_string(GameManager::get().playerNumber), 94.f, 447.f, 1.0f, playerSelectButtonColors.at(0));
 					menuText.RenderText("START", 94.f, 547.f, 1.0f, playerSelectButtonColors.at(1));
-					menuText.RenderText("Hold START to check controller", x, y, 1.0f, regCol);
+					menuText.RenderText("Hold START to check controller", 1034.f, 50.f, 1.0f, regCol);
 
 
 
@@ -690,11 +694,11 @@ int main(int argc, char** argv) {
 
 
 				// imgui
-				//imgui.initFrame();
-				//imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				imgui.initFrame();
+				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
 				//imgui.renderDamageHUD(vehicleList);
 				//imgui.renderMenu(ai_ON);
-				//imgui.endFrame();
+				imgui.endFrame();
 
 
 
