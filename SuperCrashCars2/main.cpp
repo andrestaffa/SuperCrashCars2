@@ -92,8 +92,8 @@ int main(int argc, char** argv) {
 	imageList.push_back(&e2);
 	imageList.push_back(&e3);
 	imageList.push_back(&e4);
-	Texture menu("textures/menuFIXED.png", GL_LINEAR);
-	Texture texture("textures/howtoplayFIXED.png", GL_LINEAR);
+	Texture menu("textures/scc2.png", GL_LINEAR);
+	Texture texture("textures/htp.png", GL_LINEAR);
 	Texture con("textures/controller.png", GL_LINEAR);
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
