@@ -104,6 +104,9 @@ int main(int argc, char** argv) {
 	Texture con("textures/controller.png", GL_LINEAR);
 	Texture star("textures/star.png", GL_LINEAR);
 	Texture shield("textures/shield.png", GL_LINEAR);
+
+
+
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	menuText.Load("freetype/fonts/bof.ttf", 40);
@@ -137,6 +140,10 @@ int main(int argc, char** argv) {
 
 	std::vector<glm::vec3> controllerColors = { glm::vec3(1), glm::vec3(0.0f, 0.7f, 0.2f), glm::vec3(0.0f, 0.2f, 0.7f), glm::vec3(0.7f, 0.1f, 0.2f), glm::vec3(0.7f, 0.7f, 0.2f) };
 	// grey is 0, then the IDs
+	
+	
+	std::vector<glm::vec3> playerColors = { glm::vec3(0.0f, 0.7f, 0.2f), glm::vec3(0.0f, 0.2f, 0.7f), glm::vec3(0.7f, 0.1f, 0.2f), glm::vec3(0.7f, 0.7f, 0.2f) };
+
 
 
 	// Anti-Aliasing (Not working)
@@ -172,6 +179,7 @@ int main(int argc, char** argv) {
 	powerUps.push_back(&powerUp5);
 	powerUps.push_back(&powerUp6);
 
+
 	// Create Grass
 	std::vector<Model> grassPatches;
 	std::vector<Model> trees;
@@ -186,10 +194,8 @@ int main(int argc, char** argv) {
 	// ImGui
 	ImguiManager imgui(window);
 
-	// Audio
-	AudioManager::get().init(vehicleList);
-	AudioManager::get().startCarSounds();
-	AudioManager::get().setCarSoundsPause(true);
+
+
 
 	// Menu
 	GameManager::get().initMenu();
@@ -214,6 +220,8 @@ int main(int argc, char** argv) {
 	Model spike3 = Model("models/topofmap/bigredspike.obj");
 	Model spike4 = Model("models/topofmap/greyspike.obj");
 
+	Texture white_heart("textures/white_heart.png", GL_LINEAR);
+
 	float x = 0;
 	float y = 0;
 
@@ -221,6 +229,10 @@ int main(int argc, char** argv) {
 	float ygap = 0;
 
 	time_point now = steady_clock::now();
+	// Audio
+	AudioManager::get().init(vehicleList);
+	AudioManager::get().startCarSounds();
+	AudioManager::get().setCarSoundsPause(true);
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
 
@@ -586,31 +598,31 @@ int main(int argc, char** argv) {
 					break;
 				}
 				 //imGUI section
-				imgui.initFrame();
-				imgui.renderMenu(ai_ON);
+				//imgui.initFrame();
+				//imgui.renderMenu(ai_ON);
 
 
 
 
-				ImGui::Begin("Sliders:");
+				//ImGui::Begin("Sliders:");
 
-				// slider for player mass
-				ImGui::SliderFloat("X",&x, 0, 1920.f);
+				//// slider for player mass
+				//ImGui::SliderFloat("X",&x, 0, 1920.f);
 
-				// slider for enemy mass
-				ImGui::SliderFloat("Y", &y, 0, 1080);
+				//// slider for enemy mass
+				//ImGui::SliderFloat("Y", &y, 0, 1080);
 
-				// slider for player mass
-				ImGui::SliderFloat("xgap", &xgap, 0, 1000);
+				//// slider for player mass
+				//ImGui::SliderFloat("xgap", &xgap, 0, 1000);
 
-				// slider for enemy mass
-				ImGui::SliderFloat("Ygap", &ygap, 0, 600);
+				//// slider for enemy mass
+				//ImGui::SliderFloat("Ygap", &ygap, 0, 600);
 
-				// slider for enemy mass
+				//// slider for enemy mass
 
-				ImGui::End();
+				//ImGui::End();
 
-				imgui.endFrame();
+				//imgui.endFrame();
 
 				break; }
 			case Screen::eLOADING: {
@@ -675,15 +687,27 @@ int main(int argc, char** argv) {
 							if ((int)GameManager::get().pauseButton == i) pausedButtonColors.at(i) = selCol;
 							else pausedButtonColors.at(i) = regCol;
 						}
-						menuText.RenderText("PAUSED", Utils::instance().SCREEN_WIDTH / 5.0f, 75.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
-						menuText.RenderText("RESUME", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 300.f, 1.0f, pausedButtonColors.at(0));
+						menuText.RenderText("PAUSED",35 ,144, 2,  glm::vec3(0.992f, 0.164f, 0.129f));
+						menuText.RenderText("RESUME",35, 254, 1.5f, pausedButtonColors.at(0));
 						pauseTextWidth.at(0) = menuText.totalW;
-						menuText.RenderText("QUIT", Utils::instance().SCREEN_WIDTH / 2 - (pauseTextWidth.at(0) / 2), 400.f, 1.0f, pausedButtonColors.at(1));
+						menuText.RenderText("QUIT", 35, 254 + 91, 1.5f, pausedButtonColors.at(1));
 						pauseTextWidth.at(1) = menuText.totalW;
 					}
 
-					menuText.RenderText("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4", 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-					menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					//menuText.RenderText("Damage: P1  P2  P3  P4 Lives: P1  P2  P3  P4", 7.547f, 7.547f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					//menuText.RenderText(printNumbers, 60.f, 30.f, 0.5f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+
+					for (PVehicle* carPtr : vehicleList) {
+						for (int i = 0; i < carPtr->m_lives; i++) {
+							image1.draw(white_heart, glm::vec2(15 + (carPtr->carid * 180.f) + (i * 38), 72), glm::vec2(30, 30), 0, playerColors.at(carPtr->carid)); //x = 160 OG
+							//image1.draw(white_heart, glm::vec2(x + (carPtr->carid * xgap) + (i * ygap), y), glm::vec2(30, 30), 0, playerColors.at(carPtr->carid)); // x 15 y 141 xgap 163 ygap 38
+						}
+						//fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient);
+						menuText.RenderText(fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient * 19.f) + "%", 15 + (carPtr->carid * 180.f), 14.439, 1.131, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+						//menuText.RenderText(fmt::format("{:.1f}", carPtr->vehicleAttr.collisionCoefficient) + "%", 15 + (carPtr->carid * x), 400.f, 1.131, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+					}
+
+					//menuText.RenderText(printNumbers, x, y, xgap, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 
 					boost.RenderText(std::to_string(vehicleList.at(currentViewport)->vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
 					switch (vehicleList.at(currentViewport)->getPocket()) {
@@ -706,13 +730,38 @@ int main(int argc, char** argv) {
 
 
 				// imgui
-				imgui.initFrame();
-				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				//imgui.initFrame();
+				//imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
 				//imgui.renderDamageHUD(vehicleList);
 				//imgui.renderMenu(ai_ON);
+				//imgui.endFrame();
+
+								 //imGUI section
+				imgui.initFrame();
+				imgui.renderMenu(ai_ON);
+
+
+
+
+				ImGui::Begin("Sliders:");
+
+				// slider for player mass
+				ImGui::SliderFloat("X",&x, 0, 1920.f);
+
+				// slider for enemy mass
+				ImGui::SliderFloat("Y", &y, 0, 1080);
+
+				// slider for player mass
+				ImGui::SliderFloat("xgap", &xgap, 0, 3);
+
+				// slider for enemy mass
+				ImGui::SliderFloat("Ygap", &ygap, 0, 600);
+
+				// slider for enemy mass
+
+				ImGui::End();
+
 				imgui.endFrame();
-
-
 
 				break; }
 			case Screen::eGAMEOVER: {

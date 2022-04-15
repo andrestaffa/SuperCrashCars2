@@ -26,10 +26,10 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 
 	loadBackgroundSound(BGM_CLOUDS, true);
 
-	loadBackgroundSound(BGM_INTRO, false);
-	loadBackgroundSound(BGM_INTRO_SHORT, false);
+	//loadBackgroundSound(BGM_INTRO, false);
+	loadBackgroundSound(BGM_INTRO_LONG, false);
 	loadBackgroundSound(BGM_LOOP, true);
-	loadBackgroundSound(BGM_PIANO_INTRO, false);
+	//loadBackgroundSound(BGM_PIANO_INTRO, false);
 	loadBackgroundSound(BGM_PIANO_LOOP, true);
 	loadBackgroundSound(BGM_BATTLE, true);
 
@@ -57,7 +57,7 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 
 	setListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	playBackgroundMusic(BGM_INTRO);
+	playBackgroundMusic(BGM_INTRO_LONG);
 
 	bgmState = BGMState::MENU_INTRO;
 
@@ -334,12 +334,6 @@ void AudioManager::updateBGM() {
 		break;
 	case BGMState::INGAME:
 		break;
-	case BGMState::GAMEOVER_INTRO:
-		if (!isPlaying) { 
-			playBackgroundMusic(BGM_PIANO_LOOP);
-			bgmState = BGMState::GAMEOVER_LOOP;
-		}
-		break;
 	case BGMState::GAMEOVER_LOOP:
 		break;
 	default:
@@ -354,16 +348,8 @@ void AudioManager::flipBGM() {
 	backgroundChannel->stop();
 
 	switch (bgmState) {
-	case BGMState::MENU_INTRO:
-		playBackgroundMusic(BGM_PIANO_INTRO);
-		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
-		break;	
 	case BGMState::MENU_LOOP:
 		playBackgroundMusic(BGM_PIANO_LOOP);
-		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
-		break;
-	case BGMState::GAMEOVER_INTRO:
-		playBackgroundMusic(BGM_INTRO_SHORT);
 		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
 		break;
 	case BGMState::GAMEOVER_LOOP:
@@ -371,7 +357,7 @@ void AudioManager::flipBGM() {
 		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
 		break;
 	default:
-		Log::debug("Calling flipBgm() in game");
+		Log::debug("Calling flipBgm() in WRONG");
 		// should not happen
 		break;
 	}
@@ -385,7 +371,7 @@ void AudioManager::startGame() {
 }
 
 void AudioManager::gameOver() {
-	bgmState = BGMState::GAMEOVER_INTRO;
+	bgmState = BGMState::GAMEOVER_LOOP;
 	backgroundChannel->stop();
 	setCarSoundsPause(true);
 	for (int i = 0; i < 4; i++) {
@@ -394,7 +380,7 @@ void AudioManager::gameOver() {
 		carBoostChannels[i]->stop(); // because of this, max out at 4 cars.
 	}
 
-	playBackgroundMusic(BGM_PIANO_INTRO);
+	playBackgroundMusic(BGM_PIANO_LOOP);
 }
 
 void AudioManager::backToMainMenu() {
@@ -406,13 +392,8 @@ void AudioManager::backToMainMenu() {
 		carBoostChannels[i]->stop(); // because of this, max out at 4 cars.
 	}
 
+	bgmState = BGMState::MENU_LOOP;
 
-	if (bgmState == BGMState::GAMEOVER_INTRO) {
-		bgmState = BGMState::MENU_INTRO;
-	}
-	else {
-		bgmState = BGMState::MENU_LOOP;
-	}
 }
 
 

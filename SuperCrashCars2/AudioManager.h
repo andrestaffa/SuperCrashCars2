@@ -15,11 +15,9 @@ using namespace std::chrono;
 // music
 #define BGM_CLOUDS "audio/bgm/clouds.wav"
 
-#define BGM_INTRO "audio/bgm/mainv7_intro.wav"
-#define BGM_INTRO_SHORT "audio/bgm/mainv7_intro_short.wav"
-#define BGM_LOOP "audio/bgm/mainv7_loop.wav"
-#define BGM_PIANO_INTRO "audio/bgm/mainv7_piano_intro.wav"
-#define BGM_PIANO_LOOP "audio/bgm/mainv7_piano_loop.wav"
+#define BGM_INTRO_LONG "audio/bgm/mainv8_intro_long.wav"
+#define BGM_LOOP "audio/bgm/mainv8_loop.wav"
+#define BGM_PIANO_LOOP "audio/bgm/mainv8_piano_loop.wav"
 #define BGM_BATTLE "audio/bgm/battlev2.wav"
 
 // sfx
@@ -64,7 +62,6 @@ enum class BGMState {
 	MENU_INTRO,
 	MENU_LOOP,
 	INGAME,
-	GAMEOVER_INTRO,
 	GAMEOVER_LOOP
 };
 
