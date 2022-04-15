@@ -192,7 +192,7 @@ int main(int argc, char** argv) {
 	InputController controller1, controller2, controller3, controller4;
 
 	// ImGui
-	ImguiManager imgui(window);
+	//ImguiManager imgui(window);
 
 
 
@@ -629,9 +629,9 @@ int main(int argc, char** argv) {
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
 				// imGUI section
-				imgui.initFrame();
+				/*imgui.initFrame();
 				imgui.renderMenu(ai_ON);
-				imgui.endFrame();
+				imgui.endFrame();*/
 
 				break; }
 
@@ -759,8 +759,8 @@ int main(int argc, char** argv) {
 				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins",123, 323 + 120, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 				menuText.RenderText("QUIT ", 123, 323 + 120 * 2, 1.0f, selCol);
 
-				imgui.initFrame();
-				imgui.renderMenu(ai_ON);
+			/*	imgui.initFrame();
+				imgui.renderMenu(ai_ON);*/
 
 
 				//imGUI section
@@ -803,7 +803,7 @@ int main(int argc, char** argv) {
 	player.free();
 	enemy.free();
 	pm.free();
-	imgui.freeImgui();
+	//imgui.freeImgui();
 
 	glfwTerminate();
 	return 0;
