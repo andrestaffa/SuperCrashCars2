@@ -30,6 +30,8 @@ public:
 
 	// oscillation stuff
 	time_point<steady_clock> startOfProgram;
+	time_point<steady_clock> lastTime;
+	time_point<steady_clock> currentTime;
 
 	bool fastOscilator();
 	bool slowOscilator();

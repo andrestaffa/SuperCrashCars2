@@ -15,12 +15,14 @@ Time::Time() {
 	shouldSimulate = false;
 
 	// oscillation stuff
-	time_point<steady_clock> startOfProgram = steady_clock::now();
+	startOfProgram = steady_clock::now();
+	lastTime = steady_clock::now();
+	multiplayer = false;
+
 }
 
 void Time::update() {
-	static time_point<steady_clock> lastTime = steady_clock::now();
-	time_point<steady_clock> currentTime = steady_clock::now();
+	currentTime = steady_clock::now();
 	deltaTime = duration_cast<microseconds>(currentTime - lastTime);
 	renderAccum += deltaTime;
 	physicsAccum += deltaTime;
