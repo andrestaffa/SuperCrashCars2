@@ -152,10 +152,10 @@ int main(int argc, char** argv) {
 
 	// Physx
 	PhysicsManager pm = PhysicsManager(1.3f / 60.0f);
-	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f)); // p1 green car
-	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, -240.f)); // p2 blue car
-	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(240.0f, 80.0f, 0.0f)); // p3 red car
-	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(-240.0f, 80.0f, 0.0f)); // p4 yellow car
+	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 25.f, 240.0f)); // p1 green car
+	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 25.f, -240.f)); // p2 blue car
+	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(240.0f, 25.0f, 0.0f)); // p3 red car
+	PVehicle enemy3 = PVehicle(3, pm, VehicleType::eAVA_YELLOW, PlayerOrAI::eAI, PxVec3(-240.0f, 25.0f, 0.0f)); // p4 yellow car
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(-90.f, 10.f, -185.0f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-267.0, 70.f, 60.f));
@@ -729,30 +729,58 @@ int main(int argc, char** argv) {
 				}
 
 
-				// imgui
-				//imgui.initFrame();
-				//imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
-				//imgui.renderDamageHUD(vehicleList);
-				//imgui.renderMenu(ai_ON);
-				//imgui.endFrame();
+
+				imgui.initFrame();
+				imgui.renderStats(player, time.averageSimTime, time.averageRenderTime);
+				imgui.renderDamageHUD(vehicleList);
+				imgui.renderMenu(ai_ON);
+				imgui.endFrame();
 
 								 //imGUI section
+
+
+				break; }
+			case Screen::eGAMEOVER: {
+				renderer.m_currentViewportActive = 4;
+				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
+
+				os = (sin((float)colorVar / 20) + 1.0) / 2.0;
+				colorVar++;
+				renderer.renderNormalObjects(trees, grassPatches); // prepare to draw NORMAL objects, doesn't actually render anything.
+				pm.drawGround();
+
+				renderer.renderTransparentObjects(vehicleList, sphere, os, time);
+
+				bottom.draw();
+				bottom1.draw();
+				bottom2.draw();
+				bottom3.draw();
+				bottom4.draw();
+				toruses.draw();
+
+				spike1.draw();
+				spike2.draw();
+				spike3.draw();
+				spike4.draw();
+
+				menuText.RenderText("Game Over", 123, 323,1,  glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins",123, 323 + 120, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
+				menuText.RenderText("QUIT ", 123, 323 + 120 * 2, 1.0f, selCol);
+
 				imgui.initFrame();
 				imgui.renderMenu(ai_ON);
-
-
 
 
 				ImGui::Begin("Sliders:");
 
 				// slider for player mass
-				ImGui::SliderFloat("X",&x, 0, 1920.f);
+				ImGui::SliderFloat("X", &x, 0, 1920.f);
 
 				// slider for enemy mass
 				ImGui::SliderFloat("Y", &y, 0, 1080);
 
 				// slider for player mass
-				ImGui::SliderFloat("xgap", &xgap, 0, 3);
+				ImGui::SliderFloat("xgap", &xgap, 0, 1000);
 
 				// slider for enemy mass
 				ImGui::SliderFloat("Ygap", &ygap, 0, 600);
@@ -761,17 +789,6 @@ int main(int argc, char** argv) {
 
 				ImGui::End();
 
-				imgui.endFrame();
-
-				break; }
-			case Screen::eGAMEOVER: {
-				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
-				menuText.RenderText("Game Over", Utils::instance().SCREEN_WIDTH / 3, 200, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-				menuText.RenderText("Player " + std::to_string(GameManager::get().winner + 1) + " wins", Utils::instance().SCREEN_WIDTH / 3, 300, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
-				menuText.RenderText("QUIT ", Utils::instance().SCREEN_WIDTH / 3, 400, 1.0f, selCol);
-
-				imgui.initFrame();
-				imgui.renderMenu(ai_ON);
 				imgui.endFrame();
 
 				break; }

@@ -19,7 +19,7 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 
 	this->BGMVolume = 1.0f;
 	this->SFXVolume = 1.0f;
-	this->masterVolume = 0.6f;
+	this->masterVolume = 0.8f;
 	this->muted = false;
 	this->mutedBGM = false;
 	this->mutedSFX = false;
@@ -57,20 +57,20 @@ void AudioManager::init(std::vector<PVehicle*>& vehicleList) {
 
 	setListenerPosition(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
-	playBackgroundMusic(BGM_INTRO_LONG);
+	playBackgroundMusic(BGM_INTRO_LONG, 1.2);
 
 	bgmState = BGMState::MENU_INTRO;
 
 }
 
 
-void AudioManager::playBackgroundMusic(std::string filePath)
+void AudioManager::playBackgroundMusic(std::string filePath, float soundVolume)
 {
 	FMOD::Sound* sound = mSounds[filePath.c_str()];
 
 	// 3rd parameter is true to pause sound on load.
 	FMOD_RESULT result = system->playSound(sound, nullptr, true, &backgroundChannel);
-	result = backgroundChannel->setVolume(this->masterVolume * BGMVolume * BGM_VOL_INIT * (float)(!mutedBGM));
+	result = backgroundChannel->setVolume(this->masterVolume * BGMVolume * BGM_VOL_INIT * (float)(!mutedBGM) * soundVolume);
 	result = backgroundChannel->setPaused(false);
 }
 
@@ -110,7 +110,7 @@ void AudioManager::loadCarSound(std::string filePath, bool looping) {
 		Log::error(FMOD_ErrorString(result));
 		return;
 	}
-	sound->set3DMinMaxDistance(1.f * POSITION_SCALING, 30.f *POSITION_SCALING);
+	sound->set3DMinMaxDistance(1.f * POSITION_SCALING, 40.f *POSITION_SCALING);
 	// save sound pointer to map
 	mSounds[filePath] = sound;
 }
@@ -326,7 +326,7 @@ void AudioManager::updateBGM() {
 	switch (bgmState){
 	case BGMState::MENU_INTRO:
 		if (!isPlaying) {
-			playBackgroundMusic(BGM_LOOP);
+			playBackgroundMusic(BGM_LOOP, 1.2f);
 			bgmState = BGMState::MENU_LOOP;
 		}
 		break;
@@ -349,11 +349,11 @@ void AudioManager::flipBGM() {
 
 	switch (bgmState) {
 	case BGMState::MENU_LOOP:
-		playBackgroundMusic(BGM_PIANO_LOOP);
+		playBackgroundMusic(BGM_PIANO_LOOP, 1.2f);
 		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
 		break;
 	case BGMState::GAMEOVER_LOOP:
-		playBackgroundMusic(BGM_LOOP);
+		playBackgroundMusic(BGM_LOOP, 1.2f);
 		backgroundChannel->setPosition(soundPosition, FMOD_TIMEUNIT_PCM);
 		break;
 	default:
@@ -366,7 +366,7 @@ void AudioManager::flipBGM() {
 void AudioManager::startGame() {
 	bgmState = BGMState::INGAME;
 	backgroundChannel->stop();
-	playBackgroundMusic(BGM_BATTLE);
+	playBackgroundMusic(BGM_BATTLE, 0.8f);
 
 }
 
@@ -380,7 +380,7 @@ void AudioManager::gameOver() {
 		carBoostChannels[i]->stop(); // because of this, max out at 4 cars.
 	}
 
-	playBackgroundMusic(BGM_PIANO_LOOP);
+	playBackgroundMusic(BGM_PIANO_LOOP, 1.2f);
 }
 
 void AudioManager::backToMainMenu() {

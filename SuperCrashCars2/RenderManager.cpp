@@ -63,7 +63,7 @@ bool RenderManager::switchViewport(int playerNumber, int i) { // returns true on
 			glViewport(0, 0, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT);
 			break;
 		case 3: //Whole top part of the screen
-			glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT / 2);
+			glViewport(Utils::instance().SCREEN_WIDTH / 4, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH /2, Utils::instance().SCREEN_HEIGHT / 2);
 			break;
 		case 4:	//Top left of the screen
 			glViewport(0, Utils::instance().SCREEN_HEIGHT / 2, Utils::instance().SCREEN_WIDTH / 2, Utils::instance().SCREEN_HEIGHT / 2);

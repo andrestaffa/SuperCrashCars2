@@ -81,7 +81,7 @@ public:
 	// END SINGLETON STUFF
 
 	void init(std::vector<PVehicle*>& vehicleList);
-	void playBackgroundMusic(std::string filePath);
+	void playBackgroundMusic(std::string filePath, float soundVolume);
 	void refreshBGMVolume();
 	void incrementBGMVolume(int sign);
 	void incrementSFXVolume(int sign);
@@ -136,7 +136,7 @@ private:
 	float clampVol(float vol);
 
 	bool muted, mutedSFX, mutedBGM;
-	const float BGM_VOL_INIT = 0.14f;
+	const float BGM_VOL_INIT = 0.18f;
 	const float POSITION_SCALING = 0.08f;
 	const float CAR_SOUNDS_VOLUME = 0.1f;
 
