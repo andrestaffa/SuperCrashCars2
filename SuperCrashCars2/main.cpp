@@ -95,6 +95,8 @@ int main(int argc, char** argv) {
 	Texture menu("textures/menuFIXED.png", GL_LINEAR);
 	Texture texture("textures/howtoplayFIXED.png", GL_LINEAR);
 	Texture con("textures/controller.png", GL_LINEAR);
+	Texture star("textures/star.png", GL_LINEAR);
+	Texture shield("textures/shield.png", GL_LINEAR);
 	// Main Menu Buttons
 	TextRenderer menuText(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	menuText.Load("freetype/fonts/bof.ttf", 40);
@@ -588,13 +590,15 @@ int main(int argc, char** argv) {
 					boost.RenderText(std::to_string(vehicleList.at(currentViewport)->vehicleParams.boost), 10.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1.0f, glm::vec3(0.992f, 0.164f, 0.129f));
 					switch (vehicleList.at(currentViewport)->getPocket()) {
 					case PowerUpType::eEMPTY:
-						currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
+						//currentPowerup.RenderText("Pocket: Empty", 7.547f, 60.f, 1.0f, glm::vec3(0.478f, 0.003f, 0.f));
 						break;
 					case PowerUpType::eJUMP:
-						currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						//currentPowerup.RenderText("Pocket: Jump", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						image1.draw(star, glm::vec2(Utils::instance().SCREEN_WIDTH - 100.f, Utils::instance().SCREEN_HEIGHT - 100.f), glm::vec2(100.f, 100.f), 0, glm::vec3(1.f, 1.f, 0));
 						break;
 					case PowerUpType::eSHIELD:
-						currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						//currentPowerup.RenderText("Pocket: Shield", 7.547f, 60.f, 1.0f, glm::vec3(1.f, 0.050f, 0.039f));
+						image1.draw(shield, glm::vec2(Utils::instance().SCREEN_WIDTH - 100.f, Utils::instance().SCREEN_HEIGHT - 100.f), glm::vec2(100.f, 100.f), 0, glm::vec3(1.0f, 0.5f, 0.31f));
 						break;
 
 					}
