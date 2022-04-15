@@ -78,7 +78,7 @@ void Camera::setPosition(const glm::vec3& position) {
 	this->m_position = position;
 }
 void Camera::setYaw(float yaw) {
-	this->m_yaw = -90.0f - yaw;
+	this->m_yaw = yaw;
 	glm::vec3 front;
 	front.x = cos(glm::radians(this->m_yaw)) * cos(glm::radians(this->m_pitch));
 	front.y = sin(glm::radians(this->m_pitch));
@@ -165,7 +165,7 @@ void Camera::sendMatricesToShader() {
 }
 
 void Camera::UpdateVP() {
-	this->P = glm::perspective(glm::radians(this->m_fov), this->m_aspectRatio, 0.1f, 1000.0f);
+	this->P = glm::perspective(glm::radians(this->m_fov), this->m_aspectRatio, 0.1f, 2000.0f);
 	this->V = glm::lookAt(this->m_position, this->m_position + this->m_front, this->m_up);
 }
 
