@@ -379,7 +379,7 @@ void InputController::NSInputInMenu() {
 	}
 	else if (selHeld) selHeld = false;
 
-	if (GLFW_PRESS == buttons[12]) { // pause - PS4 OPT button (start)
+	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
 			startHeld = true;
 			GameManager::get().togglePause();
