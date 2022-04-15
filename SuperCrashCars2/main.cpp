@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
 	Image e2 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image e3 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
 	Image e4 = Image(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT);
-	
+
 	imageList.push_back(&e0);
 	imageList.push_back(&e1);
 	imageList.push_back(&e2);
@@ -135,7 +135,7 @@ int main(int argc, char** argv) {
 	glfwWindowHint(GLFW_SAMPLES, samples);
 
 	// Physx
-	PhysicsManager pm = PhysicsManager(1.3f/60.0f);
+	PhysicsManager pm = PhysicsManager(1.3f / 60.0f);
 	PVehicle player = PVehicle(0, pm, VehicleType::eAVA_GREEN, PlayerOrAI::ePLAYER, PxVec3(0.0f, 80.f, 240.0f)); // p1 green car
 	PVehicle enemy = PVehicle(1, pm, VehicleType::eAVA_BLUE, PlayerOrAI::eAI, PxVec3(0.0f, 80.f, -240.f)); // p2 blue car
 	PVehicle enemy2 = PVehicle(2, pm, VehicleType::eAVA_RED, PlayerOrAI::eAI, PxVec3(240.0f, 80.0f, 0.0f)); // p3 red car
@@ -170,7 +170,7 @@ int main(int argc, char** argv) {
 
 	// AI toggle
 	bool ai_ON = true;
-
+	bool singlePlayerIndicator = true;
 	// Controller
 	InputController controller1, controller2, controller3, controller4;
 
@@ -192,7 +192,7 @@ int main(int argc, char** argv) {
 	//GameManager::get().playerNumber = 2; // NUMBER OF VIEWPORTS
 
 	while (!window.shouldClose() && !GameManager::get().quitGame) {
-		
+
 		// always update the time and poll events
 		time.update();
 		glfwPollEvents();
@@ -328,9 +328,9 @@ int main(int argc, char** argv) {
 				else { // in game
 
 					if (controller1.connected) controller1.uniController(true, player);
-					if (controller2.connected && enemy.m_carType == PlayerOrAI::ePLAYER) controller2.uniController(true, enemy);
-					if (controller3.connected && enemy2.m_carType == PlayerOrAI::ePLAYER) controller3.uniController(true, enemy2);
-					if (controller4.connected && enemy3.m_carType == PlayerOrAI::ePLAYER) controller4.uniController(true, enemy3);
+					if (controller2.connected && enemy.m_carType == PlayerOrAI::ePLAYER && !singlePlayerIndicator) controller2.uniController(true, enemy);
+					if (controller3.connected && enemy2.m_carType == PlayerOrAI::ePLAYER && !singlePlayerIndicator) controller3.uniController(true, enemy2);
+					if (controller4.connected && enemy3.m_carType == PlayerOrAI::ePLAYER && !singlePlayerIndicator) controller4.uniController(true, enemy3);
 
 
 					int deadCounter = 0;
@@ -352,12 +352,14 @@ int main(int argc, char** argv) {
 									carPtr->vehicleAttr.reachedTarget = false;
 									carPtr->driveTo(vehicleList[rndIndex]->getPosition(), vehicleList[rndIndex], nullptr);
 								}
-							} else {
+							}
+							else {
 								int rndIndex = Utils::instance().random(0, (int)powerUps.size() - 1);
 								if (powerUps[rndIndex]->active) {
 									carPtr->vehicleAttr.reachedTarget = false;
 									carPtr->driveTo(powerUps[rndIndex]->getPosition(), nullptr, powerUps[rndIndex]);
-								} else {
+								}
+								else {
 									int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
 									if (vehicleList[rndIndex] != carPtr && vehicleList[rndIndex]->m_state == VehicleState::ePLAYING) {
 										carPtr->vehicleAttr.reachedTarget = false;
@@ -404,13 +406,14 @@ int main(int argc, char** argv) {
 							if (targetVehicle) vehicleList[i]->driveTo(targetVehicle->getPosition(), targetVehicle, nullptr);
 							else if (targetPowerUp) vehicleList[i]->driveTo(targetPowerUp->getPosition(), nullptr, targetPowerUp);
 							else {
-								int halfChance= Utils::instance().random(0, 2);
+								int halfChance = Utils::instance().random(0, 2);
 								if (halfChance == 0 || halfChance == 1) {
 									int rndIndex = Utils::instance().random(0, (int)vehicleList.size() - 1);
 									if (vehicleList[rndIndex] != vehicleList[i] && vehicleList[rndIndex]->m_state == VehicleState::ePLAYING) {
 										vehicleList[i]->driveTo(vehicleList[rndIndex]->getPosition(), vehicleList[rndIndex], nullptr);
 									}
-								} else {
+								}
+								else {
 									int rndIndex = Utils::instance().random(0, (int)powerUps.size() - 1);
 									if (powerUps[rndIndex]->active) vehicleList[i]->driveTo(powerUps[rndIndex]->getPosition(), nullptr, powerUps[rndIndex]);
 									else {
@@ -450,7 +453,7 @@ int main(int argc, char** argv) {
 			renderer.startFrame();
 			switch (GameManager::get().screen) {
 			case Screen::eMAINMENU: {
-
+				singlePlayerIndicator = true;
 				renderer.skybox.draw(menuCamera.getPerspMat(), glm::mat4(glm::mat3(menuCamera.getViewMat())));
 
 				switch (GameManager::get().mainMenuScreen) {
@@ -476,7 +479,7 @@ int main(int argc, char** argv) {
 
 					break; }
 				case MainMenuScreen::eMULTIPLAYER_SCREEN:
-
+					singlePlayerIndicator = false;
 					for (int i = 0; i < 2; i++) {
 						if ((int)GameManager::get().playerSelectButton == i) playerSelectButtonColors.at(i) = selCol;
 						else playerSelectButtonColors.at(i) = regCol;
@@ -495,10 +498,10 @@ int main(int argc, char** argv) {
 					if (controller4.connected && GameManager::get().playerNumber > 3) image1.draw(con, glm::vec2(Utils::instance().SCREEN_WIDTH / 9 * 7 - (Utils::instance().SCREEN_WIDTH / 15), (Utils::instance().SCREEN_HEIGHT / 3) * 2), glm::vec2(320.f, 160.f), 0, controllerColors.at(controller4.startHeld * 4));
 
 
-					break; 
+					break;
 				case MainMenuScreen::eHOWTOPLAY_SCREEN:
 					image1.draw(texture, glm::vec2(0.f, 0.f), glm::vec2(Utils::instance().SCREEN_WIDTH, Utils::instance().SCREEN_HEIGHT), 0, glm::vec3(1.f, 1.f, 1.f));
-										
+
 
 					break;
 				case MainMenuScreen::eOPTIONS_SCREEN:
@@ -552,7 +555,7 @@ int main(int argc, char** argv) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);
 					cameraList.at(currentViewport)->updateCameraPosition(Utils::instance().pxToGlmVec3(vehicleList.at(currentViewport)->getPosition()), vehicleList.at(currentViewport)->getFrontVec()); // only move cam once.
 					//map1.displayMap(player, &vehicleList, &imageList, currentViewport);
-					
+
 					os = (sin((float)colorVar / 20) + 1.0) / 2.0;
 					colorVar++;
 					renderer.renderShadows(vehicleList, powerUps);
