@@ -157,11 +157,11 @@ int main(int argc, char** argv) {
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(70.f, 20.f, 110.f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(115.f, 10.f, 20.f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-120.f, 25.f, -111.f));
-	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(77.f, 20.f, -113.f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(-120.f, 25.f, -111.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eJUMP, PxVec3(77.f, 20.f, -113.f));
 	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 20.f, 0.f));
 	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-169.f, 32.f, 33.f));
-	PowerUp powerUp7 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 90.f, 0.f));
+	PowerUp powerUp7 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eHEALTH, PxVec3(0.f, 90.f, 0.f));
 
 
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
