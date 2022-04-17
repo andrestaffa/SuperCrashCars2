@@ -157,11 +157,11 @@ int main(int argc, char** argv) {
 
 	PowerUp powerUp1 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(70.f, 20.f, 110.f));
 	PowerUp powerUp2 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(115.f, 10.f, 20.f));
-	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(-120.f, 25.f, -111.f));
-	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/jump_star/star.obj"), PowerUpType::eJUMP, PxVec3(77.f, 20.f, -113.f));
+	PowerUp powerUp3 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(-120.f, 15.f, -111.f));
+	PowerUp powerUp4 = PowerUp(pm, Model("models/powerups/boost/turbo.obj"), PowerUpType::eBOOST, PxVec3(77.f, 20.f, -113.f));
 	PowerUp powerUp5 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 20.f, 0.f));
 	PowerUp powerUp6 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(-169.f, 32.f, 33.f));
-	PowerUp powerUp7 = PowerUp(pm, Model("models/powerups/shield/shieldman.obj"), PowerUpType::eSHIELD, PxVec3(0.f, 90.f, 0.f));
+	PowerUp powerUp7 = PowerUp(pm, Model("models/powerups/health_star/heart.obj"), PowerUpType::eHEALTH, PxVec3(0.f, 90.f, 0.f));
 
 
 	PStatic sphere = PStatic(pm, Model("models/sphere/sphere.obj"), PxVec3(0.f, 80.f, 0.f));
@@ -372,6 +372,9 @@ int main(int argc, char** argv) {
 
 				break; }
 			case Screen::ePLAYING: {
+				AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
+
+				AudioManager::get().updateCarSounds();
 
 				if (GameManager::get().paused) { // paused, read the inputs using the menu function
 					if (controller1.connected) controller1.uniController(false, player);
@@ -617,7 +620,7 @@ int main(int argc, char** argv) {
 					menuText.RenderText("Callaghan Davitt", Utils::instance().SCREEN_WIDTH / 3, 700.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					menuText.RenderText("Evan Wong", Utils::instance().SCREEN_WIDTH / 3, 800.f, 1.0f, glm::vec3(204.f / 255.f, 0.f, 102.f / 255.f));
 					menuText.RenderText("Wacky Rotation Studios 2022. All Rights Reserved.", Utils::instance().SCREEN_WIDTH / 3, 1000.f, 1.0f, glm::vec3(1.f, 170.f, 5.f));
-					menuText.RenderText("V1.0", 15.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1, glm::vec3(0.f));
+					menuText.RenderText("V1.1", 15.f, Utils::instance().SCREEN_HEIGHT - 50.f, 1, glm::vec3(0.f));
 					break;
 				}
 				
@@ -643,8 +646,7 @@ int main(int argc, char** argv) {
 					printNumbers += std::to_string(carPtr->m_lives);
 					printNumbers += "    ";
 				}
-				AudioManager::get().updateCarSounds();
-				AudioManager::get().setListenerPosition(Utils::instance().pxToGlmVec3(player.getPosition()), player.getFrontVec(), player.getUpVec());
+
 
 				for (int currentViewport = 0; currentViewport < GameManager::get().playerNumber; currentViewport++) {
 					renderer.switchViewport(GameManager::get().playerNumber, currentViewport);

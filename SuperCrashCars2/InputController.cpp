@@ -124,7 +124,7 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 	}
 	else if (p1.vehicleParams.boosting) p1.vehicleParams.boosting = false;
 
-	if (GLFW_PRESS == buttons[6]) p1.reset();
+	//if (GLFW_PRESS == buttons[6]) p1.reset();
 
 	if (GLFW_PRESS == buttons[7]) { // pause - XBOX START button
 		if (!startHeld) {
@@ -136,7 +136,7 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 
 	if (axis[4] != -1) p1.reverse((axis[4] + 1) / 2 * 0.65f);
 	if (axis[5] != -1) 	{	
-		p1.accelerate((axis[4] + 1) / 2);
+		p1.accelerate((axis[5] + 1) / 2);
 		p1.accelerating = true;
 	}
 	else p1.accelerating = false;
@@ -175,7 +175,7 @@ void InputController::PS4InputInGame(PVehicle& p1) {
 	} 
 	else if (p1.vehicleParams.boosting) p1.vehicleParams.boosting = false;
 
-	if (GLFW_PRESS == buttons[8]) p1.reset();
+	//if (GLFW_PRESS == buttons[8]) p1.reset();
 
 	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
@@ -207,7 +207,7 @@ void InputController::XboxInputInMenu() {
 	if (GLFW_PRESS == buttons[6]) { // reset to the init menu - XBOX select button (back)
 		if (!selHeld) {
 			selHeld = true;
-			GameManager::get().initMenu();
+			//GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
@@ -269,7 +269,7 @@ void InputController::PS4InputInMenu() {
 	if (GLFW_PRESS == buttons[8]) { // reset to the init menu - PS4 SHARE button (select)
 		if (!selHeld) {
 			selHeld = true;
-			GameManager::get().initMenu();
+			//GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
@@ -345,7 +345,7 @@ void InputController::NSInputInGame(PVehicle& p1) {
 	}
 	else if (p1.vehicleParams.boosting) p1.vehicleParams.boosting = false;
 
-	if (GLFW_PRESS == buttons[8]) p1.reset();
+	//if (GLFW_PRESS == buttons[8]) p1.reset();
 
 	if (GLFW_PRESS == buttons[9]) { // pause - PS4 OPT button (start)
 		if (!startHeld) {
@@ -374,7 +374,7 @@ void InputController::NSInputInMenu() {
 	if (GLFW_PRESS == buttons[12]) { // reset to the init menu - NS HOME button
 		if (!selHeld) {
 			selHeld = true;
-			GameManager::get().initMenu();
+			//GameManager::get().initMenu();
 		}
 	}
 	else if (selHeld) selHeld = false;
