@@ -135,8 +135,8 @@ void InputController::XboxInputInGame(PVehicle& p1) {
 	else if (startHeld) startHeld = false;
 
 	if (axis[4] != -1) p1.reverse((axis[4] + 1) / 2 * 0.65f);
-	if (axis[3] != -1) 	{	
-		p1.accelerate((axis[4] + 1) / 2);
+	if (axis[5] != -1) 	{	
+		p1.accelerate((axis[5] + 1) / 2);
 		p1.accelerating = true;
 	}
 	else p1.accelerating = false;
